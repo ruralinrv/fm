@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 3 — Fluxo de Caixa | Diagnóstico Financeiro Rural</title>
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #388E3C;
+            --primary-dark: #0D3B0F;
+            --accent: #FF8F00;
+            --danger: #C62828;
+            --danger-light: #EF5350;
+            --warning: #F9A825;
+            --success: #2E7D32;
+            --bg: #F5F5F0;
+            --card-bg: #FFFFFF;
+            --text: #212121;
+            --text-secondary: #616161;
+            --border: #E0E0E0;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #4A148C 0%, #6A1B9A 50%, #8E24AA 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+        }
+        .header .module-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .card-header {
+            padding: 18px 24px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header.green { background: linear-gradient(90deg, #E8F5E9, #F1F8E9); color: var(--primary-dark); }
+        .card-header.red { background: linear-gradient(90deg, #FFEBEE, #FFF3E0); color: var(--danger); }
+        .card-header.orange { background: linear-gradient(90deg, #FFF3E0, #FFF8E1); color: #E65100; }
+        .card-header.blue { background: linear-gradient(90deg, #E3F2FD, #E8EAF6); color: #1565C0; }
+        .card-header.dark { background: linear-gradient(90deg, #263238, #37474F); color: #fff; }
+        .card-header.purple { background: linear-gradient(90deg, #EDE7F6, #E8EAF6); color: #4527A0; }
+        .card-body { padding: 24px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+        thead th {
+            background: #F5F5F5;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        thead th.num { text-align: right; }
+        tbody td {
+            padding: 8px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        tbody td.num {
+            text-align: right;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 0.82rem;
+        }
+        tbody tr:hover { background: #FAFAFA; }
+        tbody tr.total-row {
+            background: #F5F5F5;
+            font-weight: 700;
+            border-top: 2px solid var(--border);
+        }
+        tbody tr.total-row td { padding: 12px 8px; }
+        tbody tr.sub-total {
+            background: #FAFAFA;
+            font-weight: 600;
+            border-top: 1px solid #ddd;
+        }
+        tbody tr.negative td.num { color: var(--danger); }
+        tbody tr.highlight-red { background: #FFF5F5; }
+        tbody tr.highlight-green { background: #F5FFF5; }
+        tbody tr.highlight-yellow { background: #FFFDE7; }
+        tbody td.peak {
+            background: #FFCDD2;
+            border-radius: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge.critical { background: #FFCDD2; color: #B71C1C; }
+        .badge.warning { background: #FFF9C4; color: #F57F17; }
+        .badge.ok { background: #C8E6C9; color: #1B5E20; }
+        .badge.info { background: #BBDEFB; color: #0D47A1; }
+
+        .bar-container { margin: 8px 0; }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .bar-track {
+            width: 100%;
+            height: 28px;
+            background: #ECEFF1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 700;
+        }
+        .bar-fill.green { background: linear-gradient(90deg, #43A047, #66BB6A); }
+        .bar-fill.red { background: linear-gradient(90deg, #E53935, #EF5350); }
+        .bar-fill.orange { background: linear-gradient(90deg, #FB8C00, #FFA726); }
+        .bar-fill.blue { background: linear-gradient(90deg, #1E88E5, #42A5F5); }
+        .bar-fill.dark { background: linear-gradient(90deg, #455A64, #78909C); }
+        .bar-fill.teal { background: linear-gradient(90deg, #00897B, #26A69A); }
+        .bar-fill.purple { background: linear-gradient(90deg, #7B1FA2, #AB47BC); }
+
+        .highlight-box {
+            border-radius: 10px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .highlight-box.danger { background: linear-gradient(135deg, #FFEBEE, #FCE4EC); border-left: 5px solid var(--danger); }
+        .highlight-box.warning { background: linear-gradient(135deg, #FFF8E1, #FFF3E0); border-left: 5px solid var(--accent); }
+        .highlight-box.success { background: linear-gradient(135deg, #E8F5E9, #F1F8E9); border-left: 5px solid var(--success); }
+        .highlight-box.info { background: linear-gradient(135deg, #E3F2FD, #E8EAF6); border-left: 5px solid #1565C0; }
+        .highlight-box h4 { margin-bottom: 10px; font-size: 1rem; }
+        .highlight-box p, .highlight-box li { font-size: 0.92rem; color: #424242; }
+        .highlight-box ul, .highlight-box ol { margin-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 4px; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .metric-card {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+        }
+        .metric-card .metric-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 6px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        .metric-card .metric-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-card .metric-sub {
+            font-size: 0.76rem;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #eee;
+        }
+        .metric-card.danger .metric-value { color: var(--danger); }
+        .metric-card.warning .metric-value { color: #E65100; }
+        .metric-card.success .metric-value { color: var(--success); }
+        .metric-card.info .metric-value { color: #1565C0; }
+
+        .section-divider {
+            text-align: center;
+            margin: 40px 0 24px;
+            position: relative;
+        }
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-divider span {
+            background: var(--bg);
+            padding: 0 20px;
+            position: relative;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .deficit-box {
+            background: linear-gradient(135deg, #B71C1C, #C62828);
+            color: white;
+            border-radius: 12px;
+            padding: 28px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .deficit-box .deficit-value {
+            font-size: 2.4rem;
+            font-weight: 900;
+            font-family: 'Consolas', monospace;
+            margin: 10px 0;
+        }
+        .deficit-box .deficit-label { font-size: 1rem; opacity: 0.9; }
+        .deficit-box .deficit-sub { font-size: 0.85rem; opacity: 0.8; margin-top: 8px; }
+
+        .flow-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+        .flow-box {
+            border-radius: 12px;
+            padding: 20px 28px;
+            text-align: center;
+            min-width: 200px;
+        }
+        .flow-box.in { background: #E8F5E9; border: 2px solid #66BB6A; }
+        .flow-box.out { background: #FFEBEE; border: 2px solid #EF5350; }
+        .flow-box.gap { background: #FFF3E0; border: 2px solid #FFA726; }
+        .flow-box .flow-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .flow-box .flow-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            font-family: 'Consolas', monospace;
+            margin-top: 4px;
+        }
+        .flow-arrow { font-size: 2rem; color: #999; }
+
+        .stacked-bar {
+            display: flex;
+            width: 100%;
+            height: 36px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+        .stacked-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer strong { color: var(--primary); }
+
+        @media print {
+            .header { padding: 20px; }
+            .card { break-inside: avoid; }
+            body { font-size: 10pt; }
+        }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.4rem; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            table { font-size: 0.72rem; }
+            thead th, tbody td { padding: 6px 4px; }
+            .deficit-box .deficit-value { font-size: 1.8rem; }
+            .flow-visual { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="module-badge">MÓDULO 3 — FLUXO DE CAIXA</div>
+    <h1>Análise de Fluxo de Caixa — 9 Meses</h1>
+    <p class="subtitle">Julho/2025 a Março/2026 — Saídas Reais vs. Capacidade de Geração</p>
+</div>
+
+<div class="container">
+
+    <!-- INTRODUÇÃO -->
+    <div class="card">
+        <div class="card-header green">📋 Objetivo deste Módulo</div>
+        <div class="card-body">
+            <p>Sr. Fernando, nos Módulos 1 e 2 analisamos a safra pelos seus resultados — produtividade, custo e margem. Agora, mudamos a lente: vamos olhar para o <strong>dinheiro que efetivamente saiu do caixa</strong>, mês a mês, nos 9 meses de operação registrados (julho/2025 a março/2026).</p>
+            <div class="highlight-box info" style="margin-top: 12px; margin-bottom: 0;">
+                <h4>❓ A pergunta que este módulo responde:</h4>
+                <p style="font-size: 1.05rem;"><strong>"Quanto de dinheiro a operação demandou e quanto a atividade de lavoura conseguiu gerar para cobrir essa demanda?"</strong></p>
+                <p style="margin-top: 8px;">A análise de fluxo não se limita ao custo da lavoura. Ela inclui <strong>todas as saídas reais</strong>: despesas operacionais, seguros, investimentos, despesas financeiras (juros, parcelas, prestações). É o retrato completo do <strong>sangramento de caixa</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- O GRANDE RETRATO -->
+    <div class="section-divider"><span>O Retrato do Fluxo — 9 Meses</span></div>
+
+    <div class="flow-visual">
+        <div class="flow-box in">
+            <div class="flow-label">💰 Receita Bruta da Safra</div>
+            <div class="flow-value" style="color: #2E7D32;">R$ 941.725</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box out">
+            <div class="flow-label">📤 Total de Saídas (9 meses)</div>
+            <div class="flow-value" style="color: #C62828;">R$ 1.756.313</div>
+        </div>
+        <div class="flow-arrow">⟶</div>
+        <div class="flow-box gap">
+            <div class="flow-label">🔴 Déficit de Caixa</div>
+            <div class="flow-value" style="color: #E65100;">-R$ 814.588</div>
+        </div>
+    </div>
+
+    <div class="deficit-box">
+        <div class="deficit-label">DÉFICIT DE CAIXA — 9 MESES (Jul/25 a Mar/26)</div>
+        <div class="deficit-value">-R$ 814.588</div>
+        <div class="deficit-sub">Para cada R$ 1,00 gerado pela lavoura, saíram R$ 1,86 do caixa · Cobertura de apenas 53,6%</div>
+    </div>
+
+    <div class="metric-grid">
+        <div class="metric-card success">
+            <div class="metric-label">Receita da Lavoura</div>
+            <div class="metric-value">R$ 942 mil</div>
+            <div class="metric-sub">164 ha × 51,90 sc × R$ 110,64</div>
+        </div>
+        <div class="metric-card danger">
+            <div class="metric-label">Total Saídas 9 meses</div>
+            <div class="metric-value">R$ 1.756 mil</div>
+            <div class="metric-sub">Média de R$ 195 mil/mês</div>
+        </div>
+        <div class="metric-card warning">
+            <div class="metric-label">Saídas Financeiras</div>
+            <div class="metric-value">R$ 579 mil</div>
+            <div class="metric-sub">33% de todas as saídas</div>
+        </div>
+        <div class="metric-card info">
+            <div class="metric-label">Saídas com Investimentos</div>
+            <div class="metric-value">R$ 498 mil</div>
+            <div class="metric-sub">28,3% das saídas</div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 1 -->
+    <div class="section-divider"><span>Seção 1 — Fluxo de Saídas Mês a Mês</span></div>
+
+    <div class="card">
+        <div class="card-header red">📤 Saídas de Caixa — Visão Mensal Consolidada</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Cada coluna representa o total de <strong>dinheiro que saiu do caixa</strong> naquele mês, classificado por natureza:</p>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th class="num">Jul/25</th>
+                            <th class="num">Ago/25</th>
+                            <th class="num">Set/25</th>
+                            <th class="num">Out/25</th>
+                            <th class="num">Nov/25</th>
+                            <th class="num">Dez/25</th>
+                            <th class="num">Jan/26</th>
+                            <th class="num">Fev/26</th>
+                            <th class="num">Mar/26</th>
+                            <th class="num">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🌾 <strong>Custos Operacionais</strong></td>
+                            <td class="num">68.942</td>
+                            <td class="num">42.470</td>
+                            <td class="num">51.599</td>
+                            <td class="num">66.880</td>
+                            <td class="num">73.056</td>
+                            <td class="num">58.180</td>
+                            <td class="num">78.218</td>
+                            <td class="num">58.765</td>
+                            <td class="num">64.555</td>
+                            <td class="num"><strong>562.666</strong></td>
+                        </tr>
+                        <tr>
+                            <td>🏢 <strong>Despesas Operacionais</strong></td>
+                            <td class="num">20.171</td>
+                            <td class="num">1.848</td>
+                            <td class="num">19.608</td>
+                            <td class="num">10.745</td>
+                            <td class="num">19.001</td>
+                            <td class="num">5.616</td>
+                            <td class="num">23.065</td>
+                            <td class="num">4.621</td>
+                            <td class="num">275</td>
+                            <td class="num"><strong>104.950</strong></td>
+                        </tr>
+                        <tr>
+                            <td>🛡️ <strong>Seguros</strong></td>
+                            <td class="num">1.102</td>
+                            <td class="num">1.114</td>
+                            <td class="num">638</td>
+                            <td class="num">1.670</td>
+                            <td class="num">3.108</td>
+                            <td class="num">1.048</td>
+                            <td class="num">2.102</td>
+                            <td class="num">1.065</td>
+                            <td class="num">1.074</td>
+                            <td class="num"><strong>12.921</strong></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td>🔧 <strong>Investimentos</strong></td>
+                            <td class="num">14.848</td>
+                            <td class="num peak">178.342</td>
+                            <td class="num peak">177.225</td>
+                            <td class="num peak">114.952</td>
+                            <td class="num">3.375</td>
+                            <td class="num">1.700</td>
+                            <td class="num">3.944</td>
+                            <td class="num">1.538</td>
+                            <td class="num">1.998</td>
+                            <td class="num"><strong>497.921</strong></td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td>💳 <strong>Despesas Financeiras</strong></td>
+                            <td class="num peak">167.319</td>
+                            <td class="num peak">112.270</td>
+                            <td class="num">1.677</td>
+                            <td class="num">50.862</td>
+                            <td class="num peak">245.034</td>
+                            <td class="num">204</td>
+                            <td class="num">188</td>
+                            <td class="num">189</td>
+                            <td class="num">1.113</td>
+                            <td class="num"><strong>578.855</strong></td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>📤 TOTAL SAÍDAS</strong></td>
+                            <td class="num"><strong>272.382</strong></td>
+                            <td class="num"><strong>336.045</strong></td>
+                            <td class="num"><strong>250.747</strong></td>
+                            <td class="num"><strong>245.109</strong></td>
+                            <td class="num"><strong>343.574</strong></td>
+                            <td class="num"><strong>66.748</strong></td>
+                            <td class="num"><strong>107.517</strong></td>
+                            <td class="num"><strong>66.178</strong></td>
+                            <td class="num"><strong>69.014</strong></td>
+                            <td class="num"><strong>1.756.313</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 24px; margin-bottom: 12px;">Volume de saída por mês (R$):</h4>
+            <div class="bar-container">
+                <div class="bar-label"><span>Jul/25</span><span>R$ 272.382</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 79.3%;">272 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Ago/25 ⚠️ PICO</span><span>R$ 336.045</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 97.8%;">336 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Set/25</span><span>R$ 250.747</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 73.0%;">251 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Out/25</span><span>R$ 245.109</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 71.3%;">245 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Nov/25 ⚠️ MÁXIMO</span><span>R$ 343.574</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 100%;">344 mil — MÁXIMO</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Dez/25</span><span>R$ 66.748</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width: 19.4%;">67 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Jan/26</span><span>R$ 107.517</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width: 31.3%;">108 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Fev/26</span><span>R$ 66.178</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width: 19.3%;">66 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Mar/26</span><span>R$ 69.014</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width: 20.1%;">69 mil</div></div>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 18px;">
+                <h4>🔴 Dois perfis de mês completamente distintos</h4>
+                <p>O fluxo revela <strong>dois padrões</strong> de saída muito diferentes:</p>
+                <ul>
+                    <li><strong>Jul a Nov/25 (5 meses):</strong> Média de <strong>R$ 289.571/mês</strong> — inclui investimentos pesados + despesas financeiras concentradas</li>
+                    <li><strong>Dez/25 a Mar/26 (4 meses):</strong> Média de <strong>R$ 77.364/mês</strong> — basicamente custos operacionais recorrentes</li>
+                </ul>
+                <p style="margin-top: 8px;">A diferença é de <strong>3,7 vezes</strong>. Os primeiros 5 meses consumiram <strong>R$ 1.447.857</strong> (82,4% do total de 9 meses). É nos meses de Jul a Nov que o caixa foi destruído.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 2 -->
+    <div class="section-divider"><span>Seção 2 — Para Onde foi o Dinheiro</span></div>
+
+    <div class="card">
+        <div class="card-header orange">💰 Composição das Saídas — R$ 1.756.313 em 9 Meses</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">A análise das saídas por categoria revela que <strong>61,3% do dinheiro que saiu do caixa NÃO era custo de lavoura</strong>:</p>
+
+            <div class="bar-container">
+                <div class="bar-label"><span>Despesas Financeiras (juros, parcelas, prestações)</span><span>33,0% · R$ 578.855</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width: 100%;">R$ 579 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Custos Operacionais (a lavoura em si)</span><span>32,0% · R$ 562.666</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width: 97.2%;">R$ 563 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Investimentos (máquinas, consórcios, empréstimos)</span><span>28,3% · R$ 497.921</span></div>
+                <div class="bar-track"><div class="bar-fill blue" style="width: 86.0%;">R$ 498 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Despesas Operacionais (estrutura)</span><span>6,0% · R$ 104.950</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width: 18.1%;">R$ 105 mil</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Seguros</span><span>0,7% · R$ 12.921</span></div>
+                <div class="bar-track"><div class="bar-fill dark" style="width: 2.2%;"></div></div>
+            </div>
+
+            <h4 style="margin-top: 20px; margin-bottom: 8px;">Distribuição proporcional:</h4>
+            <div class="stacked-bar">
+                <div class="stacked-segment" style="width: 33%; background: #E53935;">Financeiras 33%</div>
+                <div class="stacked-segment" style="width: 32%; background: #43A047;">Custo Lavoura 32%</div>
+                <div class="stacked-segment" style="width: 28.3%; background: #1E88E5;">Investimentos 28%</div>
+                <div class="stacked-segment" style="width: 6%; background: #FB8C00;">Desp.Op 6%</div>
+                <div class="stacked-segment" style="width: 0.7%; background: #78909C;"></div>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 18px;">
+                <h4>🔴 O custo da lavoura é apenas 32% das saídas</h4>
+                <p>O dinheiro que efetivamente vai para <strong>plantar, cultivar e colher</strong> (custos operacionais) representa apenas <strong>R$ 562.666 — 32% do total de saídas</strong>. Os outros 68% são:</p>
+                <ul>
+                    <li><strong>R$ 578.855 em despesas financeiras</strong> — juros bancários, parcelas de empréstimo, cheque especial, IOF, IPVA, multas</li>
+                    <li><strong>R$ 497.921 em investimentos</strong> — aquisição de máquinas, consórcios, empréstimos a terceiros, animais</li>
+                    <li><strong>R$ 104.950 em despesas operacionais</strong> — elaboração de projetos, alimentação, telefone, comissões, rescisões</li>
+                </ul>
+                <p style="margin-top: 8px;"><strong>A lavoura gera R$ 942 mil. Se as saídas fossem apenas os custos operacionais (R$ 563 mil), haveria sobra de R$ 379 mil.</strong> O que consome o caixa é a camada acima da lavoura.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 3 -->
+    <div class="section-divider"><span>Seção 3 — O Peso das Despesas Financeiras</span></div>
+
+    <div class="card">
+        <div class="card-header red">💳 Despesas Financeiras — R$ 578.855 em 9 meses</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">As despesas financeiras representam <strong>o maior bloco de saída</strong>, superando inclusive os custos da própria lavoura:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Despesa Financeira</th>
+                            <th class="num">Jul/25</th>
+                            <th class="num">Ago/25</th>
+                            <th class="num">Set/25</th>
+                            <th class="num">Out/25</th>
+                            <th class="num">Nov/25</th>
+                            <th class="num">Dez-Mar</th>
+                            <th class="num">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Taxas Bancárias</td>
+                            <td class="num">3.230</td>
+                            <td class="num">149</td>
+                            <td class="num">176</td>
+                            <td class="num">153</td>
+                            <td class="num">153</td>
+                            <td class="num">733</td>
+                            <td class="num"><strong>4.594</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Juros Cheque Especial</td>
+                            <td class="num">—</td>
+                            <td class="num">2</td>
+                            <td class="num">—</td>
+                            <td class="num">20</td>
+                            <td class="num">61</td>
+                            <td class="num">744</td>
+                            <td class="num"><strong>827</strong></td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>Juros Empréstimo a Terceiro</strong></td>
+                            <td class="num">1.500</td>
+                            <td class="num">3.665</td>
+                            <td class="num">1.500</td>
+                            <td class="num">1.500</td>
+                            <td class="num">13.470</td>
+                            <td class="num">—</td>
+                            <td class="num"><strong>21.635</strong></td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>Juros Empréstimo Bancário</strong></td>
+                            <td class="num">13.204</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">49.183</td>
+                            <td class="num">5.836</td>
+                            <td class="num">—</td>
+                            <td class="num"><strong>68.224</strong></td>
+                        </tr>
+                        <tr>
+                            <td>IPVA / Licenciamento</td>
+                            <td class="num">8.645</td>
+                            <td class="num">263</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num"><strong>8.909</strong></td>
+                        </tr>
+                        <tr>
+                            <td>ITR</td>
+                            <td class="num">—</td>
+                            <td class="num">3.191</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num"><strong>3.191</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Multas / CCIR / IOF / Juros Atraso</td>
+                            <td class="num">402</td>
+                            <td class="num">0</td>
+                            <td class="num">—</td>
+                            <td class="num">6</td>
+                            <td class="num">37</td>
+                            <td class="num">196</td>
+                            <td class="num"><strong>641</strong></td>
+                        </tr>
+                        <tr style="background: #FFCDD2;">
+                            <td><strong>Pagamentos concentrados (parcelas de alto valor)</strong></td>
+                            <td class="num">140.337</td>
+                            <td class="num">105.000</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">225.477</td>
+                            <td class="num">—</td>
+                            <td class="num"><strong>470.814</strong></td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>TOTAL DESP. FINANCEIRAS</strong></td>
+                            <td class="num"><strong>167.319</strong></td>
+                            <td class="num"><strong>112.270</strong></td>
+                            <td class="num"><strong>1.677</strong></td>
+                            <td class="num"><strong>50.862</strong></td>
+                            <td class="num"><strong>245.034</strong></td>
+                            <td class="num"><strong>1.694</strong></td>
+                            <td class="num"><strong>578.855</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 18px;">
+                <h4>🔴 3 meses concentram 90,7% das despesas financeiras</h4>
+                <p>Julho (R$ 167 mil), agosto (R$ 112 mil) e novembro (R$ 245 mil) somam <strong>R$ 524.623</strong> em despesas financeiras — 90,7% do total. Esses picos indicam vencimentos concentrados de <strong>parcelas de empréstimo bancário e obrigações financeiras de alto valor</strong>.</p>
+                <p style="margin-top: 8px;">Somente em <strong>novembro/2025, saíram R$ 245 mil em despesas financeiras</strong> em um único mês — valor que representa 26% de toda a receita bruta da safra.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>⚠️ Juros identificáveis: R$ 90.686 em 9 meses</h4>
+                <p>Os juros explicitamente registrados (empréstimo bancário: R$ 68.224 + empréstimo a terceiro: R$ 21.635 + cheque especial: R$ 827) somam <strong>R$ 90.686</strong>. Esse valor equivale a <strong>R$ 553/ha</strong> — dinheiro que não produz nenhuma saca, não melhora nenhum talhão, não compra nenhum insumo.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 4 -->
+    <div class="section-divider"><span>Seção 4 — Investimentos Realizados</span></div>
+
+    <div class="card">
+        <div class="card-header blue">🔧 Investimentos — R$ 497.921 em 9 meses</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">O segundo maior bloco de saída. Composição dos desembolsos com investimentos:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Investimento</th>
+                            <th class="num">Total 9 meses</th>
+                            <th class="num">% dos Invest.</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-red">
+                            <td><strong>Animais e Criações de Porta</strong></td>
+                            <td class="num"><strong>R$ 176.628</strong></td>
+                            <td class="num">35,5%</td>
+                            <td>Concentrado em Ago/25</td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>Aquisição de Máquinas e Equipamentos</strong></td>
+                            <td class="num"><strong>R$ 112.428</strong></td>
+                            <td class="num">22,6%</td>
+                            <td>Concentrado em Out/25</td>
+                        </tr>
+                        <tr>
+                            <td>Consórcios Não Contemplados</td>
+                            <td class="num">R$ 13.840</td>
+                            <td class="num">2,8%</td>
+                            <td>R$ 1.538/mês × 9 meses</td>
+                        </tr>
+                        <tr>
+                            <td>Empréstimo a Terceiro</td>
+                            <td class="num">R$ 12.000</td>
+                            <td class="num">2,4%</td>
+                            <td>Jul/25 — saída única</td>
+                        </tr>
+                        <tr>
+                            <td>Título de Capitalização</td>
+                            <td class="num">R$ 985</td>
+                            <td class="num">0,2%</td>
+                            <td>~R$ 110/mês</td>
+                        </tr>
+                        <tr>
+                            <td>Ferramentas</td>
+                            <td class="num">R$ 6.943</td>
+                            <td class="num">1,4%</td>
+                            <td>Concentrado em Ago e Out</td>
+                        </tr>
+                        <tr>
+                            <td>Aquisição de Móveis e Eletrônicos</td>
+                            <td class="num">R$ 1.373</td>
+                            <td class="num">0,3%</td>
+                            <td>Jan/26</td>
+                        </tr>
+                        <tr>
+                            <td>Construção de Benfeitoria</td>
+                            <td class="num">R$ 543</td>
+                            <td class="num">0,1%</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>Outros / parcelas concentradas</td>
+                            <td class="num">R$ 173.183</td>
+                            <td class="num">34,8%</td>
+                            <td>Parcelas Jul-Set</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>TOTAL INVESTIMENTOS</strong></td>
+                            <td class="num"><strong>R$ 497.921</strong></td>
+                            <td class="num"><strong>100%</strong></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box warning" style="margin-top: 18px;">
+                <h4>⚠️ R$ 289 mil em aquisições durante uma crise de caixa</h4>
+                <p>Os dois maiores itens — <strong>animais (R$ 176.628) e máquinas (R$ 112.428)</strong> — somam R$ 289.056 e foram adquiridos em meses em que a operação já estava em déficit. Independente de serem necessários, esses desembolsos <strong>agravaram a pressão de caixa</strong> exatamente nos meses mais críticos (Ago a Out/25).</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 5 -->
+    <div class="section-divider"><span>Seção 5 — Custos Operacionais Detalhados</span></div>
+
+    <div class="card">
+        <div class="card-header green">🌾 Custos Operacionais — R$ 562.666 em 9 Meses</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Este é o custo direto e indireto da atividade rural. Detalhamento das maiores linhas:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item de Custo</th>
+                            <th class="num">Total 9m</th>
+                            <th class="num">R$/ha</th>
+                            <th class="num">% do Custo</th>
+                            <th>Destaque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-red">
+                            <td><strong>Pró-labore</strong></td>
+                            <td class="num"><strong>R$ 170.369</strong></td>
+                            <td class="num">R$ 1.039</td>
+                            <td class="num">30,3%</td>
+                            <td><span class="badge critical">MAIOR ITEM</span></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>Diesel da Atividade</strong></td>
+                            <td class="num"><strong>R$ 61.624</strong></td>
+                            <td class="num">R$ 376</td>
+                            <td class="num">11,0%</td>
+                            <td><span class="badge warning">ALTO</span></td>
+                        </tr>
+                        <tr>
+                            <td>Máquinas/Implementos (Mão-de-Obra)</td>
+                            <td class="num">R$ 44.996</td>
+                            <td class="num">R$ 274</td>
+                            <td class="num">8,0%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Salários e Proventos</td>
+                            <td class="num">R$ 41.483</td>
+                            <td class="num">R$ 253</td>
+                            <td class="num">7,4%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Consultoria Técnica (Agrônomo/Vet.)</td>
+                            <td class="num">R$ 30.956</td>
+                            <td class="num">R$ 189</td>
+                            <td class="num">5,5%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Máquinas/Implementos (Peças)</td>
+                            <td class="num">R$ 24.533</td>
+                            <td class="num">R$ 150</td>
+                            <td class="num">4,4%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Diárias</td>
+                            <td class="num">R$ 12.568</td>
+                            <td class="num">R$ 77</td>
+                            <td class="num">2,2%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Honorários Contábeis</td>
+                            <td class="num">R$ 10.243</td>
+                            <td class="num">R$ 62</td>
+                            <td class="num">1,8%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Lubrificantes, Detergentes, Filtros</td>
+                            <td class="num">R$ 9.013</td>
+                            <td class="num">R$ 55</td>
+                            <td class="num">1,6%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Frete da Atividade</td>
+                            <td class="num">R$ 8.107</td>
+                            <td class="num">R$ 49</td>
+                            <td class="num">1,4%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Encargos Folha de Pagamento</td>
+                            <td class="num">R$ 6.527</td>
+                            <td class="num">R$ 40</td>
+                            <td class="num">1,2%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Energia Elétrica</td>
+                            <td class="num">R$ 5.282</td>
+                            <td class="num">R$ 32</td>
+                            <td class="num">0,9%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Gasolina da Atividade</td>
+                            <td class="num">R$ 4.838</td>
+                            <td class="num">R$ 30</td>
+                            <td class="num">0,9%</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Armazenagem / 13º / Expediente / Outros</td>
+                            <td class="num">R$ 132.127</td>
+                            <td class="num">R$ 806</td>
+                            <td class="num">23,5%</td>
+                            <td></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>TOTAL CUSTOS OPERACIONAIS</strong></td>
+                            <td class="num"><strong>R$ 562.666</strong></td>
+                            <td class="num"><strong>R$ 3.431</strong></td>
+                            <td class="num"><strong>100%</strong></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 18px;">
+                <h4>🔴 Pró-labore: R$ 170.369 em 9 meses (média R$ 18.930/mês)</h4>
+                <p>O pró-labore representa <strong>30,3% de todos os custos operacionais</strong> e é a maior linha individual. A média mensal de <strong>R$ 18.930</strong> é muito superior ao que a atividade pode suportar. Para referência: o resultado positivo do T 1 (único talhão viável) gerou R$ 16.553 em <strong>toda a safra</strong> — menos do que um único mês de pró-labore.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 6 -->
+    <div class="section-divider"><span>Seção 6 — A Equação Central do Fluxo</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📐 O Diagnóstico do Fluxo de Caixa</div>
+        <div class="card-body">
+            <p style="margin-bottom: 16px;">A análise revela uma estrutura com <strong>múltiplas camadas de saída que excedem a capacidade de geração da atividade</strong>:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Camada</th>
+                            <th class="num">Valor (9 meses)</th>
+                            <th class="num">% das Saídas</th>
+                            <th>Cobertura pela Lavoura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-green">
+                            <td><strong>Camada 1:</strong> Custos Operacionais</td>
+                            <td class="num">R$ 562.666</td>
+                            <td class="num">32,0%</td>
+                            <td><span class="badge ok">COBERTA</span> (sobram R$ 379 mil)</td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Camada 2:</strong> + Desp. Operacionais + Seguros</td>
+                            <td class="num">R$ 117.871</td>
+                            <td class="num">6,7%</td>
+                            <td><span class="badge ok">COBERTA</span> (sobram R$ 261 mil)</td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>Camada 3:</strong> + Investimentos</td>
+                            <td class="num">R$ 497.921</td>
+                            <td class="num">28,3%</td>
+                            <td><span class="badge critical">NÃO COBERTA</span> (déficit R$ 237 mil)</td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>Camada 4:</strong> + Despesas Financeiras</td>
+                            <td class="num">R$ 578.855</td>
+                            <td class="num">33,0%</td>
+                            <td><span class="badge critical">NÃO COBERTA</span> (déficit R$ 815 mil)</td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>TOTAL</strong></td>
+                            <td class="num"><strong>R$ 1.756.313</strong></td>
+                            <td class="num"><strong>100%</strong></td>
+                            <td><strong>Déficit: R$ 814.588</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 24px; margin-bottom: 12px;">Visualização: Receita vs. Camadas de Saída</h4>
+            <div class="bar-container">
+                <div class="bar-label"><span>💰 Receita Bruta da Lavoura</span><span>R$ 941.725</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width: 53.6%;">R$ 942 mil</div></div>
+            </div>
+            <p style="font-size: 0.8rem; color: #999; text-align: center;">↓ A receita cobre até aqui ↓</p>
+            <div class="stacked-bar" style="height: 40px; margin-top: 4px;">
+                <div class="stacked-segment" style="width: 32%; background: #43A047; font-size: 0.72rem;">Custos 32%</div>
+                <div class="stacked-segment" style="width: 6.7%; background: #66BB6A; font-size: 0.6rem;">D.O.</div>
+                <div class="stacked-segment" style="width: 14.9%; background: #FFA726; font-size: 0.65rem; border-left: 3px dashed #fff;">← limite</div>
+                <div class="stacked-segment" style="width: 13.4%; background: #EF5350; font-size: 0.65rem;">Invest.</div>
+                <div class="stacked-segment" style="width: 33%; background: #B71C1C; font-size: 0.72rem;">Financeiras 33%</div>
+            </div>
+            <p style="font-size: 0.78rem; color: #C62828; text-align: center; margin-top: 4px;"><strong>← R$ 942 mil cobre até aqui | daqui em diante = DÉFICIT →</strong></p>
+
+            <div class="highlight-box danger" style="margin-top: 20px;">
+                <h4>🔴 A lavoura paga a si mesma, mas não paga o restante</h4>
+                <p>A atividade de lavoura gerou <strong>R$ 941.725</strong> em receita. Isso é suficiente para cobrir os <strong>custos operacionais (R$ 563 mil) e as despesas operacionais + seguros (R$ 118 mil)</strong>, com folga de <strong>R$ 261 mil</strong>.</p>
+                <p style="margin-top: 8px;">Porém, sobre essa atividade pesam mais <strong>R$ 1.076.776</strong> em investimentos e despesas financeiras — valores que <strong>a lavoura nunca teria capacidade de cobrir</strong> em um único ciclo.</p>
+                <p style="margin-top: 8px;"><strong>A lavoura não é inviável. O que é insustentável é a camada de compromissos financeiros e investimentos que opera acima dela.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 7 -->
+    <div class="section-divider"><span>Seção 7 — Meses Críticos</span></div>
+
+    <div class="card">
+        <div class="card-header red">📅 Os 5 Meses que Consumiram 82% do Caixa</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">O período de <strong>julho a novembro de 2025</strong> concentrou R$ 1.447.857 em saídas — 82,4% do total:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th class="num">Custos Op.</th>
+                            <th class="num">Desp. Op.</th>
+                            <th class="num">Investim.</th>
+                            <th class="num">Desp. Financ.</th>
+                            <th class="num">Seguros</th>
+                            <th class="num">TOTAL</th>
+                            <th>Destaque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Jul/25</strong></td>
+                            <td class="num">68.942</td>
+                            <td class="num">20.171</td>
+                            <td class="num">14.848</td>
+                            <td class="num" style="color: #C62828;">167.319</td>
+                            <td class="num">1.102</td>
+                            <td class="num"><strong>272.382</strong></td>
+                            <td><span class="badge critical">FINANC.</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ago/25</strong></td>
+                            <td class="num">42.470</td>
+                            <td class="num">1.848</td>
+                            <td class="num" style="color: #C62828;">178.342</td>
+                            <td class="num" style="color: #C62828;">112.270</td>
+                            <td class="num">1.114</td>
+                            <td class="num"><strong>336.045</strong></td>
+                            <td><span class="badge critical">INV+FINANC</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Set/25</strong></td>
+                            <td class="num">51.599</td>
+                            <td class="num">19.608</td>
+                            <td class="num" style="color: #C62828;">177.225</td>
+                            <td class="num">1.677</td>
+                            <td class="num">638</td>
+                            <td class="num"><strong>250.747</strong></td>
+                            <td><span class="badge warning">INVESTIM.</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Out/25</strong></td>
+                            <td class="num">66.880</td>
+                            <td class="num">10.745</td>
+                            <td class="num" style="color: #C62828;">114.952</td>
+                            <td class="num">50.862</td>
+                            <td class="num">1.670</td>
+                            <td class="num"><strong>245.109</strong></td>
+                            <td><span class="badge warning">INV+FINANC</span></td>
+                        </tr>
+                        <tr style="background: #FFCDD2;">
+                            <td><strong>Nov/25</strong></td>
+                            <td class="num">73.056</td>
+                            <td class="num">19.001</td>
+                            <td class="num">3.375</td>
+                            <td class="num" style="color: #B71C1C;"><strong>245.034</strong></td>
+                            <td class="num">3.108</td>
+                            <td class="num"><strong>343.574</strong></td>
+                            <td><span class="badge critical">MÊS MAIS CRÍTICO</span></td>
+                        </tr>
+                        <tr class="sub-total">
+                            <td><strong>Subtotal Jul-Nov</strong></td>
+                            <td class="num">302.947</td>
+                            <td class="num">71.373</td>
+                            <td class="num">488.742</td>
+                            <td class="num">577.162</td>
+                            <td class="num">7.632</td>
+                            <td class="num"><strong>1.447.857</strong></td>
+                            <td><span class="badge critical">82,4%</span></td>
+                        </tr>
+                        <tr class="sub-total" style="background: #E8F5E9;">
+                            <td><strong>Subtotal Dez-Mar</strong></td>
+                            <td class="num">259.719</td>
+                            <td class="num">33.577</td>
+                            <td class="num">9.179</td>
+                            <td class="num">1.694</td>
+                            <td class="num">5.289</td>
+                            <td class="num"><strong>309.457</strong></td>
+                            <td><span class="badge ok">17,6%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box info" style="margin-top: 18px;">
+                <h4>📌 Dez/25 a Mar/26: a operação "pura" é viável</h4>
+                <p>Nos 4 meses de dezembro a março, quando os investimentos e despesas financeiras praticamente cessaram, o total de saídas foi de <strong>R$ 309.457</strong> — média de <strong>R$ 77.364/mês</strong>. Se projetarmos esse ritmo para 12 meses: R$ 928 mil/ano.</p>
+                <p style="margin-top: 8px;">A receita da safra (R$ 942 mil) <strong>cobriria esse ritmo com pequena folga</strong>. Isso reforça: <strong>a atividade rural, isolada, opera próximo do equilíbrio</strong>. O que quebra o caixa são os compromissos financeiros e investimentos acima da capacidade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 8 -->
+    <div class="section-divider"><span>Seção 8 — Capacidade Real de Pagamento</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📐 Quanto Sobra para Pagar Passivo?</div>
+        <div class="card-body">
+            <p style="margin-bottom: 16px;">Para qualquer plano de renegociação, a primeira pergunta do credor será: <strong>"Quanto o produtor consegue efetivamente pagar?"</strong></p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cálculo</th>
+                            <th class="num">Cenário Atual (25/26)</th>
+                            <th class="num">Cenário Ajustado (26/27)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Receita Bruta (164 ha)</td>
+                            <td class="num">R$ 941.725</td>
+                            <td class="num">R$ 1.159.776</td>
+                        </tr>
+                        <tr>
+                            <td><em>Premissas: produtividade / PMV</em></td>
+                            <td class="num"><em>51,90 sc × R$ 110,64</em></td>
+                            <td class="num"><em>63,00 sc × R$ 112,00</em></td>
+                        </tr>
+                        <tr style="border-top: 1px solid #ddd;">
+                            <td>(–) Custos Operacionais (lavoura)</td>
+                            <td class="num">(R$ 562.666)</td>
+                            <td class="num">(R$ 500.000)</td>
+                        </tr>
+                        <tr>
+                            <td>(–) Despesas Operacionais + Seguros</td>
+                            <td class="num">(R$ 117.871)</td>
+                            <td class="num">(R$ 95.000)</td>
+                        </tr>
+                        <tr class="sub-total">
+                            <td><strong>= Sobra Operacional (antes de passivo)</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 261.188</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 564.776</strong></td>
+                        </tr>
+                        <tr>
+                            <td>(–) Pró-labore (ajustado)</td>
+                            <td class="num">(R$ 170.369)</td>
+                            <td class="num">(R$ 60.000)</td>
+                        </tr>
+                        <tr>
+                            <td>(–) Consórcios e compromissos fixos</td>
+                            <td class="num">(R$ 18.454)</td>
+                            <td class="num">(R$ 18.454)</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>= CAPACIDADE REAL DE PAGAMENTO DO PASSIVO</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 72.365/safra</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 486.322/safra</strong></td>
+                        </tr>
+                        <tr>
+                            <td><em>Equivalente mensal</em></td>
+                            <td class="num"><em>R$ 6.030/mês</em></td>
+                            <td class="num"><em>R$ 40.527/mês</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box warning" style="margin-top: 18px;">
+                <h4>⚠️ Cenário atual: capacidade real de ~R$ 72 mil/safra</h4>
+                <p>Com a estrutura e produtividade atuais, mesmo <strong>sem pagar nenhum centavo de passivo financeiro</strong>, a propriedade teria apenas <strong>R$ 72.365/safra</strong> (R$ 6.030/mês) disponível para renegociação. Qualquer proposta acima disso é <strong>inexequível</strong>.</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h4>✅ Cenário ajustado: capacidade de ~R$ 486 mil/safra</h4>
+                <p>Com as melhorias projetadas (produtividade de 63 sc/ha, COT reduzido, pró-labore ajustado para R$ 5.000/mês), a capacidade sobe para <strong>R$ 486.322/safra</strong> (~R$ 40.527/mês). Esse é o cenário que viabiliza um plano real de pagamento do passivo — e é exatamente o que precisa ser apresentado aos credores.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SÍNTESE -->
+    <div class="section-divider"><span>Síntese — Módulo 3</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📋 Conclusões do Fluxo de Caixa</div>
+        <div class="card-body">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Achado</th>
+                            <th>Evidência</th>
+                            <th>Implicação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Saídas 86% superiores à receita</strong></td>
+                            <td>R$ 1,76 mi vs. R$ 942 mil</td>
+                            <td>Déficit de caixa de R$ 815 mil em 9 meses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>A lavoura paga a si mesma</strong></td>
+                            <td>Custos oper. = R$ 563 mil &lt; Receita R$ 942 mil</td>
+                            <td>Atividade rural, isolada, gera sobra de R$ 379 mil</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Desp. financeiras = maior bloco</strong></td>
+                            <td>R$ 579 mil (33% das saídas)</td>
+                            <td>Juros e parcelas superam o custo da própria lavoura</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Investimentos no pior momento</strong></td>
+                            <td>R$ 498 mil (28%) concentrados Ago-Out</td>
+                            <td>Agravaram o déficit nos meses mais críticos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pró-labore consome a folga</strong></td>
+                            <td>R$ 170 mil/9 meses (R$ 18.930/mês)</td>
+                            <td>Elimina 65% da sobra operacional</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5 meses consomem 82% do caixa</strong></td>
+                            <td>Jul-Nov: R$ 1,45 mi vs. Dez-Mar: R$ 309 mil</td>
+                            <td>Concentração de vencimentos destrói o fluxo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Capacidade real: R$ 72 mil/safra</strong></td>
+                            <td>Receita – custos – desp – pró-labore – fixos</td>
+                            <td>Qualquer proposta acima disso é inexequível hoje</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box info" style="margin-top: 20px;">
+                <h4>📌 A mensagem para o plano de reorganização</h4>
+                <ol>
+                    <li><strong>A lavoura é viável</strong> — ela paga seus custos e gera sobra operacional</li>
+                    <li><strong>O que inviabiliza é a camada financeira</strong> — juros, parcelas e investimentos que excedem a capacidade de geração</li>
+                    <li><strong>A reorganização precisa atuar nas duas frentes:</strong> aumentar a geração (produtividade) e redimensionar os compromissos à capacidade real</li>
+                    <li><strong>No cenário ajustado,</strong> a capacidade de pagamento pode chegar a R$ 486 mil/safra — valor que demonstra viabilidade de recuperação</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTA FINAL -->
+    <div class="card">
+        <div class="card-header green">📌 Nota Final — Módulo 3</div>
+        <div class="card-body">
+            <p>Sr. Fernando, o fluxo de caixa é o retrato mais honesto de uma operação. E o que ele mostra é que <strong>a atividade rural, em si, funciona</strong>. A receita da lavoura cobre os custos operacionais e gera uma sobra de R$ 261 mil.</p>
+            <p style="margin-top: 10px;">O problema está na <strong>camada de compromissos financeiros que opera acima da lavoura</strong>: R$ 579 mil em despesas financeiras + R$ 498 mil em investimentos consumiram em 9 meses quase o dobro do que a safra inteira gerou de receita.</p>
+            <p style="margin-top: 10px;">A liminar judicial é fundamental exatamente por isso: <strong>sem a suspensão das cobranças, não há fluxo que suporte</strong> a operação e o passivo simultaneamente. O tempo protegido pela liminar precisa ser usado para implementar as melhorias de produtividade e custo que elevarão a capacidade de pagamento para a faixa de R$ 486 mil/safra.</p>
+            <p style="margin-top: 10px;">No próximo módulo, <strong>mapearemos o passivo completo</strong> e construiremos a proposta de renegociação com base nessa capacidade real de pagamento demonstrada.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Diagnóstico Financeiro Rural</strong> — Módulo 3: Fluxo de Caixa (Jul/2025 a Mar/2026)</p>
+        <p>Documento elaborado para fins de análise financeira e planejamento de reorganização produtiva.</p>
+        <p style="margin-top: 6px;">Dados do fluxo financeiro real · Período: julho/2025 a março/2026 · 9 meses.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 2 — Evolução Histórica | Diagnóstico Financeiro Rural</title>
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #388E3C;
+            --primary-dark: #0D3B0F;
+            --accent: #FF8F00;
+            --danger: #C62828;
+            --danger-light: #EF5350;
+            --warning: #F9A825;
+            --success: #2E7D32;
+            --bg: #F5F5F0;
+            --card-bg: #FFFFFF;
+            --text: #212121;
+            --text-secondary: #616161;
+            --border: #E0E0E0;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+            color: white; padding: 40px 20px; text-align: center; position: relative; overflow: hidden;
+        }
+        .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); }
+        .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; }
+        .header .subtitle { font-size: 1.1rem; opacity: 0.9; position: relative; }
+        .header .module-badge { display: inline-block; background: var(--accent); color: #fff; padding: 6px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; position: relative; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; border: 1px solid var(--border); }
+        .card-header { padding: 18px 24px; font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .card-header.green { background: linear-gradient(90deg, #E8F5E9, #F1F8E9); color: var(--primary-dark); }
+        .card-header.red { background: linear-gradient(90deg, #FFEBEE, #FFF3E0); color: var(--danger); }
+        .card-header.orange { background: linear-gradient(90deg, #FFF3E0, #FFF8E1); color: #E65100; }
+        .card-header.blue { background: linear-gradient(90deg, #E3F2FD, #E8EAF6); color: #1565C0; }
+        .card-header.dark { background: linear-gradient(90deg, #263238, #37474F); color: #fff; }
+        .card-header.purple { background: linear-gradient(90deg, #EDE7F6, #E8EAF6); color: #4527A0; }
+        .card-body { padding: 24px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+        thead th { background: #F5F5F5; padding: 12px 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+        thead th.num { text-align: right; }
+        tbody td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; }
+        tbody td.num { text-align: right; font-family: 'Consolas', 'Courier New', monospace; font-weight: 600; }
+        tbody tr:hover { background: #FAFAFA; }
+        tbody tr.total-row { background: #F5F5F5; font-weight: 700; border-top: 2px solid var(--primary); }
+        tbody tr.total-row td { padding: 14px; }
+        tbody tr.negative td.num { color: var(--danger); }
+        tbody tr.positive td.num { color: var(--success); }
+        tbody tr.worst { background: #FFF5F5; }
+        tbody tr.best { background: #F5FFF5; }
+
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+        .badge.critical { background: #FFCDD2; color: #B71C1C; }
+        .badge.warning { background: #FFF9C4; color: #F57F17; }
+        .badge.ok { background: #C8E6C9; color: #1B5E20; }
+        .badge.info { background: #BBDEFB; color: #0D47A1; }
+        .badge.neutral { background: #ECEFF1; color: #455A64; }
+
+        .bar-container { margin: 8px 0; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; font-weight: 600; }
+        .bar-track { width: 100%; height: 28px; background: #ECEFF1; border-radius: 6px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 0.75rem; color: white; font-weight: 700; transition: width 0.6s ease; }
+        .bar-fill.green { background: linear-gradient(90deg, #43A047, #66BB6A); }
+        .bar-fill.red { background: linear-gradient(90deg, #E53935, #EF5350); }
+        .bar-fill.orange { background: linear-gradient(90deg, #FB8C00, #FFA726); }
+        .bar-fill.blue { background: linear-gradient(90deg, #1E88E5, #42A5F5); }
+        .bar-fill.dark { background: linear-gradient(90deg, #455A64, #78909C); }
+        .bar-fill.teal { background: linear-gradient(90deg, #00897B, #26A69A); }
+        .bar-fill.purple { background: linear-gradient(90deg, #7B1FA2, #AB47BC); }
+
+        .highlight-box { border-radius: 10px; padding: 20px; margin: 16px 0; }
+        .highlight-box.danger { background: linear-gradient(135deg, #FFEBEE, #FCE4EC); border-left: 5px solid var(--danger); }
+        .highlight-box.warning { background: linear-gradient(135deg, #FFF8E1, #FFF3E0); border-left: 5px solid var(--accent); }
+        .highlight-box.success { background: linear-gradient(135deg, #E8F5E9, #F1F8E9); border-left: 5px solid var(--success); }
+        .highlight-box.info { background: linear-gradient(135deg, #E3F2FD, #E8EAF6); border-left: 5px solid #1565C0; }
+        .highlight-box h4 { margin-bottom: 10px; font-size: 1rem; }
+        .highlight-box p, .highlight-box li { font-size: 0.92rem; color: #424242; }
+        .highlight-box ul { margin-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 4px; }
+
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0; }
+        .metric-card { background: #FAFAFA; border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+        .metric-card .metric-value { font-size: 1.7rem; font-weight: 800; margin: 6px 0; font-family: 'Consolas', 'Courier New', monospace; }
+        .metric-card .metric-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-card .metric-sub { font-size: 0.78rem; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; }
+        .metric-card.danger .metric-value { color: var(--danger); }
+        .metric-card.warning .metric-value { color: #E65100; }
+        .metric-card.success .metric-value { color: var(--success); }
+        .metric-card.info .metric-value { color: #1565C0; }
+
+        .section-divider { text-align: center; margin: 40px 0 24px; position: relative; }
+        .section-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
+        .section-divider span { background: var(--bg); padding: 0 20px; position: relative; font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+        .footer { text-align: center; padding: 30px 20px; font-size: 0.8rem; color: var(--text-secondary); border-top: 1px solid var(--border); margin-top: 40px; }
+        .footer strong { color: var(--primary); }
+
+        /* TIMELINE */
+        .timeline { position: relative; padding: 20px 0; }
+        .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; background: var(--border); transform: translateX(-50%); }
+        .timeline-item { position: relative; margin-bottom: 30px; display: flex; align-items: flex-start; }
+        .timeline-item.left { flex-direction: row; }
+        .timeline-item.right { flex-direction: row-reverse; }
+        .timeline-content { width: 45%; padding: 16px 20px; border-radius: 10px; border: 1px solid var(--border); background: white; box-shadow: var(--shadow); }
+        .timeline-dot { position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; border-radius: 50%; border: 3px solid; background: white; z-index: 1; }
+
+        /* EVOLUTION CHART CSS */
+        .evo-chart { display: flex; align-items: flex-end; gap: 8px; height: 220px; padding: 20px 0; justify-content: center; }
+        .evo-bar-group { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; max-width: 160px; }
+        .evo-bar-wrapper { display: flex; align-items: flex-end; gap: 4px; height: 180px; width: 100%; justify-content: center; }
+        .evo-bar { border-radius: 4px 4px 0 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 4px; font-size: 0.65rem; font-weight: 700; color: white; min-width: 36px; transition: height 0.5s ease; }
+        .evo-label { font-size: 0.78rem; font-weight: 700; text-align: center; margin-top: 4px; }
+
+        /* TREND ARROW */
+        .trend-up { color: #2E7D32; font-weight: 700; }
+        .trend-down { color: #C62828; font-weight: 700; }
+        .trend-stable { color: #616161; font-weight: 700; }
+
+        /* ACUM BOX */
+        .acum-box { background: linear-gradient(135deg, #B71C1C, #C62828); color: white; border-radius: 12px; padding: 28px; text-align: center; margin: 20px 0; }
+        .acum-box .acum-value { font-size: 2.4rem; font-weight: 900; font-family: 'Consolas', monospace; margin: 10px 0; }
+        .acum-box .acum-label { font-size: 1rem; opacity: 0.9; }
+        .acum-box .acum-sub { font-size: 0.85rem; opacity: 0.8; margin-top: 8px; }
+
+        /* COMPARISON TABLE COLORS */
+        .safra-23 { background: #EDE7F6; }
+        .safra-24 { background: #E3F2FD; }
+        .safra-25 { background: #FFF3E0; }
+
+        @media print { .header { padding: 20px; } .card { break-inside: avoid; } body { font-size: 11pt; } }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.4rem; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            .evo-chart { height: 180px; }
+            .evo-bar { min-width: 24px; font-size: 0.55rem; }
+            table { font-size: 0.8rem; }
+            thead th, tbody td { padding: 8px 6px; }
+            .acum-box .acum-value { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div class="module-badge">MÓDULO 2 — EVOLUÇÃO HISTÓRICA</div>
+    <h1>Análise Comparativa — 3 Safras</h1>
+    <p class="subtitle">2023/2024 · 2024/2025 · 2025/2026 — Produtividade, Custos e Resultados</p>
+</div>
+
+<div class="container">
+
+    <!-- ========== INTRODUÇÃO ========== -->
+    <div class="card">
+        <div class="card-header green">📋 Objetivo deste Módulo</div>
+        <div class="card-body">
+            <p>Sr. Fernando, no Módulo 1 analisamos a safra atual de forma isolada. Agora, vamos olhar para o <strong>comportamento das últimas 3 safras</strong> para responder a uma pergunta fundamental:</p>
+            <div class="highlight-box info" style="margin-top:12px; margin-bottom:0;">
+                <h4>❓ A pergunta que este módulo responde:</h4>
+                <p style="font-size:1.05rem;"><strong>"O resultado negativo de 2025/2026 é um evento isolado ou faz parte de uma tendência?"</strong></p>
+                <p style="margin-top:8px;">A resposta a essa pergunta é decisiva: se for pontual, basta ajustar. Se for estrutural, a atividade precisa de uma <strong>reorganização profunda</strong> — e é exatamente isso que os dados revelam.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PAINEL ACUMULADO ========== -->
+    <div class="section-divider"><span>O Retrato de 3 Safras</span></div>
+
+    <div class="acum-box">
+        <div class="acum-label">PREJUÍZO ACUMULADO — 3 SAFRAS (2023/2024 a 2025/2026)</div>
+        <div class="acum-value">-R$ 1.681.454</div>
+        <div class="acum-sub">164 hectares · 3 ciclos consecutivos no vermelho · Média de -R$ 3.417,59/ha por safra</div>
+    </div>
+
+    <div class="metric-grid">
+        <div class="metric-card danger">
+            <div class="metric-label">Safra 2023/2024</div>
+            <div class="metric-value">-R$ 1.149 mil</div>
+            <div class="metric-sub">-R$ 7.007,11/ha · COT: R$ 12.269/ha</div>
+        </div>
+        <div class="metric-card warning">
+            <div class="metric-label">Safra 2024/2025</div>
+            <div class="metric-value">-R$ 266 mil</div>
+            <div class="metric-sub">-R$ 1.623,16/ha · COT: R$ 8.853/ha</div>
+        </div>
+        <div class="metric-card warning">
+            <div class="metric-label">Safra 2025/2026</div>
+            <div class="metric-value">-R$ 266 mil</div>
+            <div class="metric-sub">-R$ 1.622,50/ha · COT: R$ 7.365/ha</div>
+        </div>
+        <div class="metric-card info">
+            <div class="metric-label">Tendência do COT</div>
+            <div class="metric-value" style="color:#2E7D32;">-40,0%</div>
+            <div class="metric-sub">De R$ 12.269 para R$ 7.365/ha em 3 safras</div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 1: EVOLUÇÃO RECEITA x CUSTO x RESULTADO ========== -->
+    <div class="section-divider"><span>Seção 1 — Receita vs. Custo vs. Resultado</span></div>
+
+    <div class="card">
+        <div class="card-header purple">📈 Evolução da Receita, Custo e Resultado por Hectare</div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th class="num">2023/2024</th>
+                            <th class="num">2024/2025</th>
+                            <th class="num">2025/2026</th>
+                            <th class="num">Variação 3 safras</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>📊 Produtividade (sc/ha)</td>
+                            <td class="num">45,92</td>
+                            <td class="num">61,91</td>
+                            <td class="num">51,90</td>
+                            <td class="num"><span class="trend-up">+13,0%</span></td>
+                        </tr>
+                        <tr>
+                            <td>💰 PMV (R$/sc)</td>
+                            <td class="num">R$ 114,58</td>
+                            <td class="num">R$ 116,78</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num"><span class="trend-down">-3,4%</span></td>
+                        </tr>
+                        <tr>
+                            <td>📥 Receita/ha</td>
+                            <td class="num">R$ 5.261,51</td>
+                            <td class="num">R$ 7.229,85</td>
+                            <td class="num">R$ 5.742,22</td>
+                            <td class="num"><span class="trend-up">+9,1%</span></td>
+                        </tr>
+                        <tr style="background:#FFEBEE;">
+                            <td><strong>📤 COT/ha</strong></td>
+                            <td class="num"><strong>R$ 12.268,62</strong></td>
+                            <td class="num"><strong>R$ 8.853,01</strong></td>
+                            <td class="num"><strong>R$ 7.364,72</strong></td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;"><strong>-40,0%</strong> ✅</span></td>
+                        </tr>
+                        <tr>
+                            <td>🎯 P.E. em Qtd (sc/ha)</td>
+                            <td class="num">107,07</td>
+                            <td class="num">75,81</td>
+                            <td class="num">66,56</td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;">-37,8%</span></td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>📉 Resultado/ha</strong></td>
+                            <td class="num"><strong>-R$ 7.007,11</strong></td>
+                            <td class="num"><strong>-R$ 1.623,16</strong></td>
+                            <td class="num"><strong>-R$ 1.622,50</strong></td>
+                            <td class="num"><span class="trend-up" style="color:#E65100;">Melhora 76,8%</span></td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>📉 Resultado/Safra (164 ha)</strong></td>
+                            <td class="num"><strong>-R$ 1.149.166</strong></td>
+                            <td class="num"><strong>-R$ 266.198</strong></td>
+                            <td class="num"><strong>-R$ 266.090</strong></td>
+                            <td class="num"><span class="trend-up" style="color:#E65100;">Melhora 76,9%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BARRAS VISUAIS COMPARATIVAS -->
+            <h4 style="margin-top:24px; margin-bottom:12px;">Receita vs. COT por safra (R$/ha):</h4>
+
+            <p style="font-size:0.82rem; color:#888; margin-bottom:8px;"><strong>Safra 2023/2024</strong> — Gap: R$ 7.007/ha</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>Receita</span><span>R$ 5.262/ha</span></div>
+                <div class="bar-track"><div class="bar-fill teal" style="width:42.9%">R$ 5.262</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>COT</span><span>R$ 12.269/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:100%">R$ 12.269</div></div>
+            </div>
+
+            <p style="font-size:0.82rem; color:#888; margin-bottom:8px; margin-top:16px;"><strong>Safra 2024/2025</strong> — Gap: R$ 1.623/ha</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>Receita</span><span>R$ 7.230/ha</span></div>
+                <div class="bar-track"><div class="bar-fill teal" style="width:58.9%">R$ 7.230</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>COT</span><span>R$ 8.853/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:72.2%">R$ 8.853</div></div>
+            </div>
+
+            <p style="font-size:0.82rem; color:#888; margin-bottom:8px; margin-top:16px;"><strong>Safra 2025/2026</strong> — Gap: R$ 1.623/ha</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>Receita</span><span>R$ 5.742/ha</span></div>
+                <div class="bar-track"><div class="bar-fill teal" style="width:46.8%">R$ 5.742</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>COT</span><span>R$ 7.365/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:60.0%">R$ 7.365</div></div>
+            </div>
+
+            <div class="highlight-box warning" style="margin-top:20px;">
+                <h4>📌 O custo caiu 40%, mas o prejuízo estabilizou</h4>
+                <p>Entre 23/24 e 25/26, o COT foi reduzido de <strong>R$ 12.269 para R$ 7.365/ha</strong> — uma queda de R$ 4.904/ha (-40%). Isso é um avanço significativo. Porém, o resultado de 24/25 e 25/26 ficou <strong>praticamente igual (~R$ -1.623/ha)</strong> porque:</p>
+                <ul>
+                    <li>O preço de venda (PMV) caiu de R$ 116,78 para R$ 110,64/sc (-5,3%)</li>
+                    <li>A produtividade caiu de 61,91 para 51,90 sc/ha (-16,2%)</li>
+                </ul>
+                <p style="margin-top:8px;"><strong>Conclusão:</strong> A redução de custo foi consumida pela queda de produtividade e de preço. O próximo passo não pode ser só cortar mais custo — é preciso <strong>recuperar a produtividade</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 2: EVOLUÇÃO DA PRODUTIVIDADE POR TALHÃO ========== -->
+    <div class="section-divider"><span>Seção 2 — Evolução da Produtividade por Talhão</span></div>
+
+    <div class="card">
+        <div class="card-header blue">🌱 Produtividade por Talhão — 3 Safras (sc/ha)</div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Talhão</th>
+                            <th>Área</th>
+                            <th>Variedade (atual)</th>
+                            <th class="num">2023/2024</th>
+                            <th class="num">2024/2025</th>
+                            <th class="num">2025/2026</th>
+                            <th class="num">Média 3 safras</th>
+                            <th>Tendência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="best">
+                            <td><strong>T 1</strong></td>
+                            <td>58,00 ha</td>
+                            <td>DM 73i75</td>
+                            <td class="num" style="color:#2E7D32;">75,56</td>
+                            <td class="num" style="color:#2E7D32;">75,73</td>
+                            <td class="num" style="color:#2E7D32;">68,42</td>
+                            <td class="num" style="color:#2E7D32;"><strong>73,24</strong></td>
+                            <td><span class="badge ok">CONSISTENTE</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>T 7/9</strong></td>
+                            <td>66,00 ha</td>
+                            <td>NEO 820</td>
+                            <td class="num" style="color:#C62828;">20,14</td>
+                            <td class="num" style="color:#2E7D32;">63,55</td>
+                            <td class="num" style="color:#C62828;">47,37</td>
+                            <td class="num"><strong>43,69</strong></td>
+                            <td><span class="badge warning">INSTÁVEL</span></td>
+                        </tr>
+                        <tr class="worst">
+                            <td><strong>T 11</strong></td>
+                            <td>40,00 ha</td>
+                            <td>NEO 820</td>
+                            <td class="num" style="color:#C62828;">45,49</td>
+                            <td class="num" style="color:#C62828;">39,47</td>
+                            <td class="num" style="color:#C62828;">35,41</td>
+                            <td class="num" style="color:#C62828;"><strong>40,12</strong></td>
+                            <td><span class="badge critical">QUEDA CONTÍNUA</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>MÉDIA</strong></td>
+                            <td>164,00 ha</td>
+                            <td>—</td>
+                            <td class="num">45,92</td>
+                            <td class="num">61,91</td>
+                            <td class="num">51,90</td>
+                            <td class="num"><strong>53,24</strong></td>
+                            <td><span class="badge critical">IRREGULAR</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BARRAS POR TALHÃO -->
+            <h4 style="margin-top:24px; margin-bottom:4px;">T 1 — Histórico de Produtividade</h4>
+            <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Variedades: DM 82i78/Olimpo → DM 82i78 → DM 73i75</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>23/24</span><span>75,56 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width:100%">75,56</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>24/25</span><span>75,73 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width:100%">75,73</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>25/26</span><span>68,42 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill teal" style="width:90.5%">68,42</div></div>
+            </div>
+
+            <h4 style="margin-top:20px; margin-bottom:4px;">T 7/9 — Histórico de Produtividade</h4>
+            <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Variedades: NEO 820/DM 82i78 → NEO 820 → NEO 820</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>23/24</span><span>20,14 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:26.6%">20,14</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>24/25</span><span>63,55 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill blue" style="width:84.1%">63,55</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>25/26</span><span>47,37 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width:62.6%">47,37</div></div>
+            </div>
+
+            <h4 style="margin-top:20px; margin-bottom:4px;">T 11 — Histórico de Produtividade</h4>
+            <p style="font-size:0.78rem; color:#888; margin-bottom:8px;">Variedades: NEO 820/DM 82i78 → NEO 820 → NEO 820</p>
+            <div class="bar-container">
+                <div class="bar-label"><span>23/24</span><span>45,49 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width:60.2%">45,49</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>24/25</span><span>39,47 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:52.2%">39,47</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>25/26</span><span>35,41 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:46.8%">35,41</div></div>
+            </div>
+
+            <div class="highlight-box success" style="margin-top:20px;">
+                <h4>✅ T 1: O talhão que prova a viabilidade</h4>
+                <p>Com média de <strong>73,24 sc/ha nas 3 safras</strong>, o T 1 é consistentemente acima da média de Goiás (67,5 sc/ha). Mesmo na safra mais fraca (25/26), entregou 68,42 sc/ha — suficiente para gerar resultado positivo. A variedade DM (82i78 e 73i75) tem se mostrado <strong>muito mais adequada</strong> a essa propriedade.</p>
+            </div>
+
+            <div class="highlight-box danger">
+                <h4>🔴 T 11: Queda contínua em 3 safras — Sinal de degradação</h4>
+                <p>O Talhão T 11 apresenta <strong>queda ininterrupta de produtividade</strong>:</p>
+                <ul>
+                    <li>23/24: 45,49 sc/ha</li>
+                    <li>24/25: 39,47 sc/ha <span class="trend-down">(-13,2%)</span></li>
+                    <li>25/26: 35,41 sc/ha <span class="trend-down">(-10,3%)</span></li>
+                </ul>
+                <p style="margin-top:8px;">Se essa tendência se mantiver, o T 11 produzirá <strong>~30 sc/ha na safra 26/27</strong>. Isso não é um problema de safra — é um problema <strong>estrutural</strong>: possível degradação de solo, compactação, nematoides, ou inadequação total da variedade NEO 820 para as condições deste talhão.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>⚠️ T 7/9: Oscilação extrema sugere vulnerabilidade climática</h4>
+                <p>De 20,14 (23/24) para 63,55 (24/25) e de volta para 47,37 (25/26) — amplitude de <strong>43 sc/ha entre melhor e pior safra</strong>. Essa instabilidade indica que o talhão é altamente sensível a variações climáticas, o que torna o planejamento financeiro imprevisível. A dependência exclusiva da NEO 820 agrava esse risco.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 3: EVOLUÇÃO DO CUSTO ========== -->
+    <div class="section-divider"><span>Seção 3 — Evolução do Custo Operacional</span></div>
+
+    <div class="card">
+        <div class="card-header orange">💰 Evolução do COT e Ponto de Equilíbrio</div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th class="num">2023/2024</th>
+                            <th class="num">2024/2025</th>
+                            <th class="num">2025/2026</th>
+                            <th class="num">Evolução</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background:#FFEBEE;">
+                            <td><strong>COT/ha</strong></td>
+                            <td class="num"><strong>R$ 12.268,62</strong></td>
+                            <td class="num"><strong>R$ 8.853,01</strong></td>
+                            <td class="num"><strong>R$ 7.364,72</strong></td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;"><strong>-40,0%</strong> ✅</span></td>
+                        </tr>
+                        <tr>
+                            <td>COT/Safra (164 ha)</td>
+                            <td class="num">R$ 2.012.054</td>
+                            <td class="num">R$ 1.451.894</td>
+                            <td class="num">R$ 1.207.814</td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;">-R$ 804.240</span></td>
+                        </tr>
+                        <tr>
+                            <td>P.E. em Valor (R$/sc)</td>
+                            <td class="num">R$ 267,18</td>
+                            <td class="num">R$ 143,01</td>
+                            <td class="num">R$ 141,90</td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;">-46,9%</span></td>
+                        </tr>
+                        <tr>
+                            <td>P.E. em Qtd (sc/ha)</td>
+                            <td class="num">107,07</td>
+                            <td class="num">75,81</td>
+                            <td class="num">66,56</td>
+                            <td class="num"><span class="trend-up" style="color:#2E7D32;">-37,8%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Redução Absoluta/ha vs. anterior</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color:#2E7D32;">-R$ 3.415,61</td>
+                            <td class="num" style="color:#2E7D32;">-R$ 1.488,29</td>
+                            <td class="num">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- BARRAS DE CUSTO -->
+            <h4 style="margin-top:24px; margin-bottom:12px;">Evolução do COT/ha:</h4>
+            <div class="bar-container">
+                <div class="bar-label"><span>2023/2024</span><span>R$ 12.269/ha</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:100%">R$ 12.269</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>2024/2025</span><span>R$ 8.853/ha</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width:72.2%">R$ 8.853</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>2025/2026</span><span>R$ 7.365/ha</span></div>
+                <div class="bar-track"><div class="bar-fill teal" style="width:60.0%">R$ 7.365</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Meta 26/27 (ref. mercado)</span><span>R$ 6.100-6.500/ha</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width:51.5%">Meta</div></div>
+            </div>
+
+            <h4 style="margin-top:24px; margin-bottom:12px;">Evolução do Ponto de Equilíbrio (sc/ha):</h4>
+            <div class="bar-container">
+                <div class="bar-label"><span>23/24 — P.E.</span><span>107,07 sc/ha 🚫</span></div>
+                <div class="bar-track"><div class="bar-fill red" style="width:100%">107,07 — impossível</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>24/25 — P.E.</span><span>75,81 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill orange" style="width:70.8%">75,81</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>25/26 — P.E.</span><span>66,56 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill blue" style="width:62.2%">66,56</div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>Média Goiás 25/26</span><span>67,50 sc/ha</span></div>
+                <div class="bar-track"><div class="bar-fill green" style="width:63.0%">67,50 — referência</div></div>
+            </div>
+
+            <div class="highlight-box success" style="margin-top:20px;">
+                <h4>✅ O ponto de equilíbrio pela primeira vez ficou abaixo da média de Goiás</h4>
+                <p>Na safra 25/26, o P.E. de <strong>66,56 sc/ha</strong> ficou <strong>abaixo da média estadual</strong> (67,50 sc/ha) pela primeira vez em 3 safras. Isso significa que, se a produtividade atingir a média de Goiás, a operação finalmente será viável. Nas safras anteriores, nem o topo do estado seria suficiente:</p>
+                <ul>
+                    <li>23/24: P.E. de 107 sc/ha → <strong>impossível</strong> (nenhum produtor atinge isso)</li>
+                    <li>24/25: P.E. de 75,81 sc/ha → <strong>acima do recorde de GO</strong> (70 sc/ha)</li>
+                    <li>25/26: P.E. de 66,56 sc/ha → <strong>finalmente alcançável</strong> ✅</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box info">
+                <h4>📌 O esforço de redução de custo foi real e significativo</h4>
+                <p>Sr. Fernando, o trabalho de redução de custos entre 23/24 e 25/26 economizou <strong>R$ 804.240</strong> em valor absoluto. O COT caiu 40%. Esse esforço precisa ser reconhecido e mantido. O que falta agora é a <strong>segunda perna</strong>: trazer a produtividade média da propriedade para a faixa de 65-68 sc/ha — e isso depende fundamentalmente dos talhões T 7/9 e T 11.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 4: A RAIZ DO PROBLEMA ========== -->
+    <div class="section-divider"><span>Seção 4 — A Raiz do Problema</span></div>
+
+    <div class="card">
+        <div class="card-header red">🔍 Onde o Prejuízo se Forma: Análise Cruzada Talhão × Safra</div>
+        <div class="card-body">
+            <p style="margin-bottom:14px;">Cruzando produtividade com resultado, fica evidente que o <strong>prejuízo está concentrado nos talhões T 7/9 e T 11</strong>, enquanto o T 1 é consistentemente positivo ou próximo do equilíbrio:</p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Talhão</th>
+                            <th class="num">Média Produtiv. 3 safras</th>
+                            <th class="num">Área (ha)</th>
+                            <th class="num">Contribuição p/ Receita</th>
+                            <th class="num">Contribuição p/ Prejuízo</th>
+                            <th>Veredicto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="best">
+                            <td><strong>T 1</strong></td>
+                            <td class="num" style="color:#2E7D32;"><strong>73,24 sc/ha</strong></td>
+                            <td class="num">58,00 (35,4%)</td>
+                            <td class="num">Alta</td>
+                            <td class="num" style="color:#2E7D32;">Mínima ou zero</td>
+                            <td><span class="badge ok">VIÁVEL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>T 7/9</strong></td>
+                            <td class="num" style="color:#E65100;"><strong>43,69 sc/ha</strong></td>
+                            <td class="num">66,00 (40,2%)</td>
+                            <td class="num">Baixa</td>
+                            <td class="num" style="color:#C62828;">Muito Alta</td>
+                            <td><span class="badge warning">CRÍTICO</span></td>
+                        </tr>
+                        <tr class="worst">
+                            <td><strong>T 11</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>40,12 sc/ha</strong></td>
+                            <td class="num">40,00 (24,4%)</td>
+                            <td class="num">Muito Baixa</td>
+                            <td class="num" style="color:#C62828;">Altíssima</td>
+                            <td><span class="badge critical">INVIÁVEL</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top:18px;">
+                <h4>🔴 64,6% da área gera 100% do prejuízo</h4>
+                <p>Os talhões T 7/9 e T 11 somam <strong>106 hectares (64,6% da área)</strong> e são responsáveis por <strong>todo o prejuízo da propriedade</strong>. O T 1, com 58 hectares (35,4%), gera resultado positivo ou equilibrado.</p>
+                <p style="margin-top:8px;">Em termos práticos: <strong>se a propriedade cultivasse apenas o T 1</strong>, teria resultado positivo. É o contrário que causa o problema — cultivar 106 ha com produtividade média de 42 sc/ha a um custo de 7.300+/ha.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>⚠️ A pergunta estratégica para 2026/2027</h4>
+                <p>Diante desse histórico, há três caminhos possíveis para os talhões problemáticos:</p>
+                <ul>
+                    <li><strong>Opção A:</strong> Investigar e corrigir (solo, variedade, manejo) antes de plantar</li>
+                    <li><strong>Opção B:</strong> Trocar a variedade NEO 820 por DM (que funciona no T 1)</li>
+                    <li><strong>Opção C:</strong> Reduzir área cultivada, concentrando nos talhões viáveis</li>
+                </ul>
+                <p style="margin-top:8px;">Cada opção tem implicações financeiras diferentes, que serão detalhadas no plano de reorganização.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 5: PROJEÇÃO E VIABILIDADE ========== -->
+    <div class="section-divider"><span>Seção 5 — Projeção de Viabilidade</span></div>
+
+    <div class="card">
+        <div class="card-header dark">🔮 Se a Tendência de Melhoria Continuar...</div>
+        <div class="card-body">
+            <p style="margin-bottom:16px;">Os dados mostram uma <strong>trajetória de melhoria consistente no custo</strong>. Se essa tendência for mantida e combinada com melhoria na produtividade, a viabilidade está ao alcance:</p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th class="num">23/24 (Real)</th>
+                            <th class="num">24/25 (Real)</th>
+                            <th class="num">25/26 (Real)</th>
+                            <th class="num" style="background:#E8F5E9;">26/27 (Projeção)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>COT/ha</td>
+                            <td class="num">R$ 12.269</td>
+                            <td class="num">R$ 8.853</td>
+                            <td class="num">R$ 7.365</td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>R$ 6.200</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Produtividade</td>
+                            <td class="num">45,92</td>
+                            <td class="num">61,91</td>
+                            <td class="num">51,90</td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>63,00</strong></td>
+                        </tr>
+                        <tr>
+                            <td>PMV (R$/sc)</td>
+                            <td class="num">R$ 114,58</td>
+                            <td class="num">R$ 116,78</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num" style="background:#E8F5E9;">R$ 112,00</td>
+                        </tr>
+                        <tr>
+                            <td>Receita/ha</td>
+                            <td class="num">R$ 5.262</td>
+                            <td class="num">R$ 7.230</td>
+                            <td class="num">R$ 5.742</td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>R$ 7.056</strong></td>
+                        </tr>
+                        <tr>
+                            <td>P.E. (sc/ha)</td>
+                            <td class="num">107,07</td>
+                            <td class="num">75,81</td>
+                            <td class="num">66,56</td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>55,36</strong></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>Resultado/ha</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 7.007</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 1.623</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 1.623</strong></td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>+R$ 856</strong></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>Resultado/Safra</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 1.149 mil</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 266 mil</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-R$ 266 mil</strong></td>
+                            <td class="num" style="background:#E8F5E9; color:#2E7D32;"><strong>+R$ 140 mil</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box success" style="margin-top:18px;">
+                <h4>✅ O cenário 26/27 é realista e alcançável</h4>
+                <p>A projeção para 2026/2027 <strong>não assume números extraordinários</strong>:</p>
+                <ul>
+                    <li><strong>COT de R$ 6.200/ha:</strong> Continuação da tendência de queda (-16% vs. 25/26, em linha com a redução de -28% de 23/24→24/25 e -17% de 24/25→25/26)</li>
+                    <li><strong>Produtividade de 63 sc/ha:</strong> Abaixo da média de GO (67,5), mas exige correção nos talhões T 7/9 e T 11</li>
+                    <li><strong>PMV de R$ 112/sc:</strong> Conservador, praticamente igual ao atual</li>
+                </ul>
+                <p style="margin-top:8px;">O resultado projetado de <strong>+R$ 140 mil</strong> seria o primeiro resultado positivo em 4 safras e representaria a <strong>virada de chave</strong> da atividade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 6: SÍNTESE DAS 3 SAFRAS ========== -->
+    <div class="section-divider"><span>Seção 6 — Síntese e Conclusões</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📋 Síntese Histórica — O que 3 Safras Revelam</div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimensão</th>
+                            <th>Diagnóstico</th>
+                            <th>Evidência</th>
+                            <th>Criticidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Prejuízo</strong></td>
+                            <td>Crônico — 3 safras consecutivas</td>
+                            <td>-R$ 1,68 milhão acumulado</td>
+                            <td><span class="badge critical">CRÍTICO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custos</strong></td>
+                            <td>Em queda consistente (-40%)</td>
+                            <td>R$ 12.269 → R$ 7.365/ha</td>
+                            <td><span class="badge ok">MELHORANDO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ponto de Equilíbrio</strong></td>
+                            <td>Pela primeira vez é alcançável</td>
+                            <td>De 107 sc/ha para 66,56 sc/ha</td>
+                            <td><span class="badge ok">MELHORANDO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Produtividade Média</strong></td>
+                            <td>Irregular e abaixo do potencial</td>
+                            <td>45,92 → 61,91 → 51,90 sc/ha</td>
+                            <td><span class="badge critical">CRÍTICO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>T 1 (DM)</strong></td>
+                            <td>Consistente e viável</td>
+                            <td>Média: 73,24 sc/ha — acima de GO</td>
+                            <td><span class="badge ok">VIÁVEL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>T 7/9 (NEO 820)</strong></td>
+                            <td>Instável — alto risco</td>
+                            <td>Amplitude de 43 sc entre safras</td>
+                            <td><span class="badge warning">ALTO RISCO</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>T 11 (NEO 820)</strong></td>
+                            <td>Queda contínua — possível degradação</td>
+                            <td>45,49 → 39,47 → 35,41 sc/ha</td>
+                            <td><span class="badge critical">INVIÁVEL</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Variedade NEO 820</strong></td>
+                            <td>Desempenho insatisfatório na propriedade</td>
+                            <td>Média 42 sc/ha vs. 73 sc/ha (DM)</td>
+                            <td><span class="badge critical">INADEQUADA</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box info" style="margin-top:20px;">
+                <h4>📌 A narrativa das 3 safras para o juízo</h4>
+                <p>Sr. Fernando, quando apresentarmos esses dados em um plano de reorganização, a narrativa é <strong>objetiva e verificável</strong>:</p>
+                <ul>
+                    <li>A safra 23/24 operou com custo fora de controle (R$ 12.269/ha) — o P.E. era 107 sc/ha, impossível de alcançar</li>
+                    <li>O produtor fez um <strong>esforço real de ajuste:</strong> reduziu o custo em 40% ao longo de 3 safras</li>
+                    <li>O ponto de equilíbrio caiu de 107 para 66,56 sc/ha — pela primeira vez está abaixo da média estadual</li>
+                    <li>O prejuízo caiu de R$ 1,15 milhão para R$ 266 mil — redução de 76,9%</li>
+                    <li>A atividade está <strong>a um passo da viabilidade</strong>: falta corrigir a produtividade dos talhões problemáticos</li>
+                </ul>
+                <p style="margin-top:8px;">Essa narrativa demonstra <strong>boa-fé, disciplina e capacidade de gestão</strong> — elementos fundamentais em qualquer processo de reorganização ou renegociação.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NOTA FINAL ========== -->
+    <div class="card">
+        <div class="card-header green">📌 Nota Final — Módulo 2</div>
+        <div class="card-body">
+            <p>Sr. Fernando, a análise histórica revela duas verdades simultâneas:</p>
+            <p style="margin-top:10px;"><strong>A má notícia:</strong> São 3 safras consecutivas no vermelho, com prejuízo acumulado de R$ 1,68 milhão. Isso gerou endividamento e comprometeu a saúde financeira da propriedade.</p>
+            <p style="margin-top:10px;"><strong>A boa notícia:</strong> A trajetória de melhoria é inegável. O custo caiu 40%, o ponto de equilíbrio se tornou alcançável, e o Talhão T 1 demonstra safra após safra que a propriedade tem potencial para operar no positivo.</p>
+            <p style="margin-top:10px;">O caminho da recuperação está claro: <strong>manter a disciplina no custo, corrigir a produtividade dos talhões T 7/9 e T 11 (ou reduzir a exposição neles), e buscar produtividade na faixa de 63-67 sc/ha</strong>. Com isso, a primeira safra positiva está ao alcance.</p>
+            <p style="margin-top:10px;">Nos próximos módulos, detalharemos o <strong>fluxo de caixa mensal</strong> e o <strong>mapa do passivo</strong> para construir a proposta de renegociação com base nos números reais e na capacidade demonstrada de pagamento.</p>
+        </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <div class="footer">
+        <p><strong>Diagnóstico Financeiro Rural</strong> — Módulo 2: Evolução Histórica (3 Safras)</p>
+        <p>Documento elaborado para fins de análise financeira e planejamento de reorganização produtiva.</p>
+        <p style="margin-top:6px;">Dados das safras 2023/2024, 2024/2025 e 2025/2026 · Atualizado em abril de 2026.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 1 — Safra 2025/2026 | Diagnóstico Financeiro Rural</title>
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #388E3C;
+            --primary-dark: #0D3B0F;
+            --accent: #FF8F00;
+            --danger: #C62828;
+            --danger-light: #EF5350;
+            --warning: #F9A825;
+            --success: #2E7D32;
+            --bg: #F5F5F0;
+            --card-bg: #FFFFFF;
+            --text: #212121;
+            --text-secondary: #616161;
+            --border: #E0E0E0;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        }
+        .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; }
+        .header .subtitle { font-size: 1.1rem; opacity: 0.9; position: relative; }
+        .header .module-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .card-header {
+            padding: 18px 24px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header.green { background: linear-gradient(90deg, #E8F5E9, #F1F8E9); color: var(--primary-dark); }
+        .card-header.red { background: linear-gradient(90deg, #FFEBEE, #FFF3E0); color: var(--danger); }
+        .card-header.orange { background: linear-gradient(90deg, #FFF3E0, #FFF8E1); color: #E65100; }
+        .card-header.blue { background: linear-gradient(90deg, #E3F2FD, #E8EAF6); color: #1565C0; }
+        .card-header.dark { background: linear-gradient(90deg, #263238, #37474F); color: #fff; }
+        .card-body { padding: 24px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+        thead th {
+            background: #F5F5F5;
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        thead th.num { text-align: right; }
+        tbody td { padding: 10px 14px; border-bottom: 1px solid #F0F0F0; }
+        tbody td.num { text-align: right; font-family: 'Consolas', 'Courier New', monospace; font-weight: 600; }
+        tbody tr:hover { background: #FAFAFA; }
+        tbody tr.total-row { background: #F5F5F5; font-weight: 700; border-top: 2px solid var(--primary); }
+        tbody tr.total-row td { padding: 14px; }
+        tbody tr.negative td.num { color: var(--danger); }
+        tbody tr.positive td.num { color: var(--success); }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge.critical { background: #FFCDD2; color: #B71C1C; }
+        .badge.warning { background: #FFF9C4; color: #F57F17; }
+        .badge.ok { background: #C8E6C9; color: #1B5E20; }
+        .badge.info { background: #BBDEFB; color: #0D47A1; }
+
+        .bar-container { margin: 8px 0; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; font-weight: 600; }
+        .bar-track { width: 100%; height: 28px; background: #ECEFF1; border-radius: 6px; overflow: hidden; position: relative; }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 700;
+            transition: width 0.6s ease;
+        }
+        .bar-fill.green { background: linear-gradient(90deg, #43A047, #66BB6A); }
+        .bar-fill.red { background: linear-gradient(90deg, #E53935, #EF5350); }
+        .bar-fill.orange { background: linear-gradient(90deg, #FB8C00, #FFA726); }
+        .bar-fill.blue { background: linear-gradient(90deg, #1E88E5, #42A5F5); }
+        .bar-fill.dark { background: linear-gradient(90deg, #455A64, #78909C); }
+        .bar-fill.teal { background: linear-gradient(90deg, #00897B, #26A69A); }
+        .bar-fill.purple { background: linear-gradient(90deg, #7B1FA2, #AB47BC); }
+        .bar-fill.gold { background: linear-gradient(90deg, #F9A825, #FDD835); color: #333; }
+
+        .highlight-box { border-radius: 10px; padding: 20px; margin: 16px 0; }
+        .highlight-box.danger { background: linear-gradient(135deg, #FFEBEE, #FCE4EC); border-left: 5px solid var(--danger); }
+        .highlight-box.warning { background: linear-gradient(135deg, #FFF8E1, #FFF3E0); border-left: 5px solid var(--accent); }
+        .highlight-box.success { background: linear-gradient(135deg, #E8F5E9, #F1F8E9); border-left: 5px solid var(--success); }
+        .highlight-box.info { background: linear-gradient(135deg, #E3F2FD, #E8EAF6); border-left: 5px solid #1565C0; }
+        .highlight-box h4 { margin-bottom: 10px; font-size: 1rem; }
+        .highlight-box p, .highlight-box li { font-size: 0.92rem; color: #424242; }
+        .highlight-box ul { margin-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 4px; }
+
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0; }
+        .metric-card { background: #FAFAFA; border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+        .metric-card .metric-value { font-size: 1.8rem; font-weight: 800; margin: 6px 0; font-family: 'Consolas', 'Courier New', monospace; }
+        .metric-card .metric-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-card .metric-sub { font-size: 0.78rem; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; }
+        .metric-card.danger .metric-value { color: var(--danger); }
+        .metric-card.warning .metric-value { color: #E65100; }
+        .metric-card.success .metric-value { color: var(--success); }
+        .metric-card.info .metric-value { color: #1565C0; }
+
+        .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+        .scenario-card { border-radius: 10px; padding: 20px; border: 2px solid; }
+        .scenario-card.bad { border-color: #EF5350; background: #FFF5F5; }
+        .scenario-card.neutral { border-color: #FFA726; background: #FFFAF0; }
+        .scenario-card.good { border-color: #66BB6A; background: #F5FFF5; }
+        .scenario-card h4 { font-size: 0.95rem; margin-bottom: 10px; }
+        .scenario-card .result { font-size: 1.4rem; font-weight: 800; font-family: 'Consolas', monospace; }
+        .scenario-card p { font-size: 0.85rem; color: #555; margin-top: 8px; }
+
+        .section-divider { text-align: center; margin: 40px 0 24px; position: relative; }
+        .section-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
+        .section-divider span {
+            background: var(--bg);
+            padding: 0 20px;
+            position: relative;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer strong { color: var(--primary); }
+
+        .bench-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+        .bench-label { width: 160px; font-size: 0.82rem; font-weight: 600; text-align: right; flex-shrink: 0; }
+        .bench-bar-track { flex: 1; height: 30px; background: #ECEFF1; border-radius: 6px; position: relative; overflow: hidden; }
+        .bench-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .adm-block-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 12px 0; }
+        .adm-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #FAFAFA; border-radius: 8px; border: 1px solid #eee; }
+        .adm-item .adm-pct {
+            width: 52px; height: 52px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78rem; font-weight: 800; color: #fff; flex-shrink: 0;
+        }
+        .adm-item .adm-info { flex: 1; }
+        .adm-item .adm-info .adm-name { font-size: 0.82rem; font-weight: 700; }
+        .adm-item .adm-info .adm-val { font-size: 0.78rem; color: #777; }
+
+        @media print { .header { padding: 20px; } .card { break-inside: avoid; } body { font-size: 11pt; } }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.4rem; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            .scenario-grid { grid-template-columns: 1fr; }
+            .bench-label { width: 100px; font-size: 0.72rem; }
+            table { font-size: 0.8rem; }
+            thead th, tbody td { padding: 8px 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div class="module-badge">MÓDULO 1 — SAFRA ATUAL</div>
+    <h1>Diagnóstico Financeiro — Safra 2025/2026</h1>
+    <p class="subtitle">Análise de Produtividade, Custos e Resultado Operacional — Soja</p>
+</div>
+
+<div class="container">
+
+    <!-- ========== INTRODUÇÃO ========== -->
+    <div class="card">
+        <div class="card-header green">📋 Apresentação</div>
+        <div class="card-body">
+            <p>Sr. Fernando, este relatório apresenta o diagnóstico completo da <strong>safra de soja 2025/2026</strong> da sua propriedade. Os dados foram organizados em quatro grandes blocos:</p>
+            <ul style="margin: 12px 0 12px 20px;">
+                <li><strong>Resultado por talhão</strong> — produtividade, receita e custo de cada área cultivada</li>
+                <li><strong>Estrutura de custos</strong> — composição detalhada do custo operacional e administrativo</li>
+                <li><strong>Benchmarking</strong> — comparação com a média de Goiás, Mato Grosso (IMEA), Brasil e com outro produtor real da região de Montividiu-GO</li>
+                <li><strong>Diagnóstico e Recomendações</strong> — o que precisa mudar para a atividade voltar a ser viável</li>
+            </ul>
+            <p>O objetivo não é apontar erros, mas sim <strong>dar clareza sobre a situação real</strong> e apresentar caminhos concretos para a reorganização da atividade.</p>
+        </div>
+    </div>
+
+    <!-- ========== PAINEL RESUMO ========== -->
+    <div class="section-divider"><span>Painel Resumo da Safra</span></div>
+
+    <div class="metric-grid">
+        <div class="metric-card info">
+            <div class="metric-label">Área Cultivada</div>
+            <div class="metric-value">164 ha</div>
+            <div class="metric-sub">3 talhões — 100% soja</div>
+        </div>
+        <div class="metric-card danger">
+            <div class="metric-label">Produtividade Média</div>
+            <div class="metric-value">51,90 sc/ha</div>
+            <div class="metric-sub">Média GO: 67,5 sc/ha · <strong>-23,1%</strong></div>
+        </div>
+        <div class="metric-card warning">
+            <div class="metric-label">Custo Total (COT)</div>
+            <div class="metric-value">R$ 7.365/ha</div>
+            <div class="metric-sub">Ref. APROSOJA: R$ 6.116/ha · <strong>+20,4%</strong></div>
+        </div>
+        <div class="metric-card danger">
+            <div class="metric-label">Resultado da Safra</div>
+            <div class="metric-value">-R$ 266 mil</div>
+            <div class="metric-sub">Prejuízo de R$ 1.622,50/ha</div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 1: RESULTADO POR TALHÃO ========== -->
+    <div class="section-divider"><span>Seção 1 — Resultado por Talhão</span></div>
+
+    <div class="card">
+        <div class="card-header green">🌱 Produtividade e Resultado — Detalhamento por Talhão</div>
+        <div class="card-body">
+            <p style="margin-bottom:14px;">A tabela a seguir apresenta o desempenho de cada talhão cultivado na safra 2025/2026. Apenas o <strong>Talhão T 1</strong> obteve resultado positivo. Os demais operaram com <strong>prejuízo expressivo</strong>, evidenciando problemas de produtividade concentrados.</p>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Talhão</th>
+                            <th>Variedade</th>
+                            <th class="num">Área (ha)</th>
+                            <th class="num">Produtiv. (sc/ha)</th>
+                            <th class="num">PMV (R$/sc)</th>
+                            <th class="num">Receita/ha</th>
+                            <th class="num">COT/ha</th>
+                            <th class="num">Resultado/ha</th>
+                            <th class="num">Resultado Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="positive" style="background:#F1F8E9;">
+                            <td><strong>T 1</strong></td>
+                            <td>DM 73i75</td>
+                            <td class="num">58,00</td>
+                            <td class="num">68,42</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num">R$ 7.569,99</td>
+                            <td class="num">R$ 7.284,59</td>
+                            <td class="num">+R$ 285,40</td>
+                            <td class="num">+R$ 16.553,20</td>
+                        </tr>
+                        <tr class="negative">
+                            <td><strong>T 7/9</strong></td>
+                            <td>NEO 820</td>
+                            <td class="num">66,00</td>
+                            <td class="num">47,37</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num">R$ 5.241,02</td>
+                            <td class="num">R$ 7.322,60</td>
+                            <td class="num">-R$ 2.081,58</td>
+                            <td class="num">-R$ 137.384,28</td>
+                        </tr>
+                        <tr class="negative">
+                            <td><strong>T 11</strong></td>
+                            <td>NEO 820</td>
+                            <td class="num">40,00</td>
+                            <td class="num">35,41</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num">R$ 3.917,76</td>
+                            <td class="num">R$ 7.550,40</td>
+                            <td class="num">-R$ 3.632,64</td>
+                            <td class="num">-R$ 145.305,60</td>
+                        </tr>
+                        <tr class="total-row negative">
+                            <td><strong>TOTAL / MÉDIA</strong></td>
+                            <td>—</td>
+                            <td class="num">164,00</td>
+                            <td class="num">51,90</td>
+                            <td class="num">R$ 110,64</td>
+                            <td class="num">R$ 5.742,22</td>
+                            <td class="num">R$ 7.364,72</td>
+                            <td class="num">-R$ 1.622,50</td>
+                            <td class="num">-R$ 266.090,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box success" style="margin-top:18px;">
+                <h4>✅ Talhão T 1 (DM 73i75) — Único Resultado Positivo</h4>
+                <p>O Talhão T 1, com a variedade <strong>DM 73i75</strong>, produziu <strong>68,42 sc/ha</strong> e foi o único que superou o ponto de equilíbrio, gerando resultado positivo de <strong>+R$ 285,40/ha</strong>. Este talhão demonstra que a propriedade <strong>tem potencial produtivo</strong> quando a combinação de variedade, manejo e condições é adequada.</p>
+            </div>
+
+            <div class="highlight-box danger">
+                <h4>🔴 Talhões T 7/9 e T 11 (NEO 820) — Prejuízo Concentrado</h4>
+                <p>Os dois talhões com a variedade <strong>NEO 820</strong> concentram <strong>R$ 282.690 de prejuízo</strong> (mais de 100% do prejuízo da safra, já que o T 1 teve lucro). O T 11 produziu apenas <strong>35,41 sc/ha</strong> — 47,5% abaixo da média de Goiás. É necessário investigar se o problema é a variedade, o manejo, a qualidade do solo desses talhões ou uma combinação de fatores.</p>
+            </div>
+
+            <div class="highlight-box info">
+                <h4>📌 Comparativo de Variedades nesta Safra</h4>
+                <p><strong>DM 73i75:</strong> 68,42 sc/ha → Resultado positivo (+R$ 285,40/ha)<br>
+                <strong>NEO 820:</strong> 42,33 sc/ha (média ponderada T7/9 e T11) → Resultado negativo (-R$ 2.717/ha médio)</p>
+                <p style="margin-top:8px;">A diferença de desempenho entre as variedades é de <strong>26,09 sc/ha</strong>. Mesmo considerando diferenças de solo entre talhões, essa discrepância é significativa e deve ser avaliada no planejamento da próxima safra.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 2: PONTO DE EQUILÍBRIO ========== -->
+    <div class="card">
+        <div class="card-header red">🎯 Ponto de Equilíbrio — Break-Even por Talhão</div>
+        <div class="card-body">
+            <p style="margin-bottom:14px;">O ponto de equilíbrio (break-even) representa a <strong>produtividade mínima</strong> que cada talhão precisa alcançar para cobrir seus custos. Abaixo desse número, cada saca a menos é prejuízo direto.</p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Talhão</th>
+                            <th>Variedade</th>
+                            <th class="num">P.E. Valor (R$/sc)</th>
+                            <th class="num">P.E. Qtd (sc/ha)</th>
+                            <th class="num">Produtiv. Real</th>
+                            <th class="num">Margem (sc/ha)</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="positive" style="background:#F1F8E9;">
+                            <td><strong>T 1</strong></td>
+                            <td>DM 73i75</td>
+                            <td class="num">R$ 106,47</td>
+                            <td class="num">65,84</td>
+                            <td class="num">68,42</td>
+                            <td class="num" style="color:#2E7D32;"><strong>+2,58</strong></td>
+                            <td><span class="badge ok">SUPERÁVIT</span></td>
+                        </tr>
+                        <tr class="negative">
+                            <td><strong>T 7/9</strong></td>
+                            <td>NEO 820</td>
+                            <td class="num">R$ 154,58</td>
+                            <td class="num">66,18</td>
+                            <td class="num">47,37</td>
+                            <td class="num">-18,81</td>
+                            <td><span class="badge critical">DÉFICIT</span></td>
+                        </tr>
+                        <tr class="negative">
+                            <td><strong>T 11</strong></td>
+                            <td>NEO 820</td>
+                            <td class="num">R$ 213,23</td>
+                            <td class="num">68,24</td>
+                            <td class="num">35,41</td>
+                            <td class="num">-32,83</td>
+                            <td><span class="badge critical">DÉFICIT GRAVE</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>MÉDIA</strong></td>
+                            <td>—</td>
+                            <td class="num">R$ 141,90</td>
+                            <td class="num">66,56</td>
+                            <td class="num">51,90</td>
+                            <td class="num" style="color:#C62828;"><strong>-14,66</strong></td>
+                            <td><span class="badge critical">DÉFICIT</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top:16px;">
+                <h4>🔴 O T 11 precisaria vender a soja a R$ 213,23/sc para empatar</h4>
+                <p>Com produtividade de apenas 35,41 sc/ha e custo de R$ 7.550,40/ha, o Talhão T 11 precisaria de um preço de venda <strong>92,7% acima do mercado atual</strong> (R$ 110,64) para cobrir seus custos. Isso demonstra que, nas condições atuais, este talhão é <strong>inviável economicamente</strong> e precisa de intervenção urgente — seja na correção agronômica, seja na decisão de não cultivá-lo até que as condições melhorem.</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h4>✅ O T 1 demonstra que o ponto de equilíbrio é alcançável</h4>
+                <p>O Talhão T 1 precisava de 65,84 sc/ha e entregou 68,42 sc/ha — uma margem de <strong>+2,58 sc/ha</strong>. Margem estreita, mas positiva. Isso prova que, com a produtividade na faixa dos 68+ sc/ha, a operação consegue se sustentar mesmo com a estrutura de custo atual.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 3: ESTRUTURA DE CUSTOS ========== -->
+    <div class="section-divider"><span>Seção 2 — Estrutura de Custos</span></div>
+
+    <div class="card">
+        <div class="card-header orange">💰 Composição do Custo Operacional Total (COT)</div>
+        <div class="card-body">
+            <p style="margin-bottom:14px;">O custo operacional total médio da safra foi de <strong>R$ 7.364,72/ha</strong>, equivalente a <strong>R$ 1.207.814/safra</strong>. Abaixo, a composição detalhada por categoria de custo:</p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th class="num">R$/ha</th>
+                            <th class="num">R$/Safra (164 ha)</th>
+                            <th class="num">% do COT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🌾 Insumos (sementes, fertilizantes, defensivos)</td>
+                            <td class="num">R$ 3.885,58</td>
+                            <td class="num">R$ 637.234,88</td>
+                            <td class="num">52,8%</td>
+                        </tr>
+                        <tr>
+                            <td>⛽ Diesel / Gasolina</td>
+                            <td class="num">R$ 239,91</td>
+                            <td class="num">R$ 39.345,24</td>
+                            <td class="num">3,3%</td>
+                        </tr>
+                        <tr>
+                            <td>🔧 Máquinas e Implementos</td>
+                            <td class="num">R$ 198,06</td>
+                            <td class="num">R$ 32.481,84</td>
+                            <td class="num">2,7%</td>
+                        </tr>
+                        <tr style="background:#FFF8E1;">
+                            <td><strong>🏢 Custos Administrativos (ADM)</strong></td>
+                            <td class="num"><strong>R$ 1.532,00</strong></td>
+                            <td class="num"><strong>R$ 251.248,00</strong></td>
+                            <td class="num"><strong>20,8%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>💳 Custo Financeiro</td>
+                            <td class="num">R$ 329,40</td>
+                            <td class="num">R$ 54.021,60</td>
+                            <td class="num">4,5%</td>
+                        </tr>
+                        <tr>
+                            <td>📉 Depreciação</td>
+                            <td class="num">R$ 266,23</td>
+                            <td class="num">R$ 43.661,72</td>
+                            <td class="num">3,6%</td>
+                        </tr>
+                        <tr>
+                            <td>🏗️ Arrendamento</td>
+                            <td class="num">R$ 913,54</td>
+                            <td class="num">R$ 149.820,56</td>
+                            <td class="num">12,4%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>CUSTO OPERACIONAL TOTAL (COT)</td>
+                            <td class="num">R$ 7.364,72</td>
+                            <td class="num">R$ 1.207.814,08</td>
+                            <td class="num">100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Barras visuais de proporção -->
+            <div style="margin-top:20px;">
+                <div class="bar-container">
+                    <div class="bar-label"><span>Insumos</span><span>52,8%</span></div>
+                    <div class="bar-track"><div class="bar-fill green" style="width:52.8%">R$ 3.886/ha</div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Administrativo (ADM)</span><span>20,8%</span></div>
+                    <div class="bar-track"><div class="bar-fill orange" style="width:20.8%">R$ 1.532/ha</div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Arrendamento</span><span>12,4%</span></div>
+                    <div class="bar-track"><div class="bar-fill purple" style="width:12.4%">R$ 914/ha</div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Custo Financeiro</span><span>4,5%</span></div>
+                    <div class="bar-track"><div class="bar-fill dark" style="width:4.5%"></div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Depreciação</span><span>3,6%</span></div>
+                    <div class="bar-track"><div class="bar-fill dark" style="width:3.6%"></div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Diesel / Gasolina</span><span>3,3%</span></div>
+                    <div class="bar-track"><div class="bar-fill teal" style="width:3.3%"></div></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-label"><span>Máquinas e Implementos</span><span>2,7%</span></div>
+                    <div class="bar-track"><div class="bar-fill blue" style="width:2.7%"></div></div>
+                </div>
+            </div>
+
+            <div class="highlight-box warning" style="margin-top:18px;">
+                <h4>⚠️ Os 3 maiores blocos concentram 86% do custo</h4>
+                <p><strong>Insumos (52,8%) + ADM (20,8%) + Arrendamento (12,4%)</strong> somam R$ 6.331/ha e representam 86% de todo o COT. A margem de manobra para redução está principalmente no ADM, que opera em patamar muito acima do mercado, e na otimização do pacote de insumos.</p>
+            </div>
+
+            <div class="highlight-box info">
+                <h4>📌 Arrendamento: R$ 913,54/ha — Custo fixo relevante</h4>
+                <p>O arrendamento consome <strong>R$ 149.821/safra</strong> e é um custo fixo, independente da produtividade obtida. Em cenários de baixa produtividade como o atual, esse custo se torna ainda mais pesado proporcionalmente. Será tratado em profundidade no módulo de fluxo de caixa e no plano de reorganização.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 3.1: DETALHAMENTO ADM ========== -->
+    <div class="card">
+        <div class="card-header orange">🔍 Detalhamento do Custo Administrativo — R$ 1.532,00/ha</div>
+        <div class="card-body">
+            <p style="margin-bottom:14px;">O custo administrativo total de <strong>R$ 251.248/safra</strong> está distribuído em 20 contas. As cinco maiores representam <strong>80,4% do total</strong>:</p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Descrição</th>
+                            <th class="num">R$/ha</th>
+                            <th class="num">R$/Safra</th>
+                            <th class="num">% do ADM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background:#FFEBEE;">
+                            <td>1</td>
+                            <td><strong>🔴 Pró-labore</strong></td>
+                            <td class="num"><strong>R$ 624,78</strong></td>
+                            <td class="num"><strong>R$ 102.463,92</strong></td>
+                            <td class="num"><strong>40,8%</strong></td>
+                        </tr>
+                        <tr style="background:#FFF3E0;">
+                            <td>2</td>
+                            <td><strong>🟠 Diesel da Atividade (ADM)</strong></td>
+                            <td class="num"><strong>R$ 220,47</strong></td>
+                            <td class="num"><strong>R$ 36.157,08</strong></td>
+                            <td class="num"><strong>14,4%</strong></td>
+                        </tr>
+                        <tr style="background:#FFF8E1;">
+                            <td>3</td>
+                            <td>Salários e Proventos</td>
+                            <td class="num">R$ 163,29</td>
+                            <td class="num">R$ 26.779,56</td>
+                            <td class="num">10,7%</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Máquinas e Implementos (Mão de Obra)</td>
+                            <td class="num">R$ 120,31</td>
+                            <td class="num">R$ 19.730,84</td>
+                            <td class="num">7,9%</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Consultoria Técnica — Agrônomo/Veterinário</td>
+                            <td class="num">R$ 102,60</td>
+                            <td class="num">R$ 16.826,40</td>
+                            <td class="num">6,7%</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Máquinas e Implementos (Peças)</td>
+                            <td class="num">R$ 77,76</td>
+                            <td class="num">R$ 12.752,64</td>
+                            <td class="num">5,1%</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Frete da Atividade</td>
+                            <td class="num">R$ 42,92</td>
+                            <td class="num">R$ 7.038,88</td>
+                            <td class="num">2,8%</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Diárias</td>
+                            <td class="num">R$ 41,63</td>
+                            <td class="num">R$ 6.827,32</td>
+                            <td class="num">2,7%</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Honorários Contábeis</td>
+                            <td class="num">R$ 31,23</td>
+                            <td class="num">R$ 5.121,72</td>
+                            <td class="num">2,0%</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Lubrificantes, Detergentes e Filtros</td>
+                            <td class="num">R$ 25,59</td>
+                            <td class="num">R$ 4.196,76</td>
+                            <td class="num">1,7%</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>Encargos sobre Folha de Pagamento</td>
+                            <td class="num">R$ 19,55</td>
+                            <td class="num">R$ 3.206,20</td>
+                            <td class="num">1,3%</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>Gasolina da Atividade</td>
+                            <td class="num">R$ 19,44</td>
+                            <td class="num">R$ 3.188,16</td>
+                            <td class="num">1,3%</td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td>Energia Elétrica</td>
+                            <td class="num">R$ 14,92</td>
+                            <td class="num">R$ 2.446,88</td>
+                            <td class="num">1,0%</td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td>Armazenagem de Insumos</td>
+                            <td class="num">R$ 12,06</td>
+                            <td class="num">R$ 1.977,84</td>
+                            <td class="num">0,8%</td>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td>13º Salário</td>
+                            <td class="num">R$ 10,57</td>
+                            <td class="num">R$ 1.733,48</td>
+                            <td class="num">0,7%</td>
+                        </tr>
+                        <tr>
+                            <td>16</td>
+                            <td>SENAR/FUNRURAL</td>
+                            <td class="num">R$ 2,74</td>
+                            <td class="num">R$ 449,36</td>
+                            <td class="num">0,2%</td>
+                        </tr>
+                        <tr>
+                            <td>17</td>
+                            <td>GTA</td>
+                            <td class="num">R$ 1,52</td>
+                            <td class="num">R$ 249,28</td>
+                            <td class="num">0,1%</td>
+                        </tr>
+                        <tr>
+                            <td>18</td>
+                            <td>Materiais de Expediente</td>
+                            <td class="num">R$ 0,38</td>
+                            <td class="num">R$ 62,32</td>
+                            <td class="num">0,0%</td>
+                        </tr>
+                        <tr>
+                            <td>19</td>
+                            <td>Outros Serviços</td>
+                            <td class="num">R$ 0,24</td>
+                            <td class="num">R$ 39,36</td>
+                            <td class="num">0,0%</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td></td>
+                            <td>TOTAL ADM</td>
+                            <td class="num">R$ 1.532,00</td>
+                            <td class="num">R$ 251.248,00</td>
+                            <td class="num">100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top:24px; margin-bottom:12px;">Os 3 maiores blocos do custo ADM:</h4>
+            <div class="adm-block-grid">
+                <div class="adm-item">
+                    <div class="adm-pct" style="background:#C62828;">56,1%</div>
+                    <div class="adm-info">
+                        <div class="adm-name">👥 Pessoas (Folha + Pró-labore)</div>
+                        <div class="adm-val">R$ 859,82/ha · R$ 141.010/safra</div>
+                    </div>
+                </div>
+                <div class="adm-item">
+                    <div class="adm-pct" style="background:#E65100;">30,3%</div>
+                    <div class="adm-info">
+                        <div class="adm-name">🔧 Máquinas e Combustível</div>
+                        <div class="adm-val">R$ 463,57/ha · R$ 76.025/safra</div>
+                    </div>
+                </div>
+                <div class="adm-item">
+                    <div class="adm-pct" style="background:#1565C0;">13,6%</div>
+                    <div class="adm-info">
+                        <div class="adm-name">🏢 Serviços e Estrutura</div>
+                        <div class="adm-val">R$ 208,61/ha · R$ 34.212/safra</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top:18px;">
+                <h4>🔴 Pró-labore: R$ 102.464/safra (40,8% do ADM)</h4>
+                <p>Equivale a aproximadamente <strong>R$ 8.539/mês</strong>. Na situação atual, em que a atividade gera prejuízo de R$ 266 mil, o pró-labore consome <strong>10,9% de toda a receita bruta</strong> e representa 38,5% do prejuízo total. Em um processo de reorganização financeira, esse valor precisa ser adequado à capacidade real de pagamento da atividade.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>🟠 Diesel Total: R$ 460,38/ha (ADM + Operacional)</h4>
+                <p>Somando o diesel que aparece no custeio operacional (R$ 239,91/ha) com o diesel do ADM (R$ 220,47/ha), o consumo total chega a <strong>R$ 460,38/ha</strong>, equivalente a <strong>R$ 75.502/safra</strong>. A referência para soja no cerrado goiano é de R$ 200 a R$ 280/ha. É recomendável auditar o consumo para verificar se há uso para fins não produtivos ou ineficiência logística.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>🟡 Consultoria Agronômica: R$ 16.826/safra</h4>
+                <p>O investimento em assessoria técnica é necessário, mas precisa <strong>gerar resultado</strong>. Nesta safra, a produtividade média ficou em 51,90 sc/ha — 23% abaixo da média de Goiás. É necessário reavaliar se a consultoria está alinhada com a realidade financeira da propriedade e se as recomendações estão sendo implementadas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 4: BENCHMARKING ========== -->
+    <div class="section-divider"><span>Seção 3 — Benchmarking Safra 2025/2026</span></div>
+
+    <div class="card">
+        <div class="card-header blue">📊 Comparativo de Produtividade</div>
+        <div class="card-body">
+            <p style="margin-bottom:16px;">Comparação da produtividade obtida na propriedade com as principais referências estaduais e nacionais para a safra 2025/2026. <em>Fontes: Expedição Safra Faeg/Senar, Rally da Safra Agroconsult, IMEA-MT, CONAB.</em></p>
+
+            <div class="bench-row">
+                <div class="bench-label" style="color:#C62828;"><strong>Sua Fazenda</strong></div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:74%; background: linear-gradient(90deg, #C62828, #EF5350);">51,90 sc/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">Média Brasil</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:90%; background: linear-gradient(90deg, #455A64, #78909C);">62,70 sc/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">IMEA — Mato Grosso</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:94%; background: linear-gradient(90deg, #00695C, #26A69A);">66,00 sc/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label" style="color:#1565C0;"><strong>Produtor A (Montividiu)</strong></div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:95%; background: linear-gradient(90deg, #1565C0, #42A5F5);">66,47 sc/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label" style="color:#2E7D32;"><strong>Média Goiás</strong></div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:96%; background: linear-gradient(90deg, #2E7D32, #66BB6A);">67,50 sc/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">Seu Talhão T 1</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:98%; background: linear-gradient(90deg, #F57F17, #FDD835); color:#333;">68,42 sc/ha ✅</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">Goiás 24/25 (anterior)</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:100%; background: linear-gradient(90deg, #6A1B9A, #AB47BC);">70,00 sc/ha</div>
+                </div>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top:18px;">
+                <h4>📉 A média da propriedade está 23,1% abaixo de Goiás</h4>
+                <p>Se a produtividade estivesse na média estadual de <strong>67,5 sc/ha</strong>, a produção total seria de <strong>11.070 sacas</strong> (em vez de 8.511). A diferença de <strong>2.559 sacas</strong>, ao preço médio de R$ 110,64, representa <strong>R$ 283.047 em receita perdida</strong>.</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h4>✅ O Talhão T 1 prova que o potencial existe</h4>
+                <p>Com <strong>68,42 sc/ha</strong>, o T 1 superou a média de Goiás, o IMEA-MT e o Produtor A de Montividiu. Isso demonstra que a propriedade <strong>tem capacidade</strong> de operar acima da média regional — o desafio é replicar esse desempenho nos demais talhões.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header blue">💲 Comparativo de Custo Operacional Total (COT)</div>
+        <div class="card-body">
+            <p style="margin-bottom:16px;">Comparação do custo operacional total por hectare com referências de mercado, IMEA-MT e com o <strong>Produtor A</strong>, produtor real da região de Montividiu-GO.</p>
+
+            <div class="bench-row">
+                <div class="bench-label">CONAB Goiás</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:71%; background: linear-gradient(90deg, #2E7D32, #66BB6A);">R$ 5.311/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">APROSOJA/MS</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:82%; background: linear-gradient(90deg, #00695C, #26A69A);">R$ 6.116/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label" style="color:#1565C0;"><strong>Produtor A (Montividiu)</strong></div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:92%; background: linear-gradient(90deg, #1565C0, #42A5F5);">R$ 6.872/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label" style="color:#C62828;"><strong>Sua Fazenda</strong></div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:99%; background: linear-gradient(90deg, #C62828, #EF5350);">R$ 7.365/ha</div>
+                </div>
+            </div>
+            <div class="bench-row">
+                <div class="bench-label">IMEA — Mato Grosso</div>
+                <div class="bench-bar-track">
+                    <div class="bench-bar-fill" style="width:100%; background: linear-gradient(90deg, #455A64, #78909C);">R$ 7.426/ha</div>
+                </div>
+            </div>
+
+            <div style="overflow-x:auto; margin-top:20px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referência</th>
+                            <th class="num">COT (R$/ha)</th>
+                            <th class="num">Insumos (R$/ha)</th>
+                            <th class="num">Produtiv. (sc/ha)</th>
+                            <th class="num">P.E. (sc/ha)</th>
+                            <th>Fonte</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CONAB Goiás</td>
+                            <td class="num">R$ 5.311,00</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td>CONAB</td>
+                        </tr>
+                        <tr>
+                            <td>APROSOJA/MS</td>
+                            <td class="num">R$ 6.115,83</td>
+                            <td class="num">—</td>
+                            <td class="num">53,00</td>
+                            <td class="num">50,97</td>
+                            <td>APROSOJA/MS</td>
+                        </tr>
+                        <tr style="background:#E3F2FD;">
+                            <td><strong>Produtor A (Montividiu-GO)</strong></td>
+                            <td class="num"><strong>R$ 6.871,95</strong></td>
+                            <td class="num"><strong>R$ 3.495,39</strong></td>
+                            <td class="num"><strong>66,47</strong></td>
+                            <td class="num"><strong>62,35</strong></td>
+                            <td>Dados reais</td>
+                        </tr>
+                        <tr style="background:#FFEBEE;">
+                            <td><strong>Sua Fazenda</strong></td>
+                            <td class="num"><strong>R$ 7.364,72</strong></td>
+                            <td class="num"><strong>R$ 3.885,58</strong></td>
+                            <td class="num"><strong>51,90</strong></td>
+                            <td class="num"><strong>66,56</strong></td>
+                            <td>Dados reais</td>
+                        </tr>
+                        <tr>
+                            <td>IMEA — Mato Grosso</td>
+                            <td class="num">R$ 7.425,97</td>
+                            <td class="num">R$ 4.051,33</td>
+                            <td class="num">66,00</td>
+                            <td class="num">49,98 (COE)</td>
+                            <td>IMEA/CPA-MT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box warning" style="margin-top:18px;">
+                <h4>📌 Insumos: R$ 390/ha a mais que o Produtor A</h4>
+                <p>Sua propriedade gasta <strong>R$ 3.885,58/ha</strong> em insumos, enquanto o Produtor A gasta <strong>R$ 3.495,39/ha</strong> — uma diferença de <strong>R$ 390,19/ha</strong>. Em 164 hectares, isso significa <strong>R$ 63.991 a mais por safra</strong> em insumos. Esse gasto adicional não se traduziu em maior produtividade — pelo contrário.</p>
+            </div>
+
+            <div class="highlight-box info">
+                <h4>📌 Comparação com o IMEA-MT: custo similar, resultado oposto</h4>
+                <p>O COT do IMEA para Mato Grosso (R$ 7.426/ha) é praticamente igual ao da sua fazenda (R$ 7.365/ha). Porém, o produtor mato-grossense produz <strong>66 sc/ha</strong> e tem margem positiva. Na sua propriedade, a produtividade de <strong>51,90 sc/ha</strong> transforma um custo similar em prejuízo. Isso reforça: <strong>o problema central é a produtividade</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header blue">⚖️ Comparativo: Custo em Sacas (Ponto de Equilíbrio) vs. Produtividade</div>
+        <div class="card-body">
+            <p style="margin-bottom:16px;">A métrica mais objetiva do agronegócio: <strong>quantas sacas por hectare o produtor precisa colher apenas para pagar seus custos?</strong></p>
+
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Referência</th>
+                            <th class="num">P.E. (sc/ha)</th>
+                            <th class="num">Produtividade</th>
+                            <th class="num">Margem (sc/ha)</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>IMEA — Mato Grosso (COE)</td>
+                            <td class="num">49,98</td>
+                            <td class="num">66,00</td>
+                            <td class="num" style="color:#2E7D32;">+16,02</td>
+                            <td><span class="badge ok">POSITIVA</span></td>
+                        </tr>
+                        <tr>
+                            <td>APROSOJA/MS</td>
+                            <td class="num">50,97</td>
+                            <td class="num">53,00</td>
+                            <td class="num" style="color:#2E7D32;">+2,03</td>
+                            <td><span class="badge ok">POSITIVA</span></td>
+                        </tr>
+                        <tr style="background:#E3F2FD;">
+                            <td><strong>Produtor A (Montividiu-GO)</strong></td>
+                            <td class="num"><strong>62,35</strong></td>
+                            <td class="num"><strong>66,47</strong></td>
+                            <td class="num" style="color:#2E7D32;"><strong>+4,12</strong></td>
+                            <td><span class="badge ok">POSITIVA</span></td>
+                        </tr>
+                        <tr style="background:#F1F8E9;">
+                            <td><strong>Seu Talhão T 1</strong></td>
+                            <td class="num"><strong>65,84</strong></td>
+                            <td class="num"><strong>68,42</strong></td>
+                            <td class="num" style="color:#2E7D32;"><strong>+2,58</strong></td>
+                            <td><span class="badge ok">POSITIVA</span></td>
+                        </tr>
+                        <tr style="background:#FFEBEE;">
+                            <td><strong>Sua Fazenda (média)</strong></td>
+                            <td class="num"><strong>66,56</strong></td>
+                            <td class="num"><strong>51,90</strong></td>
+                            <td class="num" style="color:#C62828;"><strong>-14,66</strong></td>
+                            <td><span class="badge critical">NEGATIVA</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top:18px;">
+                <h4>🔴 Déficit de 14,66 sacas por hectare na média geral</h4>
+                <p>Sr. Fernando, enquanto o Produtor A de Montividiu opera com margem de <strong>+4,12 sc/ha</strong> e o IMEA-MT registra <strong>+16,02 sc/ha</strong> sobre o COE, sua propriedade apresenta um <strong>déficit de quase 15 sacas por hectare</strong>. Em 164 hectares, isso equivale a <strong>2.404 sacas</strong>, ou aproximadamente <strong>R$ 266 mil de prejuízo</strong>.</p>
+                <p style="margin-top:8px;">Destaca-se, porém, que o <strong>Talhão T 1 operou com margem positiva de +2,58 sc/ha</strong>, demonstrando que o equilíbrio é alcançável quando a produtividade atinge a faixa dos 68+ sc/ha.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 5: CENÁRIOS DE RECUPERAÇÃO ========== -->
+    <div class="section-divider"><span>Seção 4 — Cenários de Recuperação</span></div>
+
+    <div class="card">
+        <div class="card-header dark">🔮 Cenários — O que aconteceria se...</div>
+        <div class="card-body">
+            <p style="margin-bottom:16px;">Para dimensionar o caminho da recuperação, simulamos três cenários para a próxima safra, mantendo 164 hectares e preço de referência de R$ 110,64/sc:</p>
+
+            <div class="scenario-grid">
+                <div class="scenario-card bad">
+                    <h4>❌ Cenário A — Só Melhora Produtividade</h4>
+                    <p>Produtividade: <strong>67,5 sc/ha</strong> (média GO)<br>Custo: <strong>R$ 7.365/ha</strong> (mantém atual)</p>
+                    <hr style="margin:10px 0; border-color:#eee;">
+                    <p>Receita: R$ 1.224.462</p>
+                    <p>Custo: R$ 1.207.814</p>
+                    <div class="result" style="color:#E65100;">+R$ 16.648</div>
+                    <p style="margin-top:8px;"><strong>Empata</strong>, mas não sobra para pagar passivo nem investir.</p>
+                </div>
+                <div class="scenario-card neutral">
+                    <h4>🟡 Cenário B — Só Reduz Custos</h4>
+                    <p>Produtividade: <strong>51,90 sc/ha</strong> (mantém atual)<br>Custo: <strong>R$ 6.116/ha</strong> (ref. APROSOJA)</p>
+                    <hr style="margin:10px 0; border-color:#eee;">
+                    <p>Receita: R$ 941.724</p>
+                    <p>Custo: R$ 1.003.024</p>
+                    <div class="result" style="color:#C62828;">-R$ 61.300</div>
+                    <p style="margin-top:8px;">Melhora 77%, mas <strong>ainda no vermelho</strong>.</p>
+                </div>
+                <div class="scenario-card good">
+                    <h4>✅ Cenário C — Melhora Ambos</h4>
+                    <p>Produtividade: <strong>67,5 sc/ha</strong> (média GO)<br>Custo: <strong>R$ 6.116/ha</strong> (ref. APROSOJA)</p>
+                    <hr style="margin:10px 0; border-color:#eee;">
+                    <p>Receita: R$ 1.224.462</p>
+                    <p>Custo: R$ 1.003.024</p>
+                    <div class="result" style="color:#2E7D32;">+R$ 221.438</div>
+                    <p style="margin-top:8px;"><strong>Viável.</strong> Sobra para pagar passivo, investir e formar reserva.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box success" style="margin-top:18px;">
+                <h4>🎯 A mensagem é clara</h4>
+                <p>Resolver <strong>apenas um dos problemas não é suficiente</strong>. A recuperação exige ação simultânea em duas frentes:</p>
+                <ul>
+                    <li><strong>Produtividade:</strong> sair de 51,90 para pelo menos 65-67 sc/ha</li>
+                    <li><strong>Custos:</strong> reduzir o COT de R$ 7.365 para a faixa de R$ 6.100-6.500/ha</li>
+                </ul>
+                <p style="margin-top:8px;">A combinação pode gerar <strong>até R$ 221 mil de resultado positivo</strong> por safra — valor que viabiliza o pagamento do passivo e a continuidade da atividade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SEÇÃO 6: RECOMENDAÇÕES ========== -->
+    <div class="section-divider"><span>Seção 5 — Diagnóstico e Recomendações</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📋 Diagnóstico Consolidado</div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimensão</th>
+                            <th class="num">Sua Fazenda</th>
+                            <th class="num">Referência</th>
+                            <th class="num">Gap</th>
+                            <th>Criticidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produtividade</td>
+                            <td class="num">51,90 sc/ha</td>
+                            <td class="num">67,50 sc/ha (GO)</td>
+                            <td class="num" style="color:#C62828;">-23,1%</td>
+                            <td><span class="badge critical">CRÍTICO</span></td>
+                        </tr>
+                        <tr>
+                            <td>COT por hectare</td>
+                            <td class="num">R$ 7.365</td>
+                            <td class="num">R$ 6.116 (APROSOJA)</td>
+                            <td class="num" style="color:#C62828;">+20,4%</td>
+                            <td><span class="badge critical">ALTO</span></td>
+                        </tr>
+                        <tr>
+                            <td>Custo de Insumos</td>
+                            <td class="num">R$ 3.886/ha</td>
+                            <td class="num">R$ 3.495/ha (Prod. A)</td>
+                            <td class="num" style="color:#E65100;">+11,2%</td>
+                            <td><span class="badge warning">MODERADO</span></td>
+                        </tr>
+                        <tr>
+                            <td>Custo ADM</td>
+                            <td class="num">R$ 1.532/ha</td>
+                            <td class="num">R$ 500-750/ha</td>
+                            <td class="num" style="color:#C62828;">+104% a +206%</td>
+                            <td><span class="badge critical">CRÍTICO</span></td>
+                        </tr>
+                        <tr>
+                            <td>Ponto de Equilíbrio</td>
+                            <td class="num">66,56 sc/ha</td>
+                            <td class="num">62,35 sc/ha (Prod. A)</td>
+                            <td class="num" style="color:#C62828;">+6,7%</td>
+                            <td><span class="badge critical">ALTO</span></td>
+                        </tr>
+                        <tr>
+                            <td>Margem por hectare</td>
+                            <td class="num">-14,66 sc</td>
+                            <td class="num">+4,12 sc (Prod. A)</td>
+                            <td class="num" style="color:#C62828;">Negativa</td>
+                            <td><span class="badge critical">INVIÁVEL</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header green">✅ Recomendações de Ação Imediata</div>
+        <div class="card-body">
+
+            <div class="highlight-box danger">
+                <h4>1. Reavaliar a Variedade NEO 820</h4>
+                <p><strong>Situação:</strong> Os dois talhões com NEO 820 (T 7/9 e T 11) produziram média de 42,33 sc/ha, enquanto o T 1 com DM 73i75 entregou 68,42 sc/ha.</p>
+                <p><strong>Impacto:</strong> R$ 282.690 de prejuízo concentrado nos talhões com NEO 820.</p>
+                <p style="margin-top:8px;">Antes da próxima safra, é essencial avaliar se a NEO 820 é adequada às condições de solo e clima desses talhões. A diferença de 26 sc/ha entre variedades, na mesma safra e propriedade, é um dado que não pode ser ignorado.</p>
+            </div>
+
+            <div class="highlight-box danger">
+                <h4>2. Ajustar o Pró-labore à Realidade da Atividade</h4>
+                <p><strong>Situação atual:</strong> ~R$ 8.539/mês (R$ 102.464/safra)</p>
+                <p><strong>Recomendação:</strong> Reduzir para R$ 4.000 a R$ 5.000/mês durante a reorganização.</p>
+                <p><strong>Economia projetada:</strong> R$ 42.000 a R$ 54.000 por safra.</p>
+                <p style="margin-top:8px;">O pró-labore precisa refletir o que a atividade pode pagar — não o padrão de vida desejado.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>3. Auditar e Reduzir o Consumo de Diesel</h4>
+                <p><strong>Situação atual:</strong> R$ 460,38/ha (ADM + operacional) = R$ 75.502/safra</p>
+                <p><strong>Meta:</strong> R$ 250-300/ha (referência cerrado) = R$ 41.000-49.200/safra</p>
+                <p><strong>Economia projetada:</strong> R$ 26.000 a R$ 34.000 por safra.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>4. Reavaliar a Consultoria Agronômica</h4>
+                <p><strong>Investimento:</strong> R$ 16.826/safra</p>
+                <p><strong>Resultado:</strong> 51,90 sc/ha (23% abaixo da média estadual)</p>
+                <p style="margin-top:8px;">A consultoria precisa estar alinhada com a realidade financeira. Prescrever o "pacote ideal" sem considerar o retorno sobre o investimento pode estar elevando custos sem ganho proporcional em produtividade.</p>
+            </div>
+
+            <div class="highlight-box info">
+                <h4>5. Investigar os Talhões T 7/9 e T 11 — Prioridade Agronômica</h4>
+                <p>Esses talhões representam <strong>106 ha (64,6% da área)</strong> e concentram todo o prejuízo. Antes da próxima safra: análise de solo em profundidade, verificação de compactação, drenagem, histórico de manejo e adequação da variedade. Se as condições forem estruturais, pode ser mais viável <strong>reduzir a área cultivada</strong> do que insistir em talhões improdutivos.</p>
+            </div>
+
+            <div class="highlight-box success">
+                <h4>6. Meta para a Safra 2026/2027</h4>
+                <p>Combinando as recomendações acima:</p>
+                <ul>
+                    <li><strong>Produtividade:</strong> 60 a 65 sc/ha (meta intermediária, realista)</li>
+                    <li><strong>COT:</strong> R$ 5.800 a R$ 6.200/ha (redução via ADM + diesel + insumos)</li>
+                    <li><strong>Resultado projetado:</strong> +R$ 50 mil a +R$ 180 mil (conforme cenário)</li>
+                </ul>
+                <p style="margin-top:8px;">Esses números demonstram que a atividade <strong>tem potencial de viabilidade</strong>, desde que as correções sejam implementadas de forma disciplinada.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SITUAÇÃO JURÍDICA ========== -->
+    <div class="section-divider"><span>Seção 6 — Contexto Jurídico</span></div>
+
+    <div class="card">
+        <div class="card-header dark">⚖️ Situação Jurídica Atual</div>
+        <div class="card-body">
+            <div class="metric-grid" style="grid-template-columns: 1fr;">
+                <div class="metric-card success">
+                    <div class="metric-label">Liminar Judicial</div>
+                    <div class="metric-value" style="font-size:1.5rem;">✅ ATIVA</div>
+                    <div class="metric-sub">Suspensão de cobranças em vigor — tempo para reorganização financeira</div>
+                </div>
+            </div>
+
+            <div class="highlight-box info" style="margin-top:16px;">
+                <h4>📌 A importância da liminar neste momento</h4>
+                <p>A liminar judicial ativa garante o <strong>tempo necessário</strong> para que a reorganização financeira seja implementada. Sem ela, as cobranças e negativações inviabilizariam qualquer tentativa de reestruturação.</p>
+                <p style="margin-top:8px;">É fundamental demonstrar ao juízo que esse tempo está sendo utilizado de forma <strong>responsável e estratégica</strong>. Este diagnóstico, junto com o plano de reorganização que será apresentado nos próximos módulos, constitui a evidência técnica de que existe uma ação concreta e planejada para a retomada da viabilidade da atividade.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NOTA FINAL ========== -->
+    <div class="card">
+        <div class="card-header green">📌 Nota Final — Módulo 1</div>
+        <div class="card-body">
+            <p>Sr. Fernando, os números desta safra revelam um resultado negativo, mas também mostram um dado importante: <strong>o Talhão T 1 provou que a propriedade tem potencial para operar no positivo</strong>.</p>
+            <p style="margin-top:10px;">O problema central não é a atividade rural em si — é a <strong>combinação de produtividade abaixo do potencial nos talhões com NEO 820, somada a uma estrutura de custos administrativos dimensionada para uma escala maior</strong>. Quando olhamos para o benchmarking, produtores na mesma região (como o Produtor A de Montividiu, com 66,47 sc/ha e margem de +4,12 sc) conseguem resultado positivo.</p>
+            <p style="margin-top:10px;">Nos próximos módulos, analisaremos o <strong>histórico das últimas safras</strong> (para entender se esta é uma tendência ou um ponto fora da curva), o <strong>fluxo de caixa mensal</strong> (para dimensionar a capacidade real de pagamento) e o <strong>mapa do passivo</strong> (para construir uma proposta de renegociação viável e fundamentada).</p>
+            <p style="margin-top:10px;"><strong>O objetivo continua sendo o mesmo: preservar a atividade, reorganizar a estrutura e demonstrar que existe capacidade de pagamento — dentro de limites reais.</strong></p>
+        </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <div class="footer">
+        <p><strong>Diagnóstico Financeiro Rural</strong> — Módulo 1: Safra 2025/2026</p>
+        <p>Documento elaborado para fins de análise financeira e planejamento de reorganização produtiva.</p>
+        <p style="margin-top:6px;">Dados atualizados em abril de 2026 · Fontes: Expedição Safra Faeg/Senar, Rally da Safra Agroconsult, IMEA/CPA-MT, CONAB, APROSOJA/MS.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 5 — Projeção 26/27: Soja vs. Milho Verão | Diagnóstico Financeiro Rural</title>
+    <style>
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #388E3C;
+            --primary-dark: #0D3B0F;
+            --accent: #FF8F00;
+            --danger: #C62828;
+            --warning: #F9A825;
+            --success: #2E7D32;
+            --bg: #F5F5F0;
+            --card-bg: #FFFFFF;
+            --text: #212121;
+            --text-secondary: #616161;
+            --border: #E0E0E0;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --soja: #43A047;
+            --milho: #FFA000;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #1A237E 0%, #283593 50%, #3949AB 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        }
+        .header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; }
+        .header .subtitle { font-size: 1.1rem; opacity: 0.9; position: relative; }
+        .header .module-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .card-header {
+            padding: 18px 24px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header.green { background: linear-gradient(90deg, #E8F5E9, #F1F8E9); color: var(--primary-dark); }
+        .card-header.red { background: linear-gradient(90deg, #FFEBEE, #FFF3E0); color: var(--danger); }
+        .card-header.orange { background: linear-gradient(90deg, #FFF3E0, #FFF8E1); color: #E65100; }
+        .card-header.blue { background: linear-gradient(90deg, #E3F2FD, #E8EAF6); color: #1565C0; }
+        .card-header.dark { background: linear-gradient(90deg, #263238, #37474F); color: #fff; }
+        .card-header.purple { background: linear-gradient(90deg, #EDE7F6, #E8EAF6); color: #4527A0; }
+        .card-header.teal { background: linear-gradient(90deg, #E0F2F1, #E8F5E9); color: #004D40; }
+        .card-header.soja { background: linear-gradient(90deg, #E8F5E9, #C8E6C9); color: #1B5E20; }
+        .card-header.milho { background: linear-gradient(90deg, #FFF8E1, #FFECB3); color: #E65100; }
+        .card-header.vs { background: linear-gradient(90deg, #E8F5E9 0%, #FFFDE7 50%, #FFF8E1 100%); color: #37474F; }
+        .card-body { padding: 24px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.85rem; }
+        thead th {
+            background: #F5F5F5;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        thead th.num { text-align: right; }
+        thead th.soja-col { background: #E8F5E9; color: #1B5E20; }
+        thead th.milho-col { background: #FFF8E1; color: #E65100; }
+        tbody td { padding: 8px; border-bottom: 1px solid #F0F0F0; }
+        tbody td.num {
+            text-align: right;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 0.82rem;
+        }
+        tbody tr:hover { background: #FAFAFA; }
+        tbody tr.total-row {
+            background: #F5F5F5;
+            font-weight: 700;
+            border-top: 2px solid var(--border);
+        }
+        tbody tr.total-row td { padding: 12px 8px; }
+        tbody tr.highlight-red { background: #FFF5F5; }
+        tbody tr.highlight-green { background: #F5FFF5; }
+        tbody tr.highlight-yellow { background: #FFFDE7; }
+        tbody tr.winner-soja { background: #E8F5E9; }
+        tbody tr.winner-milho { background: #FFF8E1; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge.critical { background: #FFCDD2; color: #B71C1C; }
+        .badge.warning { background: #FFF9C4; color: #F57F17; }
+        .badge.ok { background: #C8E6C9; color: #1B5E20; }
+        .badge.info { background: #BBDEFB; color: #0D47A1; }
+        .badge.soja { background: #C8E6C9; color: #1B5E20; }
+        .badge.milho { background: #FFECB3; color: #E65100; }
+
+        .bar-container { margin: 8px 0; }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .bar-track {
+            width: 100%;
+            height: 28px;
+            background: #ECEFF1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 700;
+        }
+        .bar-fill.green { background: linear-gradient(90deg, #43A047, #66BB6A); }
+        .bar-fill.red { background: linear-gradient(90deg, #E53935, #EF5350); }
+        .bar-fill.orange { background: linear-gradient(90deg, #FB8C00, #FFA726); }
+        .bar-fill.yellow { background: linear-gradient(90deg, #FFA000, #FFB300); }
+        .bar-fill.blue { background: linear-gradient(90deg, #1E88E5, #42A5F5); }
+        .bar-fill.dark { background: linear-gradient(90deg, #455A64, #78909C); }
+        .bar-fill.teal { background: linear-gradient(90deg, #00897B, #26A69A); }
+
+        .highlight-box { border-radius: 10px; padding: 20px; margin: 16px 0; }
+        .highlight-box.danger { background: linear-gradient(135deg, #FFEBEE, #FCE4EC); border-left: 5px solid var(--danger); }
+        .highlight-box.warning { background: linear-gradient(135deg, #FFF8E1, #FFF3E0); border-left: 5px solid var(--accent); }
+        .highlight-box.success { background: linear-gradient(135deg, #E8F5E9, #F1F8E9); border-left: 5px solid var(--success); }
+        .highlight-box.info { background: linear-gradient(135deg, #E3F2FD, #E8EAF6); border-left: 5px solid #1565C0; }
+        .highlight-box h4 { margin-bottom: 10px; font-size: 1rem; }
+        .highlight-box p, .highlight-box li { font-size: 0.92rem; color: #424242; }
+        .highlight-box ul, .highlight-box ol { margin-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 4px; }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .metric-card {
+            background: #FAFAFA;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+        }
+        .metric-card .metric-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 6px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+        .metric-card .metric-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-card .metric-sub {
+            font-size: 0.76rem;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #eee;
+        }
+        .metric-card.danger .metric-value { color: var(--danger); }
+        .metric-card.warning .metric-value { color: #E65100; }
+        .metric-card.success .metric-value { color: var(--success); }
+        .metric-card.info .metric-value { color: #1565C0; }
+        .metric-card.soja-card { border-left: 4px solid #43A047; }
+        .metric-card.milho-card { border-left: 4px solid #FFA000; }
+
+        .section-divider {
+            text-align: center;
+            margin: 40px 0 24px;
+            position: relative;
+        }
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-divider span {
+            background: var(--bg);
+            padding: 0 20px;
+            position: relative;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .vs-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+        .vs-card {
+            border-radius: 12px;
+            padding: 24px 32px;
+            text-align: center;
+            min-width: 240px;
+            flex: 1;
+        }
+        .vs-card.soja-bg { background: #E8F5E9; border: 2px solid #66BB6A; }
+        .vs-card.milho-bg { background: #FFF8E1; border: 2px solid #FFB300; }
+        .vs-card .vs-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .vs-card .vs-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            font-family: 'Consolas', monospace;
+            margin-top: 4px;
+        }
+        .vs-card .vs-sub {
+            font-size: 0.78rem;
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+        .vs-divider {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #9E9E9E;
+        }
+
+        .scenario-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+        }
+        .scenario-tab {
+            flex: 1;
+            padding: 12px 16px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid var(--border);
+            border-bottom: none;
+        }
+        .scenario-tab.pessimista { background: #FFEBEE; color: #C62828; }
+        .scenario-tab.base { background: #E3F2FD; color: #1565C0; }
+        .scenario-tab.otimista { background: #E8F5E9; color: #1B5E20; }
+
+        .dual-bar {
+            display: flex;
+            gap: 4px;
+            margin: 6px 0;
+        }
+        .dual-bar .bar-half {
+            flex: 1;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .source-tag {
+            display: inline-block;
+            background: #ECEFF1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: #607D8B;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer strong { color: var(--primary); }
+
+        .checklist { list-style: none; margin: 12px 0; }
+        .checklist li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+        .checklist li:last-child { border-bottom: none; }
+
+        @media print { .header { padding: 20px; } .card { break-inside: avoid; } body { font-size: 10pt; } }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.4rem; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            .vs-box { flex-direction: column; }
+            .vs-divider { transform: rotate(90deg); }
+            table { font-size: 0.72rem; }
+            thead th, tbody td { padding: 6px 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="module-badge">MÓDULO 5 — PROJEÇÃO SAFRA 26/27</div>
+    <h1>Soja vs. Milho Verão — 164 hectares</h1>
+    <p class="subtitle">Projeção em 3 Cenários · Fluxo de Caixa Projetado · Análise Comparativa para Tomada de Decisão</p>
+</div>
+
+<div class="container">
+
+    <!-- INTRODUÇÃO -->
+    <div class="card">
+        <div class="card-header blue">📋 Objetivo — Ferramenta de Decisão Gerencial</div>
+        <div class="card-body">
+            <p>Sr. Fernando, este módulo é uma <strong>ferramenta de gestão</strong>. Ele projeta dois cenários de cultivo para a safra 26/27 nos mesmos 164 hectares:</p>
+            <div class="vs-box">
+                <div class="vs-card soja-bg">
+                    <div class="vs-label">🌱 Cenário A — Soja</div>
+                    <div class="vs-value" style="color: #1B5E20;">164 ha Soja</div>
+                    <div class="vs-sub">Cultura atual · Referência de 3 safras</div>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="vs-card milho-bg">
+                    <div class="vs-label">🌽 Cenário B — Milho Verão</div>
+                    <div class="vs-value" style="color: #E65100;">164 ha Milho</div>
+                    <div class="vs-sub">Alternativa · Alto potencial em Rio Verde/GO</div>
+                </div>
+            </div>
+            <div class="highlight-box info" style="margin-bottom: 0;">
+                <h4>❓ As perguntas que este módulo responde:</h4>
+                <ul>
+                    <li><strong>"Qual cultura gera mais resultado nos 164 ha em 26/27?"</strong></li>
+                    <li><strong>"Em qual cenário de preço/produtividade cada cultura vence?"</strong></li>
+                    <li><strong>"Como fica o fluxo de caixa mês a mês em cada opção?"</strong></li>
+                    <li><strong>"Quais são as condições mínimas para cada cultura ser viável?"</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 1: PREMISSAS -->
+    <div class="section-divider"><span>Seção 1 — Premissas da Projeção</span></div>
+
+    <div class="card">
+        <div class="card-header teal">📐 Premissas Técnicas e de Mercado — Safra 26/27</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Premissas construídas com base nos dados reais da propriedade (Módulos 1-4) e referências de mercado atualizadas:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Premissa</th>
+                            <th class="num soja-col">🌱 SOJA</th>
+                            <th class="num milho-col">🌽 MILHO VERÃO</th>
+                            <th>Fonte / Justificativa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Área plantada</strong></td>
+                            <td class="num">164 ha</td>
+                            <td class="num">164 ha</td>
+                            <td>Mesma base para comparação direta</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #eee;">
+                            <td colspan="4" style="font-weight: 700; color: #999; padding-top: 12px;">PRODUTIVIDADE (sc/ha de 60 kg)</td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td>    Cenário Pessimista</td>
+                            <td class="num">52 sc/ha</td>
+                            <td class="num">100 sc/ha</td>
+                            <td>Soja: repete 25/26 · Milho: abaixo da média GO</td>
+                        </tr>
+                        <tr>
+                            <td>    Cenário Base</td>
+                            <td class="num"><strong>63 sc/ha</strong></td>
+                            <td class="num"><strong>130 sc/ha</strong></td>
+                            <td>Soja: meta T1 · Milho: média GO verão</td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td>    Cenário Otimista</td>
+                            <td class="num">70 sc/ha</td>
+                            <td class="num">155 sc/ha</td>
+                            <td>Soja: recorde GO 24/25 · Milho: alta tecnologia</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #eee;">
+                            <td colspan="4" style="font-weight: 700; color: #999; padding-top: 12px;">PREÇO DE VENDA (R$/sc)</td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td>    Cenário Pessimista</td>
+                            <td class="num">R$ 105,00</td>
+                            <td class="num">R$ 50,00</td>
+                            <td>Soja: pressão de oferta recorde · Milho: entrega futura Rio Verde</td>
+                        </tr>
+                        <tr>
+                            <td>    Cenário Base</td>
+                            <td class="num"><strong>R$ 115,00</strong></td>
+                            <td class="num"><strong>R$ 60,00</strong></td>
+                            <td>Soja: ref. APROSOJA + melhora comercial · Milho: disponível Rio Verde abr/26</td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td>    Cenário Otimista</td>
+                            <td class="num">R$ 128,00</td>
+                            <td class="num">R$ 72,00</td>
+                            <td>Soja: câmbio favorável · Milho: pico 2025 GO</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #eee;">
+                            <td colspan="4" style="font-weight: 700; color: #999; padding-top: 12px;">CUSTOS (R$/ha)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>COT/ha — Cenário Base</strong></td>
+                            <td class="num" style="color: #1B5E20;"><strong>R$ 6.200</strong></td>
+                            <td class="num" style="color: #E65100;"><strong>R$ 5.100</strong></td>
+                            <td>Soja: meta ajustada · Milho: ref. CONAB GO 1ª safra</td>
+                        </tr>
+                        <tr>
+                            <td>    COT Pessimista (+10%)</td>
+                            <td class="num">R$ 6.820</td>
+                            <td class="num">R$ 5.610</td>
+                            <td>Alta de insumos ou ineficiência</td>
+                        </tr>
+                        <tr>
+                            <td>    COT Otimista (-8%)</td>
+                            <td class="num">R$ 5.704</td>
+                            <td class="num">R$ 4.692</td>
+                            <td>Ganho de escala e eficiência</td>
+                        </tr>
+                        <tr style="border-top: 2px solid #eee;">
+                            <td colspan="4" style="font-weight: 700; color: #999; padding-top: 12px;">OUTROS</td>
+                        </tr>
+                        <tr>
+                            <td>Pró-labore (anual ajustado)</td>
+                            <td class="num">R$ 60.000</td>
+                            <td class="num">R$ 60.000</td>
+                            <td>R$ 5.000/mês — meta de ajuste</td>
+                        </tr>
+                        <tr>
+                            <td>Despesas Operacionais + Seguros</td>
+                            <td class="num">R$ 95.000</td>
+                            <td class="num">R$ 95.000</td>
+                            <td>Referência 25/26 ajustada</td>
+                        </tr>
+                        <tr>
+                            <td>Consórcios e fixos</td>
+                            <td class="num">R$ 18.454</td>
+                            <td class="num">R$ 18.454</td>
+                            <td>Mantido</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box info" style="margin-top: 18px;">
+                <h4>📌 Sobre as premissas do milho verão</h4>
+                <ul>
+                    <li><strong>Produtividade:</strong> Milho verão (1ª safra) em Rio Verde/GO tem potencial de <strong>120-155 sc/ha</strong> com tecnologia média-alta. A média GO é ~130 sc/ha</li>
+                    <li><strong>Preço:</strong> Milho disponível em Rio Verde (abr/2026) = R$ 59,48/sc. Média GO 2025 = R$ 69,62/sc. Pico = R$ 90,33/sc (mar/25). Projetamos R$ 60/sc como base conservadora</li>
+                    <li><strong>Custo:</strong> Milho verão exige menos defensivos que soja, mas mais nitrogênio (ureia). COT referência GO = R$ 4.800-5.400/ha. Usamos R$ 5.100 como base</li>
+                    <li><strong>Vantagem técnica:</strong> Milho verão não compete com a safrinha — é plantado na mesma janela da soja (out-nov) e colhido em mar-abr. Libera a terra para safrinha de feijão, sorgo ou pousio</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 2: PROJEÇÃO DE RESULTADO — 3 CENÁRIOS -->
+    <div class="section-divider"><span>Seção 2 — Projeção de Resultado: 3 Cenários</span></div>
+
+    <!-- CENÁRIO PESSIMISTA -->
+    <div class="card">
+        <div class="card-header red">⚠️ Cenário Pessimista — Clima ruim + Preços baixos</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Se a safra 26/27 repetir 25/26 em produtividade e enfrentar pressão de preços:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="num soja-col">🌱 SOJA (164 ha)</th>
+                            <th class="num milho-col">🌽 MILHO (164 ha)</th>
+                            <th class="num">Diferença</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produtividade</td>
+                            <td class="num">52 sc/ha</td>
+                            <td class="num">100 sc/ha</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Produção total</td>
+                            <td class="num">8.528 sc</td>
+                            <td class="num">16.400 sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Preço de venda</td>
+                            <td class="num">R$ 105,00/sc</td>
+                            <td class="num">R$ 50,00/sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>Receita Bruta</strong></td>
+                            <td class="num"><strong>R$ 895.440</strong></td>
+                            <td class="num"><strong>R$ 820.000</strong></td>
+                            <td class="num" style="color: #1B5E20;">Soja +R$ 75 mil</td>
+                        </tr>
+                        <tr>
+                            <td>(–) COT total (+10%)</td>
+                            <td class="num">(R$ 1.118.480)</td>
+                            <td class="num">(R$ 920.040)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>RESULTADO DA LAVOURA</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 223.040</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 100.040</strong></td>
+                            <td class="num" style="color: #E65100;"><strong>Milho perde R$ 123 mil a menos</strong></td>
+                        </tr>
+                        <tr>
+                            <td>(–) Desp. Op. + Seguros + Pró-labore + Fixos</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row" style="background: #FFEBEE;">
+                            <td><strong>RESULTADO FINAL LÍQUIDO</strong></td>
+                            <td class="num" style="color: #B71C1C;"><strong>-R$ 396.494</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 273.494</strong></td>
+                            <td class="num"><span class="badge milho">🌽 MILHO perde menos</span></td>
+                        </tr>
+                        <tr>
+                            <td>Custo por saca produzida</td>
+                            <td class="num" style="color: #C62828;">R$ 151,43</td>
+                            <td class="num" style="color: #C62828;">R$ 66,67</td>
+                            <td class="num"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 14px; margin-bottom: 0;">
+                <h4>🔴 Cenário pessimista: ambas as culturas dão prejuízo</h4>
+                <p>No pior cenário, <strong>nenhuma das duas culturas é viável</strong>. Porém, o milho perde R$ 123 mil a menos que a soja. A razão: mesmo com preço mais baixo (R$ 50 vs. R$ 105), o milho produz <strong>quase o dobro de volume</strong> (16.400 vs. 8.528 sacas) e tem <strong>custo/ha 18% menor</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENÁRIO BASE -->
+    <div class="card">
+        <div class="card-header blue">📊 Cenário Base — Meta realista + Preços de mercado</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Cenário com produtividade-alvo alcançável e preços dentro da referência atual de mercado:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="num soja-col">🌱 SOJA (164 ha)</th>
+                            <th class="num milho-col">🌽 MILHO (164 ha)</th>
+                            <th class="num">Diferença</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produtividade</td>
+                            <td class="num">63 sc/ha</td>
+                            <td class="num">130 sc/ha</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Produção total</td>
+                            <td class="num">10.332 sc</td>
+                            <td class="num">21.320 sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Preço de venda</td>
+                            <td class="num">R$ 115,00/sc</td>
+                            <td class="num">R$ 60,00/sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Receita Bruta</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 1.188.180</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 1.279.200</strong></td>
+                            <td class="num" style="color: #E65100;">Milho +R$ 91 mil</td>
+                        </tr>
+                        <tr>
+                            <td>(–) COT total</td>
+                            <td class="num">(R$ 1.016.800)</td>
+                            <td class="num">(R$ 836.400)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row highlight-green">
+                            <td><strong>RESULTADO DA LAVOURA</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 171.380</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 442.800</strong></td>
+                            <td class="num" style="color: #E65100;"><strong>Milho +R$ 271 mil</strong></td>
+                        </tr>
+                        <tr>
+                            <td>(–) Desp. Op. + Seguros + Pró-labore + Fixos</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row" style="background: #E8F5E9;">
+                            <td><strong>RESULTADO FINAL LÍQUIDO</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 2.074</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 269.346</strong></td>
+                            <td class="num"><span class="badge milho">🌽 MILHO +R$ 271 mil</span></td>
+                        </tr>
+                        <tr>
+                            <td>Custo por saca produzida</td>
+                            <td class="num">R$ 115,18</td>
+                            <td class="num">R$ 47,40</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Margem Operacional</td>
+                            <td class="num">-0,2%</td>
+                            <td class="num" style="color: #2E7D32;">+21,1%</td>
+                            <td class="num"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="metric-grid" style="margin-top: 18px;">
+                <div class="metric-card soja-card">
+                    <div class="metric-label">🌱 Soja — Resultado Líquido</div>
+                    <div class="metric-value" style="color: #C62828;">-R$ 2.074</div>
+                    <div class="metric-sub">Empata. Não sobra para passivo</div>
+                </div>
+                <div class="metric-card milho-card">
+                    <div class="metric-label">🌽 Milho — Resultado Líquido</div>
+                    <div class="metric-value" style="color: #2E7D32;">+R$ 269.346</div>
+                    <div class="metric-sub">Sobra para passivo e investimento</div>
+                </div>
+            </div>
+
+            <div class="highlight-box success" style="margin-top: 14px; margin-bottom: 0;">
+                <h4>✅ Cenário base: milho verão gera R$ 271 mil a mais que a soja</h4>
+                <p>No cenário base, a soja <strong>empata</strong> (resultado de -R$ 2 mil — praticamente zero). O milho gera resultado líquido de <strong>+R$ 269 mil</strong>. A diferença se explica por:</p>
+                <ul>
+                    <li><strong>Volume:</strong> 21.320 sacas de milho vs. 10.332 de soja (+106%)</li>
+                    <li><strong>Custo/ha menor:</strong> R$ 5.100 vs. R$ 6.200 (-18%)</li>
+                    <li><strong>Mesmo que o preço do milho (R$ 60) seja 48% do da soja (R$ 115)</strong>, o volume compensa largamente</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENÁRIO OTIMISTA -->
+    <div class="card">
+        <div class="card-header green">🚀 Cenário Otimista — Clima bom + Preços favoráveis</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Se o clima favorecer e os preços reagirem (câmbio + demanda):</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="num soja-col">🌱 SOJA (164 ha)</th>
+                            <th class="num milho-col">🌽 MILHO (164 ha)</th>
+                            <th class="num">Diferença</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produtividade</td>
+                            <td class="num">70 sc/ha</td>
+                            <td class="num">155 sc/ha</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Produção total</td>
+                            <td class="num">11.480 sc</td>
+                            <td class="num">25.420 sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr>
+                            <td>Preço de venda</td>
+                            <td class="num">R$ 128,00/sc</td>
+                            <td class="num">R$ 72,00/sc</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Receita Bruta</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 1.469.440</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>R$ 1.830.240</strong></td>
+                            <td class="num" style="color: #E65100;">Milho +R$ 361 mil</td>
+                        </tr>
+                        <tr>
+                            <td>(–) COT total (-8%)</td>
+                            <td class="num">(R$ 935.456)</td>
+                            <td class="num">(R$ 769.488)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row highlight-green">
+                            <td><strong>RESULTADO DA LAVOURA</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 533.984</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 1.060.752</strong></td>
+                            <td class="num" style="color: #E65100;"><strong>Milho +R$ 527 mil</strong></td>
+                        </tr>
+                        <tr>
+                            <td>(–) Desp. Op. + Seguros + Pró-labore + Fixos</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num">(R$ 173.454)</td>
+                            <td class="num"></td>
+                        </tr>
+                        <tr class="total-row" style="background: #C8E6C9;">
+                            <td><strong>RESULTADO FINAL LÍQUIDO</strong></td>
+                            <td class="num" style="color: #1B5E20;"><strong>+R$ 360.530</strong></td>
+                            <td class="num" style="color: #1B5E20;"><strong>+R$ 887.298</strong></td>
+                            <td class="num"><span class="badge milho">🌽 MILHO +R$ 527 mil</span></td>
+                        </tr>
+                        <tr>
+                            <td>Custo por saca produzida</td>
+                            <td class="num" style="color: #2E7D32;">R$ 96,53</td>
+                            <td class="num" style="color: #2E7D32;">R$ 37,10</td>
+                            <td class="num"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box success" style="margin-top: 14px; margin-bottom: 0;">
+                <h4>🚀 Cenário otimista: milho verão pode gerar quase R$ 900 mil de resultado</h4>
+                <p>Neste cenário, o milho gera <strong>R$ 887 mil de resultado líquido</strong> — praticamente quitando todo o déficit de caixa de 25/26 (R$ 815 mil) em uma única safra. A soja também dá excelente resultado (+R$ 360 mil), mas o milho entrega <strong>2,5 vezes mais</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUADRO COMPARATIVO CONSOLIDADO -->
+    <div class="card">
+        <div class="card-header vs">🌱🌽 Quadro Comparativo Consolidado — Resultado Final Líquido</div>
+        <div class="card-body">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cenário</th>
+                            <th class="num soja-col">🌱 SOJA</th>
+                            <th class="num milho-col">🌽 MILHO</th>
+                            <th class="num">Diferença</th>
+                            <th>Vencedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-red">
+                            <td><strong>Pessimista</strong></td>
+                            <td class="num" style="color: #C62828;">-R$ 396.494</td>
+                            <td class="num" style="color: #C62828;">-R$ 273.494</td>
+                            <td class="num">+R$ 123 mil</td>
+                            <td><span class="badge milho">🌽 Milho perde menos</span></td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Base</strong></td>
+                            <td class="num" style="color: #C62828;">-R$ 2.074</td>
+                            <td class="num" style="color: #2E7D32;">+R$ 269.346</td>
+                            <td class="num">+R$ 271 mil</td>
+                            <td><span class="badge milho">🌽 Milho ganha</span></td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Otimista</strong></td>
+                            <td class="num" style="color: #2E7D32;">+R$ 360.530</td>
+                            <td class="num" style="color: #2E7D32;">+R$ 887.298</td>
+                            <td class="num">+R$ 527 mil</td>
+                            <td><span class="badge milho">🌽 Milho ganha</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top: 20px; margin-bottom: 12px;">Resultado líquido por cenário:</h4>
+            <p style="font-size: 0.78rem; color: #888; margin-bottom: 8px;">Barras: 🟢 verde = soja · 🟡 amarelo = milho</p>
+
+            <p style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">Cenário Pessimista:</p>
+            <div class="dual-bar">
+                <div class="bar-half" style="background: linear-gradient(90deg, #C62828, #E53935); width: 59%;">Soja -R$ 396 mil</div>
+                <div class="bar-half" style="background: linear-gradient(90deg, #E65100, #F57C00); width: 41%;">Milho -R$ 273 mil</div>
+            </div>
+
+            <p style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; margin-top: 12px;">Cenário Base:</p>
+            <div class="dual-bar">
+                <div class="bar-half" style="background: #BDBDBD; width: 1%;">≈0</div>
+                <div class="bar-half" style="background: linear-gradient(90deg, #2E7D32, #43A047); width: 99%;">Milho +R$ 269 mil</div>
+            </div>
+
+            <p style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; margin-top: 12px;">Cenário Otimista:</p>
+            <div class="dual-bar">
+                <div class="bar-half" style="background: linear-gradient(90deg, #43A047, #66BB6A); width: 29%;">Soja +R$ 361 mil</div>
+                <div class="bar-half" style="background: linear-gradient(90deg, #F57F17, #FFA000); width: 71%;">Milho +R$ 887 mil</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 3: FLUXO DE CAIXA PROJETADO -->
+    <div class="section-divider"><span>Seção 3 — Fluxo de Caixa Projetado Mês a Mês (Cenário Base)</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📅 Fluxo de Caixa Projetado — Jul/26 a Mar/27 (Cenário Base)</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Projeção de saídas e entradas mensais com base na sazonalidade real da propriedade (Módulo 3), ajustada para o plano 26/27. <strong>Sem investimentos e sem despesas financeiras extraordinárias</strong> (liminar em vigor):</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mês</th>
+                            <th class="num">Custos Oper.</th>
+                            <th class="num">Desp.Op+Seg+Fixos</th>
+                            <th class="num">Total Saídas</th>
+                            <th class="num soja-col">Receita Soja</th>
+                            <th class="num milho-col">Receita Milho</th>
+                            <th class="num soja-col">Saldo Soja</th>
+                            <th class="num milho-col">Saldo Milho</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Jul/26</strong></td>
+                            <td class="num">62.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">81.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-81.272</td>
+                            <td class="num" style="color: #C62828;">-81.272</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ago/26</strong></td>
+                            <td class="num">45.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">64.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-145.544</td>
+                            <td class="num" style="color: #C62828;">-145.544</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Set/26</strong></td>
+                            <td class="num">58.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">77.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-222.816</td>
+                            <td class="num" style="color: #C62828;">-222.816</td>
+                        </tr>
+                        <tr style="background: #FFF8E1;">
+                            <td><strong>Out/26</strong> 🌱🌽</td>
+                            <td class="num">85.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">104.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-327.088</td>
+                            <td class="num" style="color: #C62828;">-327.088</td>
+                        </tr>
+                        <tr style="background: #FFF8E1;">
+                            <td><strong>Nov/26</strong> 🌱🌽</td>
+                            <td class="num">75.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">94.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-421.360</td>
+                            <td class="num" style="color: #C62828;">-421.360</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dez/26</strong></td>
+                            <td class="num">60.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">79.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-500.632</td>
+                            <td class="num" style="color: #C62828;">-500.632</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jan/27</strong></td>
+                            <td class="num">68.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">87.272</td>
+                            <td class="num">—</td>
+                            <td class="num">—</td>
+                            <td class="num" style="color: #C62828;">-587.904</td>
+                            <td class="num" style="color: #C62828;">-587.904</td>
+                        </tr>
+                        <tr style="background: #E8F5E9;">
+                            <td><strong>Fev/27</strong> 💰</td>
+                            <td class="num">55.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">74.272</td>
+                            <td class="num" style="color: #2E7D32;">594.090</td>
+                            <td class="num" style="color: #2E7D32;">639.600</td>
+                            <td class="num" style="color: #C62828;">-68.086</td>
+                            <td class="num" style="color: #C62828;">-22.576</td>
+                        </tr>
+                        <tr style="background: #C8E6C9;">
+                            <td><strong>Mar/27</strong> 💰</td>
+                            <td class="num">55.000</td>
+                            <td class="num">19.272</td>
+                            <td class="num">74.272</td>
+                            <td class="num" style="color: #2E7D32;">594.090</td>
+                            <td class="num" style="color: #2E7D32;">639.600</td>
+                            <td class="num" style="color: #2E7D32;">+451.732</td>
+                            <td class="num" style="color: #2E7D32;">+542.752</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>TOTAL 9 MESES</strong></td>
+                            <td class="num"><strong>563.000</strong></td>
+                            <td class="num"><strong>173.454</strong></td>
+                            <td class="num"><strong>736.454</strong></td>
+                            <td class="num"><strong>1.188.180</strong></td>
+                            <td class="num"><strong>1.279.200</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+451.726</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+542.746</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="font-size: 0.75rem; color: #999; margin-top: 6px;">* Receita dividida em 2 parcelas iguais (fev e mar/27) — simulando comercialização na colheita. Custos operacionais da soja e do milho estimados com mesma sazonalidade. Pró-labore (R$ 5.000/mês) diluído nas despesas.</p>
+
+            <div class="highlight-box warning" style="margin-top: 18px;">
+                <h4>⚠️ A necessidade de capital de giro é a mesma: ~R$ 588 mil</h4>
+                <p>Independente da cultura, o <strong>pico de exposição de caixa ocorre em janeiro/27 (-R$ 588 mil)</strong> — é quando já se plantou, já se aplicou insumos, mas ainda não se vendeu nada. Essa necessidade de capital de giro precisa vir de:</p>
+                <ul>
+                    <li>Crédito de custeio (Pronaf/Pronamp)</li>
+                    <li>Barter (troca de insumos por produção)</li>
+                    <li>Reserva de safra anterior (se houver)</li>
+                    <li>CPR (Cédula de Produto Rural)</li>
+                </ul>
+                <p style="margin-top: 8px;"><strong>Ponto-chave:</strong> No milho, o saldo final é R$ 91 mil MAIOR, gerando mais folga para cobrir eventualidades e iniciar a formação de reserva.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 4: CAPACIDADE DE PAGAMENTO -->
+    <div class="section-divider"><span>Seção 4 — Capacidade de Pagamento do Passivo por Cultura</span></div>
+
+    <div class="card">
+        <div class="card-header dark">📐 Quanto Sobra para Pagar Passivo — Soja vs. Milho</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Calculando a sobra efetiva após todos os custos e despesas, disponível para amortização do passivo:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cálculo</th>
+                            <th class="num soja-col">🌱 SOJA</th>
+                            <th class="num soja-col">Pessimista</th>
+                            <th class="num soja-col">Otimista</th>
+                            <th class="num milho-col">🌽 MILHO</th>
+                            <th class="num milho-col">Pessimista</th>
+                            <th class="num milho-col">Otimista</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Receita Bruta</td>
+                            <td class="num">1.188.180</td>
+                            <td class="num">895.440</td>
+                            <td class="num">1.469.440</td>
+                            <td class="num">1.279.200</td>
+                            <td class="num">820.000</td>
+                            <td class="num">1.830.240</td>
+                        </tr>
+                        <tr>
+                            <td>(–) COT total</td>
+                            <td class="num">(1.016.800)</td>
+                            <td class="num">(1.118.480)</td>
+                            <td class="num">(935.456)</td>
+                            <td class="num">(836.400)</td>
+                            <td class="num">(920.040)</td>
+                            <td class="num">(769.488)</td>
+                        </tr>
+                        <tr>
+                            <td>(–) Desp.Op+Seguros</td>
+                            <td class="num">(95.000)</td>
+                            <td class="num">(95.000)</td>
+                            <td class="num">(95.000)</td>
+                            <td class="num">(95.000)</td>
+                            <td class="num">(95.000)</td>
+                            <td class="num">(95.000)</td>
+                        </tr>
+                        <tr>
+                            <td>(–) Pró-labore</td>
+                            <td class="num">(60.000)</td>
+                            <td class="num">(60.000)</td>
+                            <td class="num">(60.000)</td>
+                            <td class="num">(60.000)</td>
+                            <td class="num">(60.000)</td>
+                            <td class="num">(60.000)</td>
+                        </tr>
+                        <tr>
+                            <td>(–) Fixos (consórcios)</td>
+                            <td class="num">(18.454)</td>
+                            <td class="num">(18.454)</td>
+                            <td class="num">(18.454)</td>
+                            <td class="num">(18.454)</td>
+                            <td class="num">(18.454)</td>
+                            <td class="num">(18.454)</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>SOBRA PARA PASSIVO</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 2.074</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 396.494</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 360.530</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 269.346</strong></td>
+                            <td class="num" style="color: #C62828;"><strong>-R$ 273.494</strong></td>
+                            <td class="num" style="color: #2E7D32;"><strong>+R$ 887.298</strong></td>
+                        </tr>
+                        <tr>
+                            <td><em>Equivalente mensal</em></td>
+                            <td class="num"><em>R$ 0</em></td>
+                            <td class="num"><em>—</em></td>
+                            <td class="num"><em>R$ 30.044</em></td>
+                            <td class="num"><em>R$ 22.446</em></td>
+                            <td class="num"><em>—</em></td>
+                            <td class="num"><em>R$ 73.941</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="vs-box" style="margin-top: 20px;">
+                <div class="vs-card soja-bg">
+                    <div class="vs-label">🌱 Soja — Capacidade Cenário Base</div>
+                    <div class="vs-value" style="color: #C62828;">R$ 0 / safra</div>
+                    <div class="vs-sub">Empata. Sem folga para passivo</div>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="vs-card milho-bg">
+                    <div class="vs-label">🌽 Milho — Capacidade Cenário Base</div>
+                    <div class="vs-value" style="color: #2E7D32;">R$ 269 mil / safra</div>
+                    <div class="vs-sub">R$ 22.446/mês para amortizar passivo</div>
+                </div>
+            </div>
+
+            <div class="highlight-box info" style="margin-top: 16px;">
+                <h4>📌 Interpretação para gestão</h4>
+                <ul>
+                    <li><strong>Soja cenário base:</strong> Não gera sobra para passivo. A soja só é opção de pagamento no cenário otimista (R$ 360 mil/safra)</li>
+                    <li><strong>Milho cenário base:</strong> Gera R$ 269 mil de sobra — suficiente para amortizar passivo e começar a formar reserva</li>
+                    <li><strong>Milho cenário otimista:</strong> Gera R$ 887 mil — potencialmente quita todo o déficit acumulado de 25/26 em uma safra</li>
+                    <li><strong>Risco:</strong> No cenário pessimista, ambas falham. Porém, o milho perde R$ 123 mil a menos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 5: CONDIÇÕES MÍNIMAS -->
+    <div class="section-divider"><span>Seção 5 — Condições Mínimas para Viabilidade</span></div>
+
+    <div class="card">
+        <div class="card-header red">🚨 O que NÃO Pode Acontecer — Condições de Ruptura</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Independente da cultura escolhida, existem <strong>condições inegociáveis</strong> para que o plano funcione:</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condição</th>
+                            <th>Limite Mínimo</th>
+                            <th>Se Violar...</th>
+                            <th>Status Atual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-red">
+                            <td><strong>1. Pró-labore máximo</strong></td>
+                            <td>R$ 5.000/mês (R$ 60 mil/ano)</td>
+                            <td>Cada R$ 1.000 acima = -R$ 12.000/ano no resultado</td>
+                            <td><span class="badge critical">Hoje: R$ 18.930/mês</span></td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>2. Zero investimentos novos</strong></td>
+                            <td>R$ 0 em aquisições de máquinas/animais</td>
+                            <td>Em 25/26, R$ 498 mil em investimentos destruiu o caixa</td>
+                            <td><span class="badge critical">Eliminar</span></td>
+                        </tr>
+                        <tr class="highlight-red">
+                            <td><strong>3. Zero empréstimos a terceiros</strong></td>
+                            <td>R$ 0</td>
+                            <td>Em 25/26, R$ 12 mil emprestados + R$ 21 mil de juros pagos</td>
+                            <td><span class="badge critical">Eliminar</span></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>4. COT máximo (soja)</strong></td>
+                            <td>R$ 6.500/ha</td>
+                            <td>Cada R$ 100/ha acima = -R$ 16.400 no resultado</td>
+                            <td><span class="badge warning">Meta: R$ 6.200</span></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>5. COT máximo (milho)</strong></td>
+                            <td>R$ 5.400/ha</td>
+                            <td>Cada R$ 100/ha acima = -R$ 16.400 no resultado</td>
+                            <td><span class="badge warning">Meta: R$ 5.100</span></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>6. Produtividade mínima (soja)</strong></td>
+                            <td>60 sc/ha</td>
+                            <td>Abaixo de 60: margem negativa garantida</td>
+                            <td><span class="badge warning">Exige troca NEO → DM</span></td>
+                        </tr>
+                        <tr class="highlight-yellow">
+                            <td><strong>7. Produtividade mínima (milho)</strong></td>
+                            <td>110 sc/ha</td>
+                            <td>Abaixo de 110 com preço base: margem aperta</td>
+                            <td><span class="badge info">Alcançável em Rio Verde</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>8. Manutenção da liminar</strong></td>
+                            <td>Vigente durante toda a safra 26/27</td>
+                            <td>Sem liminar, R$ 579 mil em desp. financeiras voltam</td>
+                            <td><span class="badge ok">Em vigor</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>9. Acesso a crédito de custeio</strong></td>
+                            <td>Mínimo R$ 500 mil</td>
+                            <td>Sem custeio, não há capital de giro para plantar</td>
+                            <td><span class="badge warning">Verificar</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>10. Comercialização acima do mínimo</strong></td>
+                            <td>Soja: ≥ R$ 110/sc · Milho: ≥ R$ 55/sc</td>
+                            <td>Abaixo desses preços, a margem desaparece</td>
+                            <td><span class="badge info">Estratégia de vendas</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box danger" style="margin-top: 18px;">
+                <h4>🚨 As 3 condições de ruptura imediata</h4>
+                <p>Se <strong>qualquer uma</strong> dessas 3 condições for violada, o plano falha independente da cultura ou do cenário:</p>
+                <ol>
+                    <li><strong>Pró-labore acima de R$ 5.000/mês</strong> — Na safra 25/26, o pró-labore de R$ 18.930/mês consumiu R$ 170 mil em 9 meses. Isso sozinho eliminou 65% da sobra operacional. <strong>É a condição mais importante.</strong></li>
+                    <li><strong>Qualquer investimento não essencial</strong> — R$ 498 mil em investimentos destruíram o caixa de 25/26. Zero aquisição de máquinas, animais ou consórcios novos</li>
+                    <li><strong>Perda da liminar</strong> — Sem a proteção judicial, as despesas financeiras de R$ 579 mil/9 meses voltam a consumir o caixa</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- PONTO DE EQUILÍBRIO COMPARATIVO -->
+    <div class="card">
+        <div class="card-header orange">📊 Pontos de Equilíbrio — Soja vs. Milho</div>
+        <div class="card-body">
+            <p style="margin-bottom: 14px;">Produtividade mínima necessária para cobrir TODOS os custos (COT + Desp.Op + Pró-labore + Fixos):</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th class="num soja-col">🌱 SOJA</th>
+                            <th class="num milho-col">🌽 MILHO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>COT total (164 ha)</td>
+                            <td class="num">R$ 1.016.800</td>
+                            <td class="num">R$ 836.400</td>
+                        </tr>
+                        <tr>
+                            <td>+ Desp.Op + Seguros + Pró-labore + Fixos</td>
+                            <td class="num">R$ 173.454</td>
+                            <td class="num">R$ 173.454</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>Custo Total a Cobrir</strong></td>
+                            <td class="num"><strong>R$ 1.190.254</strong></td>
+                            <td class="num"><strong>R$ 1.009.854</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Preço de venda (cenário base)</td>
+                            <td class="num">R$ 115,00/sc</td>
+                            <td class="num">R$ 60,00/sc</td>
+                        </tr>
+                        <tr style="background: #FFF3E0;">
+                            <td><strong>Ponto de Equilíbrio (sc/ha)</strong></td>
+                            <td class="num"><strong>63,09 sc/ha</strong></td>
+                            <td class="num"><strong>102,58 sc/ha</strong></td>
+                        </tr>
+                        <tr style="background: #FFF3E0;">
+                            <td><strong>Ponto de Equilíbrio (kg/ha)</strong></td>
+                            <td class="num"><strong>3.785 kg/ha</strong></td>
+                            <td class="num"><strong>6.155 kg/ha</strong></td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Média GO (referência)</strong></td>
+                            <td class="num">67,50 sc/ha</td>
+                            <td class="num">~130 sc/ha</td>
+                        </tr>
+                        <tr class="highlight-green">
+                            <td><strong>Folga acima do P.E.</strong></td>
+                            <td class="num" style="color: #2E7D32;">+4,41 sc/ha (7%)</td>
+                            <td class="num" style="color: #2E7D32;">+27,42 sc/ha (27%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box success" style="margin-top: 18px;">
+                <h4>✅ Milho tem margem de segurança 4x maior</h4>
+                <p>A folga entre a produtividade esperada e o ponto de equilíbrio é de:</p>
+                <ul>
+                    <li><strong>Soja:</strong> 7% de folga (4,41 sc/ha) — margem muito apertada; qualquer problema de produtividade já gera prejuízo</li>
+                    <li><strong>Milho:</strong> 27% de folga (27,42 sc/ha) — margem confortável; absorve quebras de até 27% na produtividade antes de empatar</li>
+                </ul>
+                <p style="margin-top: 8px;"><strong>Para gestão de risco:</strong> O milho dá muito mais "colchão" contra imprevistos climáticos e variações de preço.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO DECISÃO -->
+    <div class="section-divider"><span>Síntese — Recomendação para Tomada de Decisão</span></div>
+
+    <div class="card">
+        <div class="card-header dark">🎯 Matriz de Decisão — Soja vs. Milho Verão (164 ha)</div>
+        <div class="card-body">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Critério de Decisão</th>
+                            <th class="num soja-col">🌱 SOJA</th>
+                            <th class="num milho-col">🌽 MILHO</th>
+                            <th>Vencedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Resultado cenário base</strong></td>
+                            <td class="num" style="color: #C62828;">-R$ 2.074</td>
+                            <td class="num" style="color: #2E7D32;">+R$ 269.346</td>
+                            <td><span class="badge milho">🌽 Milho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Margem de segurança</strong></td>
+                            <td class="num">7%</td>
+                            <td class="num" style="color: #2E7D32;">27%</td>
+                            <td><span class="badge milho">🌽 Milho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custo/ha</strong></td>
+                            <td class="num">R$ 6.200</td>
+                            <td class="num" style="color: #2E7D32;">R$ 5.100</td>
+                            <td><span class="badge milho">🌽 Milho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Resistência a queda de preço (-20%)</strong></td>
+                            <td class="num" style="color: #C62828;">Prejuízo</td>
+                            <td class="num">Ainda positivo</td>
+                            <td><span class="badge milho">🌽 Milho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Potencial teto de resultado</strong></td>
+                            <td class="num">+R$ 360 mil</td>
+                            <td class="num" style="color: #2E7D32;">+R$ 887 mil</td>
+                            <td><span class="badge milho">🌽 Milho</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Experiência/domínio técnico</strong></td>
+                            <td class="num" style="color: #2E7D32;">3 safras de dados</td>
+                            <td class="num" style="color: #C62828;">Sem histórico</td>
+                            <td><span class="badge soja">🌱 Soja</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Facilidade de comercialização</strong></td>
+                            <td class="num" style="color: #2E7D32;">Alta liquidez</td>
+                            <td class="num">Boa liquidez em GO</td>
+                            <td><span class="badge soja">🌱 Soja</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Acesso a crédito/barter</strong></td>
+                            <td class="num" style="color: #2E7D32;">Amplo</td>
+                            <td class="num">Moderado</td>
+                            <td><span class="badge soja">🌱 Soja</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Possibilidade de 2ª safra</strong></td>
+                            <td class="num">Milho safrinha</td>
+                            <td class="num">Feijão / sorgo / pousio</td>
+                            <td><span class="badge info">Depende</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td><strong>SCORE GERAL</strong></td>
+                            <td class="num">3 / 9</td>
+                            <td class="num" style="color: #2E7D32;"><strong>5 / 9</strong></td>
+                            <td><span class="badge milho">🌽 MILHO VENCE</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box success" style="margin-top: 20px;">
+                <h4>✅ Recomendação: Considerar seriamente o milho verão — ou um modelo híbrido</h4>
+                <p>Os números favorecem o milho verão em <strong>5 de 9 critérios</strong>, especialmente nos que envolvem resultado financeiro e gestão de risco. Porém, a soja vence nos critérios de <strong>experiência, liquidez e crédito</strong> — que são importantes em uma operação sob estresse.</p>
+                <p style="margin-top: 10px;"><strong>Três caminhos possíveis:</strong></p>
+                <ol>
+                    <li><strong>100% Milho Verão (164 ha):</strong> Maximiza resultado (+R$ 269 mil base) — mas exige domínio técnico novo e muda toda a cadeia de fornecedores/compradores</li>
+                    <li><strong>Modelo Híbrido (ex: 100 ha soja + 64 ha milho):</strong> Diversifica risco, mantém a base de soja conhecida e captura parte do ganho do milho. Resultado base estimado: ~+R$ 105 mil</li>
+                    <li><strong>100% Soja (164 ha) com melhorias:</strong> Caminho mais seguro operacionalmente, mas resultado base = ~R$ 0. Só funciona no cenário otimista</li>
+                </ol>
+                <p style="margin-top: 10px;"><strong>Opinião técnica:</strong> Em uma operação que precisa gerar caixa para sobreviver, o <strong>modelo híbrido</strong> é provavelmente o mais inteligente — mantém a experiência em soja (T 1 com DM), testa o milho nos talhões problemáticos (T 7/9 e T 11 onde a soja não performa), e diversifica o risco de preço.</p>
+            </div>
+
+            <div class="highlight-box warning">
+                <h4>⚠️ O que investigar antes de decidir</h4>
+                <ul>
+                    <li><strong>Solo dos talhões T 7/9 e T 11:</strong> Se há nematoides ou compactação, milho pode sofrer o mesmo — análise de solo é essencial</li>
+                    <li><strong>Acesso a crédito para milho:</strong> Verificar se o custeio aprovado cobre milho verão (muitas linhas são atreladas à soja)</li>
+                    <li><strong>Logística de comercialização:</strong> Rio Verde tem demanda forte de milho (usinas de etanol, avicultura, suinocultura), mas verificar compradores e frete</li>
+                    <li><strong>Pacote tecnológico:</strong> Milho exige mais nitrogênio (ureia), diferente calendário de defensivos. Verificar se o agrônomo domina a cultura</li>
+                    <li><strong>Preço futuro:</strong> O milho futuro em Rio Verde está R$ 42-46/sc — significativamente abaixo dos R$ 60 usados como base. Se travar nesse patamar, o resultado piora muito</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTA FINAL -->
+    <div class="card">
+        <div class="card-header green">📌 Conclusão — Módulo 5</div>
+        <div class="card-body">
+            <p>Sr. Fernando, este módulo entrega o que faltava: <strong>uma ferramenta de decisão para o futuro, não apenas um diagnóstico do passado</strong>.</p>
+            <p style="margin-top: 10px;">Os números são claros:</p>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>A <strong>soja pura nos 164 ha</strong>, mesmo com melhorias, opera no fio da navalha — empata no cenário base</li>
+                <li>O <strong>milho verão</strong> tem resultado projetado de R$ 269 mil no cenário base e margem de segurança de 27%</li>
+                <li>O <strong>modelo híbrido</strong> (soja no T 1 + milho nos talhões problemáticos) pode ser o caminho mais inteligente — combina experiência com oportunidade</li>
+            </ul>
+            <p style="margin-top: 10px;">A decisão é do gestor. Mas agora ela é <strong>informada, quantificada e comparada</strong>.</p>
+            <p style="margin-top: 10px;"><strong>Próximos passos recomendados:</strong></p>
+            <ol style="margin: 10px 0 10px 20px;">
+                <li>Análise de solo completa dos talhões T 7/9 e T 11 (antes de out/26)</li>
+                <li>Consultar agrônomo sobre pacote tecnológico de milho verão para a região</li>
+                <li>Verificar acesso a crédito de custeio para milho</li>
+                <li>Levantar compradores/usinas de milho na região de Rio Verde</li>
+                <li>Definir modelo (100% soja, 100% milho ou híbrido) até agosto/26</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Diagnóstico Financeiro Rural</strong> — Módulo 5: Projeção Safra 26/27 — Soja vs. Milho Verão</p>
+        <p>Fontes: CONAB (4º Levantamento 25/26), SEAPA-GO, IMEA, APROSOJA/MS, Grão Direto (cotações Rio Verde abr/2026).</p>
+        <p style="margin-top: 6px;">Projeções baseadas em dados reais da propriedade e referências de mercado · Abril/2026.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

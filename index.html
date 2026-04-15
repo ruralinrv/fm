@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Financeiro Rural — Painel de Gestão</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        :root{
+            --sbg:#1A1A2E;--shov:#16213E;--sact:#0F3460;--stxt:#A0A0B8;--stxa:#FFF;
+            --bg:#F0F2F5;--card:#FFF;--txt:#212121;--txt2:#616161;--brd:#E0E0E0;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;height:100vh}
+
+        /* ========= LOGIN ========= */
+        #loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0D1B2A,#1A3A2A,#0D2818);display:flex;align-items:center;justify-content:center;z-index:10000;transition:opacity .5s}
+        #loginScreen.hide{opacity:0;pointer-events:none}
+        .lbox{width:400px;max-width:92vw}
+        .llogo{text-align:center;margin-bottom:30px}
+        .llogo .ico{width:64px;height:64px;background:linear-gradient(135deg,#2E7D32,#43A047);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;box-shadow:0 8px 28px rgba(46,125,50,.3)}
+        .llogo h1{color:#fff;font-size:1.35rem;font-weight:700}
+        .llogo p{color:rgba(255,255,255,.45);font-size:.82rem;margin-top:4px}
+        .lcard{background:rgba(255,255,255,.06);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:34px;box-shadow:0 16px 48px rgba(0,0,0,.25)}
+        .lcard h2{color:#fff;font-size:1.05rem;font-weight:600;margin-bottom:20px}
+        .fg{margin-bottom:16px}
+        .fg label{display:block;color:rgba(255,255,255,.55);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .fg input{width:100%;padding:12px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:9px;color:#fff;font-size:.9rem;font-family:inherit;outline:none;transition:.3s}
+        .fg input::placeholder{color:rgba(255,255,255,.28)}
+        .fg input:focus{border-color:#43A047;box-shadow:0 0 0 3px rgba(67,160,71,.2)}
+        .lbtn{width:100%;padding:13px;background:linear-gradient(135deg,#2E7D32,#43A047);color:#fff;border:none;border-radius:9px;font-size:.9rem;font-weight:700;font-family:inherit;cursor:pointer;transition:.3s;margin-top:4px}
+        .lbtn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(46,125,50,.35)}
+        .lerr{color:#EF5350;font-size:.78rem;text-align:center;margin-top:10px;min-height:18px;font-weight:500}
+        .lftr{text-align:center;margin-top:20px;color:rgba(255,255,255,.25);font-size:.72rem}
+        .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+        .pt{position:absolute;border-radius:50%;background:rgba(67,160,71,.12);animation:fl linear infinite}
+        @keyframes fl{0%{transform:translateY(100vh) rotate(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) rotate(720deg);opacity:0}}
+
+        /* ========= APP ========= */
+        #app{display:none;height:100vh;width:100vw}
+        #app.on{display:flex}
+
+        /* SIDEBAR */
+        .sb{width:260px;min-width:260px;background:var(--sbg);height:100vh;display:flex;flex-direction:column;z-index:100;transition:.3s}
+        .sb-hd{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
+        .sb-brand{display:flex;align-items:center;gap:10px}
+        .sb-brand .bi{width:36px;height:36px;background:linear-gradient(135deg,#2E7D32,#43A047);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+        .sb-brand h3{color:#fff;font-size:.85rem;font-weight:700}
+        .sb-brand small{color:var(--stxt);font-size:.65rem;display:block}
+        .sb-nav{flex:1;padding:14px 10px;overflow-y:auto}
+        .sb-sec{color:var(--stxt);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:10px 12px 6px}
+        .ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:var(--stxt);cursor:pointer;transition:.2s;margin-bottom:2px;font-size:.82rem;font-weight:500;position:relative;user-select:none}
+        .ni:hover{background:var(--shov);color:var(--stxa)}
+        .ni.on{background:var(--sact);color:var(--stxa);font-weight:600}
+        .ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:55%;background:#43A047;border-radius:0 3px 3px 0}
+        .ni .nic{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+        .ni .nbd{margin-left:auto;background:rgba(255,255,255,.08);padding:2px 7px;border-radius:6px;font-size:.6rem;font-weight:700}
+        .ni.on .nbd{background:rgba(67,160,71,.25);color:#81C784}
+        .sb-ft{padding:14px 18px;border-top:1px solid rgba(255,255,255,.06)}
+        .ui{display:flex;align-items:center;gap:9px}
+        .uav{width:34px;height:34px;background:linear-gradient(135deg,#FF8F00,#FFB300);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+        .ud h4{color:#fff;font-size:.78rem;font-weight:600}
+        .ud p{color:var(--stxt);font-size:.66rem}
+        .lob{margin-top:10px;width:100%;padding:7px;background:rgba(239,83,80,.08);border:1px solid rgba(239,83,80,.18);color:#EF5350;border-radius:7px;font-size:.74rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+        .lob:hover{background:rgba(239,83,80,.18)}
+
+        /* MAIN */
+        .mn{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+        .tb{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);flex-shrink:0}
+        .tb-l{display:flex;align-items:center;gap:14px}
+        .hbg{display:none;background:none;border:none;font-size:1.3rem;cursor:pointer;padding:4px;color:var(--txt)}
+        .tb-t h2{font-size:1.05rem;font-weight:700}
+        .tb-t p{font-size:.72rem;color:var(--txt2)}
+        .tb-badge{padding:5px 12px;border-radius:7px;font-size:.72rem;font-weight:700;background:#FFF3E0;color:#E65100}
+        .ca{flex:1;overflow:hidden;position:relative}
+
+        /* PAGES */
+        .page{display:none;position:absolute;inset:0;overflow-y:auto}
+        .page.on{display:block}
+        .page iframe{width:100%;height:100%;border:none}
+
+        /* DASHBOARD */
+        #pg-home{padding:24px;overflow-y:auto}
+        .dg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:22px}
+        .dc{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--brd);cursor:pointer;transition:.25s}
+        .dc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+        .dc-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .dc-i{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+        .dc-ch{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:5px}
+        .dc-v{font-size:1.35rem;font-weight:800;font-family:'Consolas',monospace;margin-bottom:2px}
+        .dc-lb{font-size:.72rem;color:var(--txt2)}
+        .dm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+        .mc{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--brd);cursor:pointer;transition:.25s;display:flex;gap:14px}
+        .mc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);border-color:#43A047}
+        .mc-i{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:#fff}
+        .mc-c h3{font-size:.88rem;font-weight:700;margin-bottom:2px}
+        .mc-c p{font-size:.76rem;color:var(--txt2);line-height:1.5}
+        .mc-t{display:inline-block;padding:2px 9px;border-radius:5px;font-size:.64rem;font-weight:700;margin-top:5px}
+        .act-box{background:#fff;border-radius:12px;padding:20px;margin-top:22px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--brd)}
+        .act-box h3{font-size:.88rem;font-weight:700;margin-bottom:10px}
+        .act-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+        .act{border-radius:8px;padding:12px 14px;border-left:4px solid}
+        .act strong{font-size:.76rem}
+        .act p{font-size:.78rem;margin-top:2px}
+
+        /* STATUS FILE */
+        .file-status{background:#fff;border-radius:12px;padding:20px;margin-top:22px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--brd)}
+        .file-status h3{font-size:.88rem;font-weight:700;margin-bottom:12px}
+        .file-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:.82rem}
+        .file-row:last-child{border-bottom:none}
+        .file-row .fname{font-weight:600;min-width:120px}
+        .file-row .fstatus{margin-left:auto;padding:3px 10px;border-radius:6px;font-size:.7rem;font-weight:700}
+        .fok{background:#C8E6C9;color:#1B5E20}
+        .fmiss{background:#FFCDD2;color:#C62828}
+
+        .sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+        .sb-ov.on{display:block}
+        @media(max-width:900px){
+            .sb{position:fixed;left:-260px;top:0;height:100vh}
+            .sb.open{left:0}
+            .hbg{display:block}
+            .dg{grid-template-columns:1fr 1fr}
+            .dm{grid-template-columns:1fr}
+        }
+        @media(max-width:480px){.dg{grid-template-columns:1fr}#pg-home{padding:14px}}
+    </style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen">
+    <div class="particles" id="ptc"></div>
+    <div class="lbox">
+        <div class="llogo">
+            <div class="ico">🌾</div>
+            <h1>Diagnóstico Financeiro Rural</h1>
+            <p>Painel de Gestão — Safra 25/26 e Projeção 26/27</p>
+        </div>
+        <div class="lcard">
+            <h2>Acesso ao Painel</h2>
+            <form onsubmit="return doLogin(event)">
+                <div class="fg"><label>Usuário</label><input type="text" id="usr" placeholder="Digite seu usuário" autocomplete="off" autofocus></div>
+                <div class="fg"><label>Senha</label><input type="password" id="pwd" placeholder="Digite sua senha"></div>
+                <button type="submit" class="lbtn">Entrar no Painel</button>
+                <div class="lerr" id="lerr"></div>
+            </form>
+        </div>
+        <div class="lftr">Dados confidenciais · Acesso restrito ao gestor autorizado</div>
+    </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+    <aside class="sb" id="sb">
+        <div class="sb-hd"><div class="sb-brand"><div class="bi">🌾</div><div><h3>Diagnóstico Rural</h3><small>Painel de Gestão</small></div></div></div>
+        <nav class="sb-nav">
+            <div class="sb-sec">Principal</div>
+            <div class="ni on" onclick="go('home')" data-p="home"><span class="nic">📊</span>Dashboard</div>
+            <div class="sb-sec">Diagnóstico 25/26</div>
+            <div class="ni" onclick="go('m1')" data-p="m1"><span class="nic">🌱</span>Safra Atual<span class="nbd">M1</span></div>
+            <div class="ni" onclick="go('m2')" data-p="m2"><span class="nic">📈</span>Evolução 3 Safras<span class="nbd">M2</span></div>
+            <div class="ni" onclick="go('m3')" data-p="m3"><span class="nic">💰</span>Fluxo de Caixa<span class="nbd">M3</span></div>
+            <div class="sb-sec">Análise Estratégica</div>
+            <div class="ni" onclick="go('m4')" data-p="m4"><span class="nic">🎯</span>Mercado & Score<span class="nbd">M4</span></div>
+            <div class="sb-sec">Projeção & Decisão</div>
+            <div class="ni" onclick="go('m5')" data-p="m5"><span class="nic">🚀</span>Projeção 26/27<span class="nbd">M5</span></div>
+        </nav>
+        <div class="sb-ft">
+            <div class="ui"><div class="uav">SF</div><div class="ud"><h4>Sr. Fernando</h4><p>Gestor da Propriedade</p></div></div>
+            <button class="lob" onclick="doLogout()">⏻ Sair do Painel</button>
+        </div>
+    </aside>
+    <div class="sb-ov" id="sbov" onclick="togSb()"></div>
+    <main class="mn">
+        <div class="tb">
+            <div class="tb-l">
+                <button class="hbg" onclick="togSb()">☰</button>
+                <div class="tb-t" id="tbt"><h2>Dashboard</h2><p>Visão geral do diagnóstico</p></div>
+            </div>
+            <div class="tb-badge">Score: 3,8 / 10</div>
+        </div>
+        <div class="ca">
+
+            <!-- ===== DASHBOARD ===== -->
+            <div class="page on" id="pg-home">
+                <div class="dg">
+                    <div class="dc" onclick="go('m1')"><div class="dc-h"><div class="dc-i" style="background:#FFEBEE">🌱</div><div class="dc-ch" style="background:#FFCDD2;color:#C62828">-28,2%</div></div><div class="dc-v" style="color:#C62828">51,90 sc/ha</div><div class="dc-lb">Produtividade 25/26 · 23% abaixo de GO</div></div>
+                    <div class="dc" onclick="go('m1')"><div class="dc-h"><div class="dc-i" style="background:#FFF3E0">💸</div><div class="dc-ch" style="background:#FFECB3;color:#E65100">R$/sc</div></div><div class="dc-v" style="color:#E65100">R$ 141,90</div><div class="dc-lb">Custo por Saca · Vende a R$ 110,64</div></div>
+                    <div class="dc" onclick="go('m3')"><div class="dc-h"><div class="dc-i" style="background:#FFEBEE">📤</div><div class="dc-ch" style="background:#FFCDD2;color:#C62828">9 meses</div></div><div class="dc-v" style="color:#C62828">-R$ 815 mil</div><div class="dc-lb">Déficit de Caixa · Cobertura 53,6%</div></div>
+                    <div class="dc" onclick="go('m2')"><div class="dc-h"><div class="dc-i" style="background:#E8F5E9">📉</div><div class="dc-ch" style="background:#C8E6C9;color:#1B5E20">↓ 40%</div></div><div class="dc-v" style="color:#2E7D32">COT -40%</div><div class="dc-lb">Redução de custo em 3 safras</div></div>
+                    <div class="dc" onclick="go('m4')"><div class="dc-h"><div class="dc-i" style="background:#EDE7F6">🏥</div><div class="dc-ch" style="background:#E8EAF6;color:#4527A0">8 dim.</div></div><div class="dc-v" style="color:#E65100">3,8 / 10</div><div class="dc-lb">Score de Saúde · Grave c/ potencial</div></div>
+                    <div class="dc" onclick="go('m5')"><div class="dc-h"><div class="dc-i" style="background:#FFF8E1">🌽</div><div class="dc-ch" style="background:#C8E6C9;color:#1B5E20">Projeção</div></div><div class="dc-v" style="color:#2E7D32">+R$ 269 mil</div><div class="dc-lb">Milho Verão (base) vs. Soja R$ 0</div></div>
+                </div>
+
+                <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px;color:var(--txt2)">📂 Módulos do Diagnóstico</h3>
+                <div class="dm">
+                    <div class="mc" onclick="go('m1')"><div class="mc-i" style="background:linear-gradient(135deg,#1B5E20,#388E3C)">🌱</div><div class="mc-c"><h3>Módulo 1 — Safra 2025/2026</h3><p>Produtividade, custo e resultado por talhão. Receita, COT, margem e ponto de equilíbrio.</p><div class="mc-t" style="background:#FFCDD2;color:#C62828">Prejuízo -R$ 266 mil</div></div></div>
+                    <div class="mc" onclick="go('m2')"><div class="mc-i" style="background:linear-gradient(135deg,#E65100,#FF8F00)">📈</div><div class="mc-c"><h3>Módulo 2 — Evolução 3 Safras</h3><p>23/24 → 24/25 → 25/26 com análise de tendência e trajetória de melhoria.</p><div class="mc-t" style="background:#C8E6C9;color:#1B5E20">COT -40% em 3 safras</div></div></div>
+                    <div class="mc" onclick="go('m3')"><div class="mc-i" style="background:linear-gradient(135deg,#4A148C,#7B1FA2)">💰</div><div class="mc-c"><h3>Módulo 3 — Fluxo de Caixa</h3><p>9 meses de saídas reais: custos, investimentos, despesas financeiras. Déficit R$ 815 mil.</p><div class="mc-t" style="background:#FFCDD2;color:#C62828">Saídas 86% > Receita</div></div></div>
+                    <div class="mc" onclick="go('m4')"><div class="mc-i" style="background:linear-gradient(135deg,#004D40,#00897B)">🎯</div><div class="mc-c"><h3>Módulo 4 — Mercado & Indicadores</h3><p>Benchmarking vs. GO e Brasil, 8 indicadores derivados, score de saúde em 8 dimensões.</p><div class="mc-t" style="background:#FFF9C4;color:#F57F17">Score 3,8 / 10</div></div></div>
+                    <div class="mc" onclick="go('m5')"><div class="mc-i" style="background:linear-gradient(135deg,#1A237E,#3949AB)">🚀</div><div class="mc-c"><h3>Módulo 5 — Projeção 26/27</h3><p>Soja vs. Milho Verão · 3 cenários · Fluxo projetado · Matriz de decisão.</p><div class="mc-t" style="background:#C8E6C9;color:#1B5E20">Milho vence 5/9</div></div></div>
+                </div>
+
+                <div class="act-box">
+                    <h3>⚡ Ações Prioritárias</h3>
+                    <div class="act-g">
+                        <div class="act" style="background:#FFEBEE;border-color:#C62828"><strong style="color:#C62828">🔴 URGENTE</strong><p>Reduzir pró-labore de R$ 18.930 → R$ 5.000/mês</p></div>
+                        <div class="act" style="background:#FFEBEE;border-color:#C62828"><strong style="color:#C62828">🔴 URGENTE</strong><p>Zero investimentos novos na safra 26/27</p></div>
+                        <div class="act" style="background:#FFF3E0;border-color:#FF8F00"><strong style="color:#E65100">⚠️ IMPORTANTE</strong><p>Análise de solo T 7/9 e T 11 até out/26</p></div>
+                        <div class="act" style="background:#FFF3E0;border-color:#FF8F00"><strong style="color:#E65100">⚠️ IMPORTANTE</strong><p>Avaliar milho verão p/ talhões problemáticos</p></div>
+                        <div class="act" style="background:#E8F5E9;border-color:#2E7D32"><strong style="color:#1B5E20">✅ MANTER</strong><p>Variedade DM no T 1 — acima de GO</p></div>
+                        <div class="act" style="background:#E3F2FD;border-color:#1565C0"><strong style="color:#1565C0">📌 ESTRATÉGICO</strong><p>Definir soja/milho/híbrido até agosto/26</p></div>
+                    </div>
+                </div>
+
+                <!-- INSTRUÇÕES DOS ARQUIVOS -->
+                <div class="file-status">
+                    <h3>📁 Status dos Arquivos — Coloque na mesma pasta do index.html</h3>
+                    <div class="file-row"><span>📄</span><span class="fname">modulo1.html</span><span>Módulo 1 — Safra 2025/2026</span><span class="fstatus" id="fs1">Verificando...</span></div>
+                    <div class="file-row"><span>📄</span><span class="fname">modulo2.html</span><span>Módulo 2 — Evolução 3 Safras</span><span class="fstatus" id="fs2">Verificando...</span></div>
+                    <div class="file-row"><span>📄</span><span class="fname">modulo3.html</span><span>Módulo 3 — Fluxo de Caixa</span><span class="fstatus" id="fs3">Verificando...</span></div>
+                    <div class="file-row"><span>📄</span><span class="fname">modulo4.html</span><span>Módulo 4 — Mercado & Indicadores</span><span class="fstatus" id="fs4">Verificando...</span></div>
+                    <div class="file-row"><span>📄</span><span class="fname">modulo5.html</span><span>Módulo 5 — Projeção 26/27</span><span class="fstatus" id="fs5">Verificando...</span></div>
+                    <div style="margin-top:14px;padding:14px;background:#E3F2FD;border-radius:8px;border-left:4px solid #1565C0">
+                        <p style="font-size:.82rem;color:#1565C0"><strong>📌 Como funciona:</strong> Salve cada módulo HTML (gerado na conversa) como <code>modulo1.html</code>, <code>modulo2.html</code>, etc. na <strong>mesma pasta</strong> deste arquivo <code>index.html</code>. Os módulos serão carregados <strong>completos e intactos</strong> dentro do painel.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MODULE PAGES (IFRAMES) ===== -->
+            <div class="page" id="pg-m1"><iframe id="if1" data-src="modulo1.html"></iframe></div>
+            <div class="page" id="pg-m2"><iframe id="if2" data-src="modulo2.html"></iframe></div>
+            <div class="page" id="pg-m3"><iframe id="if3" data-src="modulo3.html"></iframe></div>
+            <div class="page" id="pg-m4"><iframe id="if4" data-src="modulo4.html"></iframe></div>
+            <div class="page" id="pg-m5"><iframe id="if5" data-src="modulo5.html"></iframe></div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+// ===== PARTICLES =====
+(function(){const c=document.getElementById('ptc');for(let i=0;i<15;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*5+2;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*14+10}s;animation-delay:${Math.random()*8}s`;c.appendChild(p)}})();
+
+// ===== LOGIN =====
+const U='gestor',P='ruralin2026';
+function doLogin(e){
+    e.preventDefault();
+    if(document.getElementById('usr').value.trim()===U&&document.getElementById('pwd').value===P){
+        document.getElementById('lerr').textContent='';
+        document.getElementById('loginScreen').classList.add('hide');
+        setTimeout(()=>{document.getElementById('loginScreen').style.display='none';document.getElementById('app').classList.add('on');checkFiles()},500);
+    }else{
+        document.getElementById('lerr').textContent='⚠ Usuário ou senha incorretos.';
+        document.getElementById('pwd').value='';document.getElementById('pwd').focus();
+    }
+    return false;
+}
+function doLogout(){
+    document.getElementById('app').classList.remove('on');
+    document.getElementById('loginScreen').style.display='flex';
+    setTimeout(()=>document.getElementById('loginScreen').classList.remove('hide'),50);
+    document.getElementById('usr').value='';document.getElementById('pwd').value='';document.getElementById('lerr').textContent='';
+    go('home');
+}
+
+// ===== NAVIGATION =====
+const titles={
+    home:['Dashboard','Visão geral do diagnóstico'],
+    m1:['Módulo 1 — Safra 2025/2026','Produtividade, custo e resultado por talhão'],
+    m2:['Módulo 2 — Evolução 3 Safras','Comparativo 23/24 → 24/25 → 25/26'],
+    m3:['Módulo 3 — Fluxo de Caixa','Jul/2025 a Mar/2026 — Saídas reais vs. geração'],
+    m4:['Módulo 4 — Mercado & Indicadores','Benchmarking, score de saúde e indicadores derivados'],
+    m5:['Módulo 5 — Projeção 26/27','Soja vs. Milho Verão — 164 ha · 3 cenários']
+};
+const loaded={};
+
+function go(p){
+    // Sidebar
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+    const ni=document.querySelector(`.ni[data-p="${p}"]`);if(ni)ni.classList.add('on');
+    // Pages
+    document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('on'));
+    const pg=document.getElementById('pg-'+p);if(pg)pg.classList.add('on');
+    // Topbar
+    const t=titles[p];if(t)document.getElementById('tbt').innerHTML=`<h2>${t[0]}</h2><p>${t[1]}</p>`;
+    // Lazy load iframe
+    if(p!=='home'&&!loaded[p]){
+        const num=p.replace('m','');
+        const iframe=document.getElementById('if'+num);
+        if(iframe&&iframe.dataset.src){
+            iframe.src=iframe.dataset.src;
+            loaded[p]=true;
+        }
+    }
+    // Close mobile sidebar
+    document.getElementById('sb').classList.remove('open');
+    document.getElementById('sbov').classList.remove('on');
+}
+
+function togSb(){
+    document.getElementById('sb').classList.toggle('open');
+    document.getElementById('sbov').classList.toggle('on');
+}
+
+// ===== FILE CHECK =====
+function checkFiles(){
+    for(let i=1;i<=5;i++){
+        const el=document.getElementById('fs'+i);
+        fetch('modulo'+i+'.html',{method:'HEAD'}).then(r=>{
+            if(r.ok){el.textContent='✅ Encontrado';el.className='fstatus fok'}
+            else{el.textContent='❌ Não encontrado';el.className='fstatus fmiss'}
+        }).catch(()=>{el.textContent='⚠ Verificar';el.className='fstatus fmiss'});
+    }
+}
+</script>
+</body>
+</html>
