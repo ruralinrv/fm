@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Pecuária — Análise Estratégica do Rebanho · Grupo 8M</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#F0F2F5;color:#212121;line-height:1.7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        .container{max-width:1200px;margin:0 auto;padding:20px}
+
+        .mod-header{background:linear-gradient(135deg,#1B5E20,#2E7D32,#388E3C,#43A047);padding:50px 40px;text-align:center;color:#fff;border-radius:16px;margin-bottom:30px;position:relative;overflow:hidden}
+        .mod-header::before{content:'';position:absolute;top:-30%;right:-10%;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%}
+        .mod-header .badge{display:inline-block;background:rgba(255,255,255,.15);padding:6px 20px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:14px;backdrop-filter:blur(4px)}
+        .mod-header h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+        .mod-header .sub{font-size:1rem;opacity:.85}
+        .mod-header .date{font-size:.82rem;opacity:.65;margin-top:8px}
+
+        .card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;overflow:hidden;border:1px solid #E0E0E0}
+        .card-header{padding:16px 24px;font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E0E0E0}
+        .card-header.grn{background:linear-gradient(90deg,#E8F5E9,#F1F8E9);color:#1B5E20}
+        .card-header.red{background:linear-gradient(90deg,#FFEBEE,#FFF3E0);color:#B71C1C}
+        .card-header.org{background:linear-gradient(90deg,#FFF3E0,#FFF8E1);color:#E65100}
+        .card-header.blu{background:linear-gradient(90deg,#E3F2FD,#E8EAF6);color:#1565C0}
+        .card-header.drk{background:linear-gradient(90deg,#263238,#37474F);color:#fff}
+        .card-header.pur{background:linear-gradient(90deg,#EDE7F6,#E8EAF6);color:#4527A0}
+        .card-header.tea{background:linear-gradient(90deg,#E0F2F1,#E8F5E9);color:#004D40}
+        .card-header.ind{background:linear-gradient(90deg,#E8EAF6,#C5CAE9);color:#1A237E}
+        .card-header.amb{background:linear-gradient(90deg,#FFF8E1,#FFECB3);color:#FF6F00}
+        .card-header.cyn{background:linear-gradient(90deg,#E0F7FA,#B2EBF2);color:#006064}
+        .card-header.brn{background:linear-gradient(90deg,#EFEBE9,#D7CCC8);color:#3E2723}
+        .card-header.gold{background:linear-gradient(90deg,#FFF8E1,#FFE082);color:#E65100}
+        .card-header.lime{background:linear-gradient(90deg,#F9FBE7,#F0F4C3);color:#33691E}
+        .card-body{padding:24px}
+
+        table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+        thead th{background:#F5F5F5;padding:10px 8px;text-align:left;font-weight:700;border-bottom:2px solid #E0E0E0;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:#616161}
+        thead th.n{text-align:right}
+        thead th.c{text-align:center}
+        tbody td{padding:8px;border-bottom:1px solid #F0F0F0}
+        tbody td.n{text-align:right;font-family:'Consolas','Courier New',monospace;font-weight:600;font-size:.82rem}
+        tbody td.c{text-align:center}
+        tbody tr:hover{background:#FAFAFA}
+        .tr-total{background:#F5F5F5;font-weight:700;border-top:2px solid #E0E0E0}
+        .tr-total td{padding:10px 8px}
+        .tr-highlight{background:#E8F5E9}
+        .hr{background:#FFF5F5}.hg{background:#F5FFF5}.hy{background:#FFFDE7}.hb{background:#F5F9FF}.hp{background:#F9F5FF}.hbr{background:#FBF8F5}
+
+        .badge-inline{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:700}
+        .b-crit{background:#FFCDD2;color:#B71C1C}
+        .b-warn{background:#FFF9C4;color:#F57F17}
+        .b-ok{background:#C8E6C9;color:#1B5E20}
+        .b-info{background:#BBDEFB;color:#0D47A1}
+        .b-pur{background:#E1BEE7;color:#6A1B9A}
+        .b-brn{background:#D7CCC8;color:#3E2723}
+
+        .hbox{border-radius:10px;padding:18px;margin:16px 0}
+        .hbox.danger{background:linear-gradient(135deg,#FFEBEE,#FCE4EC);border-left:5px solid #C62828}
+        .hbox.warning{background:linear-gradient(135deg,#FFF8E1,#FFF3E0);border-left:5px solid #FF8F00}
+        .hbox.success{background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-left:5px solid #2E7D32}
+        .hbox.info{background:linear-gradient(135deg,#E3F2FD,#E8EAF6);border-left:5px solid #1565C0}
+        .hbox.purple{background:linear-gradient(135deg,#EDE7F6,#E8EAF6);border-left:5px solid #4527A0}
+        .hbox.dark{background:linear-gradient(135deg,#ECEFF1,#CFD8DC);border-left:5px solid #263238}
+        .hbox.teal{background:linear-gradient(135deg,#E0F2F1,#B2DFDB);border-left:5px solid #00695C}
+        .hbox.gold{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-left:5px solid #FF8F00}
+        .hbox.brown{background:linear-gradient(135deg,#EFEBE9,#D7CCC8);border-left:5px solid #4E342E}
+        .hbox h4{margin-bottom:8px;font-size:.95rem}
+        .hbox p,.hbox li{font-size:.88rem;color:#424242}
+        .hbox ul,.hbox ol{margin-left:18px;margin-top:6px}
+        .hbox li{margin-bottom:4px}
+
+        .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+        .mcard{background:#FAFAFA;border:1px solid #E0E0E0;border-radius:10px;padding:18px;text-align:center}
+        .mcard .val{font-size:1.4rem;font-weight:800;margin:6px 0;font-family:'Consolas',monospace}
+        .mcard .label{font-size:.72rem;color:#616161;text-transform:uppercase;letter-spacing:.5px}
+        .mcard .sub{font-size:.72rem;margin-top:6px;padding-top:6px;border-top:1px solid #eee}
+
+        .versus{display:flex;align-items:center;justify-content:center;gap:8px;margin:20px 0;flex-wrap:wrap}
+        .vs-box{padding:14px 20px;border-radius:10px;text-align:center;flex:1;min-width:180px}
+        .vs-box .vs-val{font-size:1.5rem;font-weight:800;font-family:'Consolas',monospace}
+        .vs-box .vs-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+        .vs-box.r{background:#FFEBEE;border:2px solid #C62828;color:#C62828}
+        .vs-box.g{background:#E8F5E9;border:2px solid #2E7D32;color:#1B5E20}
+        .vs-box.b{background:#E3F2FD;border:2px solid #1565C0;color:#0D47A1}
+        .vs-box.p{background:#EDE7F6;border:2px solid #6A1B9A;color:#4527A0}
+        .vs-box.o{background:#FFF3E0;border:2px solid #E65100;color:#E65100}
+        .vs-div{font-size:1.5rem;font-weight:900;color:#9E9E9E;align-self:center;padding:0 4px}
+
+        .callout{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:14px;padding:30px;text-align:center;margin:24px 0}
+        .callout .cv{font-size:2rem;font-weight:900;font-family:'Consolas',monospace;margin:12px 0}
+        .callout .cl{font-size:.9rem;opacity:.85}
+        .callout .cs{font-size:.78rem;opacity:.65;margin-top:8px}
+        .callout.dark{background:linear-gradient(135deg,#263238,#37474F)}
+        .callout.blue{background:linear-gradient(135deg,#0D47A1,#1565C0)}
+        .callout.brown{background:linear-gradient(135deg,#3E2723,#4E342E)}
+        .callout.red{background:linear-gradient(135deg,#B71C1C,#C62828)}
+
+        .section-div{text-align:center;margin:40px 0 24px;position:relative}
+        .section-div::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:#E0E0E0}
+        .section-div span{background:#F0F2F5;padding:0 20px;position:relative;font-size:.82rem;color:#9E9E9E;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+
+        .dual{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+        .matrix-wrapper{overflow-x:auto;margin:16px 0}
+        .matrix{border-collapse:collapse;font-size:.75rem;width:100%}
+        .matrix th,.matrix td{padding:7px 9px;text-align:center;border:1px solid #E0E0E0;font-family:'Consolas',monospace}
+        .matrix th{background:#F5F5F5;font-weight:700;font-size:.68rem;text-transform:uppercase}
+        .matrix .corner{background:#263238;color:#fff;font-size:.65rem}
+        .matrix .row-header{background:#F5F5F5;font-weight:700;text-align:right;padding-right:10px}
+        .matrix .cell-pos{background:#C8E6C9;color:#1B5E20;font-weight:700}
+        .matrix .cell-zero{background:#FFF9C4;color:#F57F17;font-weight:700}
+        .matrix .cell-neg{background:#FFCDD2;color:#B71C1C;font-weight:700}
+        .matrix .cell-deep-neg{background:#B71C1C;color:#fff;font-weight:700}
+        .matrix .cell-strong-pos{background:#2E7D32;color:#fff;font-weight:700}
+        .matrix .pe-line{outline:3px solid #212121;outline-offset:-1px}
+
+        .bar-container{margin:8px 0}
+        .bar-label{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;font-weight:600}
+        .bar-track{width:100%;height:28px;background:#ECEFF1;border-radius:7px;overflow:hidden;position:relative}
+        .bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:.72rem;color:#fff;font-weight:700;transition:width .5s}
+        .bar-fill.green{background:linear-gradient(90deg,#43A047,#66BB6A)}
+        .bar-fill.red{background:linear-gradient(90deg,#E53935,#EF5350)}
+        .bar-fill.orange{background:linear-gradient(90deg,#FB8C00,#FFA726)}
+        .bar-fill.blue{background:linear-gradient(90deg,#1E88E5,#42A5F5)}
+        .bar-fill.purple{background:linear-gradient(90deg,#7B1FA2,#AB47BC)}
+        .bar-fill.teal{background:linear-gradient(90deg,#00897B,#26A69A)}
+        .bar-fill.brown{background:linear-gradient(90deg,#4E342E,#795548)}
+        .bar-fill.dark{background:linear-gradient(90deg,#455A64,#78909C)}
+
+        .timeline{position:relative;padding-left:30px;margin:16px 0}
+        .timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#E0E0E0}
+        .tl-item{position:relative;margin-bottom:16px;padding:14px 18px;background:#fff;border-radius:10px;border:1px solid #E0E0E0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+        .tl-item::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;border:2px solid}
+        .tl-item.crit::before{background:#FFCDD2;border-color:#C62828}
+        .tl-item.ok::before{background:#C8E6C9;border-color:#2E7D32}
+        .tl-item.warn::before{background:#FFF9C4;border-color:#FF8F00}
+        .tl-item.info::before{background:#BBDEFB;border-color:#1565C0}
+        .tl-item h4{font-size:.88rem;font-weight:700}
+        .tl-item p{font-size:.82rem;color:#616161;margin-top:3px}
+
+        .pie-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+        .pie-card{text-align:center;flex:1;min-width:140px;max-width:200px}
+        .pie-card .pie-label{font-size:.72rem;font-weight:700;margin-top:6px;text-transform:uppercase}
+        .pie-card .pie-val{font-size:1.1rem;font-weight:800;font-family:'Consolas',monospace}
+
+        @media(max-width:768px){.dual{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr 1fr}}
+        @media(max-width:480px){.mgrid{grid-template-columns:1fr}}
+        @media print{.mod-header{padding:20px}.card{break-inside:avoid}body{font-size:10pt}}
+
+        .footer{text-align:center;padding:30px;color:#9E9E9E;font-size:.75rem;border-top:1px solid #E0E0E0;margin-top:40px}
+    </style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<div class="mod-header">
+    <div class="badge">MÓDULO PECUÁRIA · GRUPO 8M</div>
+    <h1>🐄 Análise Estratégica do Rebanho</h1>
+    <div class="sub">56 Matrizes · Projeção de Crias · Custo de Oportunidade · Cenários de Venda e Recompra</div>
+    <div class="date">Sr. Fernando Machado Mendonça · Doverlândia-GO · Preparado em 21/04/2026</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 1: RETRATO DO REBANHO -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 1 — Retrato do Rebanho Atual</span></div>
+
+<div class="card"><div class="card-header grn">📋 Visão Geral — Abril/2026</div><div class="card-body">
+    <p>Sr. Fernando, este módulo apresenta a análise completa do rebanho bovino, baseada na planilha de controle pecuário com dados individuais de cada animal. O objetivo é mostrar <strong>o que o senhor tem em mãos, quanto vale e qual o melhor caminho</strong> para extrair o máximo dessa atividade nos próximos anos.</p>
+
+    <div class="mgrid">
+        <div class="mcard" style="border-top:4px solid #2E7D32"><div class="label">Total de Animais</div><div class="val" style="color:#2E7D32">302</div><div class="sub">Fazendas Redenção + Gameleira</div></div>
+        <div class="mcard" style="border-top:4px solid #1565C0"><div class="label">Matrizes Reprodutivas</div><div class="val" style="color:#1565C0">56</div><div class="sub">Nelore (46) + Caracu (10)</div></div>
+        <div class="mcard" style="border-top:4px solid #E65100"><div class="label">Crias ao Pé (safra 24/25)</div><div class="val" style="color:#E65100">~147</div><div class="sub">69 fêmeas + 78 machos</div></div>
+        <div class="mcard" style="border-top:4px solid #4527A0"><div class="label">Taxa de Prenhez Obs.</div><div class="val" style="color:#4527A0">~80%</div><div class="sub">Acima da média nacional (75%)</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">🏘️ Distribuição por Fazenda</h4>
+    <table>
+        <thead><tr><th>Fazenda</th><th class="n">Animais</th><th class="n">Área de Pasto (ha)</th><th class="n">Pastos Ocupados</th><th>Observação</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Redenção (RDC)</strong></td><td class="n">143</td><td class="n">~350 ha</td><td>Pastos 31, 38, 40</td><td>Matrizes Nelore + crias</td></tr>
+            <tr><td><strong>Gameleira (GML)</strong></td><td class="n">159</td><td class="n">~84 ha</td><td>Pasto 12</td><td>Matrizes Caracu + lote misto</td></tr>
+            <tr class="tr-total"><td><strong>TOTAL</strong></td><td class="n"><strong>302</strong></td><td class="n"><strong>~434 ha</strong></td><td></td><td></td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox info">
+        <h4>📌 Observação sobre lotação</h4>
+        <p>O Pasto 12 (Gameleira) concentra 159 animais em 18,74 ha — equivale a <strong>8,48 UA/ha</strong>, o que indica lotação temporária muito alta (provável concentração para manejo ou pré-desmame). A área total de pasto da propriedade é de 434 ha, permitindo uma distribuição muito mais confortável. Entretanto, a concentração momentânea não é um problema se for de curta duração.</p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 2: PERFIL DAS MATRIZES -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 2 — Perfil das 56 Matrizes</span></div>
+
+<div class="card"><div class="card-header brn">🐄 Distribuição Etária das Matrizes</div><div class="card-body">
+    <p style="margin-bottom:14px">A idade das matrizes determina <strong>quantas safras cada uma ainda pode produzir</strong>. A vida reprodutiva útil de uma vaca Nelore é de aproximadamente 14-15 anos; da Caracu, 12-14 anos.</p>
+
+    <table>
+        <thead><tr><th>Faixa Etária</th><th class="n">Nascidas em</th><th class="n">Idade Aprox.</th><th class="n">Qtd</th><th class="n">% do Plantel</th><th class="n">Safras Restantes</th><th>Classificação</th></tr></thead>
+        <tbody>
+            <tr class="hr"><td><strong>Velhas (13-14 anos)</strong></td><td class="n">2012-2013</td><td class="n">13-14 anos</td><td class="n"><strong>12</strong></td><td class="n">21,4%</td><td class="n">0-2</td><td><span class="badge-inline b-crit">DESCARTE IMINENTE</span></td></tr>
+            <tr class="hy"><td><strong>Maduras (7-9 anos)</strong></td><td class="n">2017-2018</td><td class="n">7,7-8,5 anos</td><td class="n"><strong>21</strong></td><td class="n">37,5%</td><td class="n">4-7</td><td><span class="badge-inline b-ok">PICO PRODUTIVO</span></td></tr>
+            <tr class="hg"><td><strong>Plenas (5-7 anos)</strong></td><td class="n">2019-2020</td><td class="n">5,5-6,8 anos</td><td class="n"><strong>23</strong></td><td class="n">41,1%</td><td class="n">7-10</td><td><span class="badge-inline b-ok">MAIOR POTENCIAL</span></td></tr>
+            <tr class="tr-total"><td><strong>TOTAL</strong></td><td></td><td></td><td class="n"><strong>56</strong></td><td class="n"><strong>100%</strong></td><td></td><td></td></tr>
+        </tbody>
+    </table>
+
+    <div class="bar-container">
+        <div class="bar-label"><span>🔴 Velhas (12 — descarte iminente)</span><span>21,4%</span></div>
+        <div class="bar-track"><div class="bar-fill red" style="width:21.4%">12</div></div>
+    </div>
+    <div class="bar-container">
+        <div class="bar-label"><span>🟡 Maduras (21 — pico produtivo)</span><span>37,5%</span></div>
+        <div class="bar-track"><div class="bar-fill orange" style="width:37.5%">21</div></div>
+    </div>
+    <div class="bar-container">
+        <div class="bar-label"><span>🟢 Plenas (23 — maior potencial futuro)</span><span>41,1%</span></div>
+        <div class="bar-track"><div class="bar-fill green" style="width:41.1%">23</div></div>
+    </div>
+
+    <div class="hbox success">
+        <h4>✅ Leitura positiva</h4>
+        <p><strong>78,6% do plantel (44 vacas) tem entre 5 e 9 anos</strong> — estão no melhor período da vida reprodutiva e vão produzir por mais 4 a 10 safras. As 12 vacas velhas (21,4%) são candidatas naturais a venda — e o mercado atual paga o melhor preço da história por vaca de descarte.</p>
+    </div>
+</div></div>
+
+<div class="card"><div class="card-header brn">🧬 Distribuição por Raça e Fazenda</div><div class="card-body">
+    <div class="dual">
+        <div>
+            <h4 style="font-size:.88rem;margin-bottom:10px">Por Raça</h4>
+            <table>
+                <thead><tr><th>Raça</th><th class="n">Qtd</th><th class="n">%</th><th class="n">Idade Média</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Nelore</strong></td><td class="n">46</td><td class="n">82,1%</td><td class="n">~8 anos</td></tr>
+                    <tr><td><strong>Caracu</strong></td><td class="n">10</td><td class="n">17,9%</td><td class="n">~10 anos</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h4 style="font-size:.88rem;margin-bottom:10px">Por Fazenda</h4>
+            <table>
+                <thead><tr><th>Fazenda</th><th class="n">Matrizes</th><th class="n">%</th><th>Raça Predominante</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Redenção (RDC)</strong></td><td class="n">46</td><td class="n">82,1%</td><td>Nelore</td></tr>
+                    <tr><td><strong>Gameleira (GML)</strong></td><td class="n">10</td><td class="n">17,9%</td><td>Caracu</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="hbox warning" style="margin-top:16px">
+        <h4>⚠️ Alerta: Caracu com idade avançada</h4>
+        <p>Das 10 matrizes Caracu, <strong>4 (40%) estão na faixa de descarte</strong> (nascidas em 2012). Entre as Nelore, esse percentual é de apenas 13% (6 de 46). A recomposição futura deve priorizar Nelore.</p>
+    </div>
+</div></div>
+
+<!-- DESEMPENHO REPRODUTIVO -->
+<div class="card"><div class="card-header tea">🔬 Desempenho Reprodutivo — 3 Ciclos de IATF</div><div class="card-body">
+    <p style="margin-bottom:14px">Sr. Fernando, a planilha registra os protocolos de IATF (Inseminação Artificial em Tempo Fixo) realizados em 2 etapas. Os resultados são muito positivos:</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Resultado do Programa Reprodutivo (IATF 2 Etapas)</h4>
+    <table>
+        <thead><tr><th>Indicador</th><th class="n">Ciclo 22/23</th><th class="n">Ciclo 23/24</th><th class="n">Ciclo 24/25</th><th class="n">Média</th></tr></thead>
+        <tbody>
+            <tr><td>Matrizes expostas</td><td class="n">~65</td><td class="n">~58</td><td class="n">~56</td><td class="n">~60</td></tr>
+            <tr class="hg"><td><strong>Prenhas na 1ª etapa IATF</strong></td><td class="n">~35</td><td class="n">~30</td><td class="n">~28</td><td class="n">~31 (52%)</td></tr>
+            <tr class="hg"><td><strong>Prenhas na 2ª etapa IATF</strong></td><td class="n">~18</td><td class="n">~15</td><td class="n">~17</td><td class="n">~17 (28%)</td></tr>
+            <tr class="hr"><td>Vazias após 2 etapas</td><td class="n">~12</td><td class="n">~13</td><td class="n">~11</td><td class="n">~12 (20%)</td></tr>
+            <tr class="tr-total"><td><strong>TAXA DE PRENHEZ TOTAL</strong></td><td class="n"><strong>~82%</strong></td><td class="n"><strong>~78%</strong></td><td class="n"><strong>~80%</strong></td><td class="n"><strong>~80%</strong></td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Partos por Matriz nos 3 Ciclos Observados</h4>
+    <table>
+        <thead><tr><th>Partos em 3 Ciclos</th><th class="n">Qtd Matrizes</th><th class="n">%</th><th>Classificação</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td><strong>3 partos em 3 ciclos</strong></td><td class="n">30</td><td class="n">53,6%</td><td><span class="badge-inline b-ok">⭐ EXCELENTE</span></td></tr>
+            <tr class="hy"><td><strong>2 partos em 3 ciclos</strong></td><td class="n">24</td><td class="n">42,9%</td><td><span class="badge-inline b-info">✅ BOA</span></td></tr>
+            <tr class="hr"><td>1 parto ou menos</td><td class="n">2</td><td class="n">3,6%</td><td><span class="badge-inline b-crit">❌ DESCARTE</span></td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Benchmarking: O Rebanho 8M vs. Referências Nacionais</h4>
+    <table>
+        <thead><tr><th>Indicador</th><th class="n">🐄 Grupo 8M</th><th class="n">Média Brasil</th><th class="n">Top 25%</th><th>Posição</th></tr></thead>
+        <tbody>
+            <tr><td>Taxa de prenhez</td><td class="n"><strong>~80%</strong></td><td class="n">~75%</td><td class="n">~88%</td><td><span class="badge-inline b-ok">ACIMA DA MÉDIA</span></td></tr>
+            <tr><td>Taxa de desmame efetiva</td><td class="n">~68%</td><td class="n">~65%</td><td class="n">~80%</td><td><span class="badge-inline b-ok">ACIMA DA MÉDIA</span></td></tr>
+            <tr><td>Bezerros/vaca/ano</td><td class="n">0,68</td><td class="n">0,60-0,65</td><td class="n">0,78-0,85</td><td><span class="badge-inline b-ok">ACIMA DA MÉDIA</span></td></tr>
+            <tr><td>Mortalidade</td><td class="n">~2,2%</td><td class="n">3-5%</td><td class="n">&lt;2%</td><td><span class="badge-inline b-ok">BAIXA</span></td></tr>
+            <tr><td>IATF em 2 etapas</td><td class="n">SIM ✅</td><td class="n">~30% usam</td><td class="n">SIM</td><td><span class="badge-inline b-ok">TECNIFICADO</span></td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <div class="cl">O REBANHO DO SR. FERNANDO É EFICIENTE</div>
+        <div class="cv">80% de Prenhez · 68% de Desmame · 2,2% de Mortalidade</div>
+        <div class="cs">Todos os indicadores acima da média nacional · IATF em 2 etapas funcionando</div>
+    </div>
+</div></div>
+
+<!-- MORTALIDADE -->
+<div class="card"><div class="card-header red">⚠️ Registro de Perdas — 3 Ciclos</div><div class="card-body">
+    <table>
+        <thead><tr><th>Tipo</th><th class="n">Qtd</th><th>Animais e Causas</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Mortes</strong></td><td class="n">10</td><td>Cobra (#561), atolamento (#58), quadril aberto (#52), brava/tronco (#99), sacrifício (#198), bicheira (#44), complicação parto (#240), consumo/descarte (#81, #144, #359)</td></tr>
+            <tr><td><strong>Desaparecidas</strong></td><td class="n">5</td><td>#1, #75, #197, #223, #491 — não encontradas em conferências</td></tr>
+            <tr><td><strong>Natimortos/Perdas neonatais</strong></td><td class="n">~5</td><td>Bezerro cego (#287), pernas invertidas (#175), mortes pós-parto</td></tr>
+            <tr class="tr-total"><td><strong>Total de perdas</strong></td><td class="n"><strong>~20</strong></td><td>Em ~3 ciclos × ~150 matrizes/ciclo = <strong>~2,2%/ano ✅</strong></td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.82rem;color:#616161;margin-top:8px">A taxa de 2,2% está dentro do aceitável (referência: 3-5% para cria extensiva). As causas são diversas e não indicam problema sistêmico.</p>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 3: PROJEÇÃO DE CRIAS -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 3 — Projeção de Crias Futuras</span></div>
+
+<div class="card"><div class="card-header grn">🐣 Quanto o Rebanho Ainda Pode Produzir</div><div class="card-body">
+    <p style="margin-bottom:14px">Com base na idade e na taxa de prenhez histórica de cada faixa, a projeção de bezerros desmamados nas próximas 8 safras é:</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Potencial por Faixa Etária</h4>
+    <table>
+        <thead><tr><th>Faixa</th><th class="n">Matrizes</th><th class="n">Safras Restantes</th><th class="n">Cria/Matriz (80% prenhez × 85% desmame)</th><th class="n">Total de Crias Estimado</th></tr></thead>
+        <tbody>
+            <tr class="hr"><td>Velhas (13-14 anos)</td><td class="n">12</td><td class="n">~1</td><td class="n">0,68</td><td class="n"><strong>~8</strong></td></tr>
+            <tr class="hy"><td>Maduras (7-9 anos)</td><td class="n">21</td><td class="n">~5</td><td class="n">3,40</td><td class="n"><strong>~71</strong></td></tr>
+            <tr class="hg"><td>Plenas (5-7 anos)</td><td class="n">23</td><td class="n">~8</td><td class="n">5,44</td><td class="n"><strong>~125</strong></td></tr>
+            <tr class="tr-total"><td><strong>TOTAL</strong></td><td class="n"><strong>56</strong></td><td></td><td></td><td class="n"><strong>~204 bezerros</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout blue">
+        <div class="cl">POTENCIAL PRODUTIVO DO REBANHO ATUAL</div>
+        <div class="cv">~204 bezerros em 8 safras</div>
+        <div class="cs">Sem reposição de matrizes · Premissa: 80% prenhez × 85% desmame = 68% efetiva</div>
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Projeção Ano a Ano — Sem Reposição</h4>
+    <table>
+        <thead><tr><th>Safra</th><th class="n">Matrizes</th><th class="n">Prenhas (80%)</th><th class="n">Desmamadas (85%)</th><th class="n">Machos</th><th class="n">Fêmeas</th><th class="n">Descarte Vacas</th></tr></thead>
+        <tbody>
+            <tr><td><strong>26/27</strong></td><td class="n">56</td><td class="n">45</td><td class="n">38</td><td class="n">19</td><td class="n">19</td><td class="n">3</td></tr>
+            <tr><td>27/28</td><td class="n">53</td><td class="n">42</td><td class="n">36</td><td class="n">18</td><td class="n">18</td><td class="n">6</td></tr>
+            <tr><td>28/29</td><td class="n">47</td><td class="n">38</td><td class="n">32</td><td class="n">16</td><td class="n">16</td><td class="n">3</td></tr>
+            <tr><td>29/30</td><td class="n">44</td><td class="n">35</td><td class="n">30</td><td class="n">15</td><td class="n">15</td><td class="n">3</td></tr>
+            <tr><td>30/31</td><td class="n">41</td><td class="n">33</td><td class="n">28</td><td class="n">14</td><td class="n">14</td><td class="n">3</td></tr>
+            <tr><td>31/32</td><td class="n">38</td><td class="n">30</td><td class="n">26</td><td class="n">13</td><td class="n">13</td><td class="n">3</td></tr>
+            <tr><td>32/33</td><td class="n">35</td><td class="n">28</td><td class="n">24</td><td class="n">12</td><td class="n">12</td><td class="n">3</td></tr>
+            <tr><td>33/34</td><td class="n">32</td><td class="n">26</td><td class="n">22</td><td class="n">11</td><td class="n">11</td><td class="n">3</td></tr>
+            <tr class="tr-total"><td><strong>8 SAFRAS</strong></td><td></td><td></td><td class="n"><strong>236</strong></td><td class="n"><strong>118</strong></td><td class="n"><strong>118</strong></td><td class="n"><strong>27</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox danger">
+        <h4>🔴 Problema: Sem Reposição, o Rebanho Encolhe 43% em 8 Anos</h4>
+        <p>De <strong>56 matrizes para 32</strong>. A produção anual cai de 38 para 22 crias. A receita anual cai de ~R$ 110 mil para ~R$ 64 mil. O patrimônio pecuário se deteriora progressivamente.</p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 4: RECEITA E MARGEM -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 4 — Receita, Custos e Margem por Matriz</span></div>
+
+<div class="card"><div class="card-header org">💰 Quanto Cada Matriz Gera e Quanto Custa — Por Ano</div><div class="card-body">
+
+    <div class="dual">
+        <div>
+            <h4 style="font-size:.88rem;margin-bottom:10px;color:#2E7D32">📈 Receita por Matriz/Ano</h4>
+            <table>
+                <thead><tr><th>Componente</th><th class="n">Valor</th></tr></thead>
+                <tbody>
+                    <tr><td>Bezerro macho desm. (7-8@ × R$ 350)</td><td class="n">R$ 2.450 - R$ 2.800</td></tr>
+                    <tr><td>Bezerra fêmea desm. (6-7@ × R$ 350)</td><td class="n">R$ 2.100 - R$ 2.450</td></tr>
+                    <tr><td>Média ponderada (50/50)</td><td class="n"><strong>R$ 2.400/cria</strong></td></tr>
+                    <tr><td>× Taxa de desmame (68%)</td><td class="n">R$ 1.632/matriz</td></tr>
+                    <tr><td>+ Rateio descarte futuro</td><td class="n">+R$ 70/matriz</td></tr>
+                    <tr class="tr-total"><td><strong>Receita/Matriz/Ano</strong></td><td class="n" style="color:#2E7D32"><strong>~R$ 1.700</strong></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h4 style="font-size:.88rem;margin-bottom:10px;color:#C62828">📉 Custo por Matriz/Ano</h4>
+            <table>
+                <thead><tr><th>Componente</th><th class="n">Valor</th></tr></thead>
+                <tbody>
+                    <tr><td>Nutrição/Mineralização</td><td class="n">R$ 600</td></tr>
+                    <tr><td>Sanidade (vacinas, vermífugos)</td><td class="n">R$ 120</td></tr>
+                    <tr><td>IATF (protocolo 2 etapas)</td><td class="n">R$ 135</td></tr>
+                    <tr><td>Mão de obra (rateio vaqueiro)</td><td class="n">R$ 200</td></tr>
+                    <tr><td>Pasto (manutenção/cercas)</td><td class="n">R$ 480</td></tr>
+                    <tr><td>Outros (GTA, transporte, eventuais)</td><td class="n">R$ 115</td></tr>
+                    <tr class="tr-total"><td><strong>Custo/Matriz/Ano</strong></td><td class="n" style="color:#C62828"><strong>~R$ 1.650</strong></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="versus" style="margin-top:20px">
+        <div class="vs-box g"><div class="vs-label">Receita/Matriz/Ano</div><div class="vs-val">R$ 1.700</div></div>
+        <div class="vs-div">—</div>
+        <div class="vs-box r"><div class="vs-label">Custo/Matriz/Ano</div><div class="vs-val">R$ 1.650</div></div>
+        <div class="vs-div">=</div>
+        <div class="vs-box o"><div class="vs-label">Margem/Matriz/Ano</div><div class="vs-val">R$ 50</div></div>
+    </div>
+
+    <div class="hbox warning">
+        <h4>⚠️ Leitura honesta: A cria extensiva tem margem apertada</h4>
+        <p>A margem operacional por matriz é de aproximadamente <strong>R$ 50/cabeça/ano no cenário base</strong>. Isso é comum na pecuária de cria extensiva em Goiás. O verdadeiro valor da atividade está em dois pilares:</p>
+        <ol>
+            <li><strong>Patrimônio vivo:</strong> Cada matriz representa ~10-11 arrobas (R$ 3.200-3.850) de valor que pode ser liquidado a qualquer momento</li>
+            <li><strong>Geração de caixa constante:</strong> ~R$ 90-110 mil/ano em vendas de bezerros — dinheiro que entra todo ano, independente da lavoura</li>
+        </ol>
+    </div>
+</div></div>
+
+<!-- SENSIBILIDADE -->
+<div class="card"><div class="card-header ind">📐 Matriz de Sensibilidade — Receita Anual da Pecuária</div><div class="card-body">
+    <p style="margin-bottom:14px">A tabela abaixo mostra a <strong>receita anual total da pecuária</strong> (R$ mil) para diferentes combinações de taxa de prenhez e preço do bezerro. Base: 56 matrizes, 85% de desmame sobre prenhas.</p>
+
+    <div class="matrix-wrapper">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th class="corner">RECEITA (R$ mil)<br>Prenhez ↓ / Preço Bez. →</th>
+                    <th>R$ 1.800</th>
+                    <th>R$ 2.100</th>
+                    <th>R$ 2.300</th>
+                    <th>R$ 2.500</th>
+                    <th>R$ 2.800</th>
+                    <th>R$ 3.000</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-header">60%</td>
+                    <td class="cell-neg">51</td>
+                    <td class="cell-neg">60</td>
+                    <td class="cell-neg">66</td>
+                    <td class="cell-zero">71</td>
+                    <td class="cell-zero">80</td>
+                    <td class="cell-pos">86</td>
+                </tr>
+                <tr>
+                    <td class="row-header">70%</td>
+                    <td class="cell-neg">60</td>
+                    <td class="cell-zero">70</td>
+                    <td class="cell-zero">77</td>
+                    <td class="cell-pos">83</td>
+                    <td class="cell-pos">93</td>
+                    <td class="cell-strong-pos">100</td>
+                </tr>
+                <tr>
+                    <td class="row-header">75%</td>
+                    <td class="cell-neg">64</td>
+                    <td class="cell-zero">75</td>
+                    <td class="cell-pos">82</td>
+                    <td class="cell-pos">89</td>
+                    <td class="cell-strong-pos">100</td>
+                    <td class="cell-strong-pos">107</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>80% ← Histórico</strong></td>
+                    <td class="cell-zero">69</td>
+                    <td class="cell-pos">80</td>
+                    <td class="cell-pos pe-line"><strong>88</strong></td>
+                    <td class="cell-pos pe-line"><strong>95</strong></td>
+                    <td class="cell-strong-pos">107</td>
+                    <td class="cell-strong-pos">114</td>
+                </tr>
+                <tr>
+                    <td class="row-header">85%</td>
+                    <td class="cell-zero">73</td>
+                    <td class="cell-pos">85</td>
+                    <td class="cell-pos">93</td>
+                    <td class="cell-strong-pos">101</td>
+                    <td class="cell-strong-pos">113</td>
+                    <td class="cell-strong-pos">121</td>
+                </tr>
+                <tr>
+                    <td class="row-header">90%</td>
+                    <td class="cell-pos">77</td>
+                    <td class="cell-pos">90</td>
+                    <td class="cell-strong-pos">99</td>
+                    <td class="cell-strong-pos">107</td>
+                    <td class="cell-strong-pos">120</td>
+                    <td class="cell-strong-pos">129</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="font-size:.78rem;color:#9E9E9E;margin-top:8px">Custo anual da pecuária: ~R$ 92 mil (56 × R$ 1.650). Células verdes = receita acima do custo. Contorno = cenário mais provável. Valores incluem receita de bezerros + descarte. Custo total anual: R$ 92 mil.</p>
+
+    <div class="hbox info">
+        <h4>📌 Cenário mais provável: 80% prenhez, R$ 2.300-2.500/bezerro</h4>
+        <p>Receita anual de <strong>R$ 88 a 95 mil</strong>, contra custo de R$ 92 mil = <strong>margem de -R$ 4 mil a +R$ 3 mil.</strong> A pecuária de cria, no modelo atual, opera próxima do equilíbrio. Mas gera <strong>caixa constante</strong> e <strong>mantém patrimônio vivo</strong>.</p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 5: CUSTO DE OPORTUNIDADE -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 5 — Custo de Oportunidade: Vender, Manter ou Reciclar?</span></div>
+
+<div class="card"><div class="card-header drk">📈 Contexto de Mercado — Por Que Este é o Momento Certo</div><div class="card-body">
+    <p style="margin-bottom:14px">O mercado pecuário está vivendo uma <strong>virada de ciclo histórica</strong>. Os dados abaixo são de fontes especializadas de abril/2026:</p>
+
+    <table>
+        <thead><tr><th>Indicador</th><th class="n">Dado</th><th>Fonte</th><th>Implicação</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td><strong>Boi gordo em SP</strong></td><td class="n">R$ 365/@</td><td>Scot Consultoria (16/abr)</td><td>Topo histórico</td></tr>
+            <tr class="hg"><td><strong>Viés para 2026</strong></td><td class="n">Alta — pode ir a R$ 400</td><td>Assocon, Agrifatto</td><td>Vender agora é vender BEM</td></tr>
+            <tr class="hy"><td><strong>Reposição GO: +27% no ano</strong></td><td class="n">Bezerro liderando alta</td><td>Agron (mar/26)</td><td>Comprar bezerras está 27% mais caro</td></tr>
+            <tr class="hy"><td><strong>Bezerro pode passar R$ 4.000</strong></td><td class="n">Projeção 1º sem. 2026</td><td>Compre Rural</td><td>Recompra futura será cara</td></tr>
+            <tr class="hb"><td><strong>Oferta enxuta até 2028</strong></td><td class="n">Retenção de fêmeas</td><td>Scot — Felipe Fabbri</td><td>Preços altos por mais 2 anos</td></tr>
+            <tr class="hb"><td><strong>Relação boi:bezerro</strong></td><td class="n">Melhor em 12 meses</td><td>Globo Rural (16/abr)</td><td>Momento favorável ao CRIADOR</td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox success">
+        <h4>✅ O que isso significa para o Sr. Fernando</h4>
+        <ul>
+            <li>O senhor é <strong>CRIADOR</strong> — vende bezerros e vacas. O ciclo atual é o <strong>melhor em 10 anos para criadores</strong>.</li>
+            <li>Vender arrobas agora captura o <strong>topo do ciclo</strong>.</li>
+            <li>A recompra futura será cara — mas <strong>o milho vai gerar caixa suficiente</strong> para bancar.</li>
+            <li>As vacas velhas (2012-2013) <strong>vão perder valor a cada ano que passa</strong> — melhor vender agora a R$ 340-350/@ do que daqui a 1 ano a R$ 280-300/@.</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- AS VACAS ESPECÍFICAS -->
+<div class="card"><div class="card-header red">🐄 Candidatas a Venda Imediata — Vacas de Descarte e Velhas</div><div class="card-body">
+    <p style="margin-bottom:14px">Estas são as vacas que, pela idade ou pelo histórico reprodutivo, são candidatas naturais a venda. Todas terão no máximo mais 1 cria antes do descarte definitivo:</p>
+
+    <table>
+        <thead><tr><th>Nº</th><th>Faz.</th><th>Raça</th><th class="n">Nasc.</th><th class="n">Idade</th><th class="n">Peso (@)</th><th>Status Atual</th><th>Motivo</th><th class="n">Valor Est. (R$ 340/@)</th></tr></thead>
+        <tbody>
+            <tr class="hr"><td><strong>2</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Parida</td><td><span class="badge-inline b-crit">DESCARTE MARCADO</span></td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>57</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">~11</td><td>Solteira</td><td>Última safra viável</td><td class="n">R$ 3.740</td></tr>
+            <tr class="hr"><td><strong>87</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Última safra viável</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>157</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">~11</td><td>Solteira</td><td>Última safra viável</td><td class="n">R$ 3.740</td></tr>
+            <tr class="hr"><td><strong>180</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">~11</td><td>Solteira</td><td>Bezerro anterior morreu</td><td class="n">R$ 3.740</td></tr>
+            <tr class="hr"><td><strong>184</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Última safra viável</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>222</strong></td><td>RDC</td><td>Nelore</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Última safra viável</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>4</strong></td><td>RDC</td><td>Caracu</td><td class="n">2013</td><td class="n">13</td><td class="n">10,25</td><td>Parida</td><td>Caracu velha</td><td class="n">R$ 3.485</td></tr>
+            <tr class="hr"><td><strong>21</strong></td><td>GML</td><td>Caracu</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Caracu velha</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>40</strong></td><td>GML</td><td>Caracu</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Caracu velha</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hr"><td><strong>215</strong></td><td>GML</td><td>Caracu</td><td class="n">2012</td><td class="n">14</td><td class="n">11,25</td><td>Solteira</td><td>Caracu velha</td><td class="n">R$ 3.825</td></tr>
+            <tr class="hy"><td><strong>409</strong></td><td>RDC</td><td>Nelore</td><td class="n">2019</td><td class="n">6,8</td><td class="n">3,75</td><td>Solteira</td><td><span class="badge-inline b-crit">DESCARTE MARCADO</span></td><td class="n">R$ 1.275</td></tr>
+            <tr class="hy"><td><strong>509</strong></td><td>RDC</td><td>Nelore</td><td class="n">2018</td><td class="n">8,2</td><td class="n">5,17</td><td>Solteira</td><td><span class="badge-inline b-crit">DESCARTE — Cisto + não pariu</span></td><td class="n">R$ 1.758</td></tr>
+            <tr class="tr-total"><td colspan="7"><strong>TOTAL: 13 VACAS</strong></td><td></td><td class="n"><strong>~R$ 44.513</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox info">
+        <h4>📌 Nota sobre timing</h4>
+        <p>Várias dessas vacas estão com <strong>partos previstos entre agosto e novembro de 2025</strong> (já nascidos ou prestes a nascer). A recomendação é: <strong>desmamar os bezerros e vender as vacas</strong>. Os bezerros entram na conta separada como receita da cria. As vacas viram caixa imediato.</p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 6: OS 4 CENÁRIOS -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 6 — Os 4 Cenários: Manter, Vender, Reciclar ou Desfazer</span></div>
+
+<div class="card"><div class="card-header amb">🔀 Cenário A — Manter Tudo (Não Vender Nenhum Animal)</div><div class="card-body">
+    <table>
+        <thead><tr><th>Item</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr><td>Caixa gerado agora</td><td class="n" style="color:#C62828">R$ 0</td></tr>
+            <tr><td>Precisa levantar capital de giro por outra via</td><td class="n">R$ 294.000</td></tr>
+            <tr><td>Custo financeiro (FIDC integral ou empréstimo)</td><td class="n" style="color:#C62828">R$ 50.000 - R$ 93.000</td></tr>
+            <tr><td>Matrizes mantidas</td><td class="n">56</td></tr>
+            <tr><td>VPL do rebanho (8 anos, 12% a.a.)</td><td class="n">R$ 131.000</td></tr>
+            <tr class="tr-total"><td><strong>Resultado líquido (VPL - custo financeiro)</strong></td><td class="n"><strong>R$ 38.000 - R$ 81.000</strong></td></tr>
+        </tbody>
+    </table>
+    <div class="hbox danger">
+        <h4>❌ Problema</h4>
+        <p>Mantém o rebanho intacto, mas <strong>paga R$ 50-93 mil em juros/deságio</strong> para conseguir operar. Dinheiro que sai sem retorno. E ainda corre o risco de não conseguir o capital via FIDC sozinho.</p>
+    </div>
+</div></div>
+
+<div class="card"><div class="card-header red">🔀 Cenário B — Vender 400@ e Não Recomprar</div><div class="card-body">
+    <table>
+        <thead><tr><th>Item</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td>Receita imediata (400@ × R$ 350)</td><td class="n" style="color:#2E7D32">R$ 140.000</td></tr>
+            <tr><td>Matrizes vendidas</td><td class="n">~13 vacas (velhas + descartes)</td></tr>
+            <tr><td>Matrizes restantes</td><td class="n">43</td></tr>
+            <tr><td>Complemento capital de giro via FIDC</td><td class="n">R$ 135.000 (custo ~R$ 50.000)</td></tr>
+            <tr><td>VPL rebanho restante (43 matrizes, sem reposição)</td><td class="n">R$ 105.000</td></tr>
+            <tr><td>Matrizes no ano 8</td><td class="n" style="color:#C62828">~25 (em declínio acelerado)</td></tr>
+            <tr class="tr-total"><td><strong>Valor total (caixa + VPL - custos)</strong></td><td class="n"><strong>R$ 195.000</strong></td></tr>
+        </tbody>
+    </table>
+    <div class="hbox warning">
+        <h4>⚠️ Funciona no curto prazo, deteriora no longo</h4>
+        <p>Gera caixa e resolve o capital de giro. Mas o rebanho <strong>encolhe para 25 matrizes em 8 anos</strong> — perda de 55% do patrimônio pecuário. A receita anual cai de R$ 110 mil para R$ 55 mil.</p>
+    </div>
+</div></div>
+
+<div class="card"><div class="card-header grn">🏆 Cenário C — Vender Agora + Recomprar Bezerras Pós-Milho (RECOMENDADO)</div><div class="card-body">
+    <p style="margin-bottom:14px">Este é o cenário que <strong>captura o melhor dos dois mundos</strong>: vende no topo, opera o milho, e recompra com o lucro.</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📋 Etapa 1: Venda (Mai/2026)</h4>
+    <table>
+        <thead><tr><th>O que vende</th><th class="n">Qtd</th><th class="n">@</th><th class="n">Receita</th></tr></thead>
+        <tbody>
+            <tr><td>13 vacas velhas/descarte (tabela acima)</td><td class="n">13</td><td class="n">~130</td><td class="n">R$ 44.500</td></tr>
+            <tr><td>Bezerros machos desmamados (safra 24/25)</td><td class="n">~30</td><td class="n">~225</td><td class="n">R$ 78.750</td></tr>
+            <tr><td>Bezerros excedentes (complemento)</td><td class="n">~6</td><td class="n">~45</td><td class="n">R$ 15.750</td></tr>
+            <tr class="tr-total"><td><strong>TOTAL VENDA</strong></td><td class="n"><strong>~49 cab</strong></td><td class="n"><strong>~400 @</strong></td><td class="n" style="color:#2E7D32"><strong>R$ 139.000</strong></td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📋 Etapa 2: Opera o Milho (Mai/26 — Mar/27)</h4>
+    <p style="font-size:.88rem">Os R$ 139 mil + FIDC de R$ 135 mil = R$ 274 mil de capital de giro. Suficiente para operar lavoura + pecuária durante 11 meses. O milho gera resultado projetado de +R$ 274.172 (cenário base, conforme Módulo 7).</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📋 Etapa 3: Recompra (Abr-Jun/2027)</h4>
+    <table>
+        <thead><tr><th>O que recompra</th><th class="n">Qtd</th><th class="n">Preço Unit.</th><th class="n">Custo Total</th><th>Quando parir?</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td><strong>Bezerras Nelore desmamadas</strong></td><td class="n">15</td><td class="n">R$ 3.000*</td><td class="n">R$ 45.000</td><td>A partir de 2030 (3 anos)</td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.78rem;color:#9E9E9E">* Preço referência GO — reposição Nelore subiu 27% em 2026 (fonte: Agron). Pode variar de R$ 2.800 a R$ 3.500 conforme qualidade e momento.</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Resultado Consolidado do Cenário C</h4>
+    <table>
+        <thead><tr><th>Item</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td>Receita venda gado (mai/26)</td><td class="n" style="color:#2E7D32">+R$ 139.000</td></tr>
+            <tr class="hg"><td>Receita antecipação FIDC (mai-jun/26)</td><td class="n" style="color:#2E7D32">+R$ 135.000</td></tr>
+            <tr class="hg"><td>Resultado milho (mar/27)</td><td class="n" style="color:#2E7D32">+R$ 274.172</td></tr>
+            <tr class="hr"><td>(-) Custo FIDC (deságio)</td><td class="n" style="color:#C62828">-R$ 50.000</td></tr>
+            <tr class="hr"><td>(-) Recompra 15 bezerras (abr/27)</td><td class="n" style="color:#C62828">-R$ 45.000</td></tr>
+            <tr class="hr"><td>(-) Pagamento boa-fé bancos</td><td class="n">-R$ 100.000</td></tr>
+            <tr class="tr-total" style="background:#E8F5E9"><td><strong>CAIXA LIVRE PÓS-SAFRA + RECOMPRA</strong></td><td class="n" style="color:#1B5E20"><strong>R$ 353.172</strong></td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.82rem;color:#616161;margin-top:8px">O senhor vendeu ~400@ de gado, bancou a safra inteira, pagou R$ 100 mil de dívida, recomprou 15 bezerras E ainda ficou com R$ 353 mil livres.</p>
+
+    <div class="callout">
+        <div class="cl">RETORNO SOBRE O "EMPRÉSTIMO DO BOI"</div>
+        <div class="cv">172%</div>
+        <div class="cs">R$ 139 mil investidos (venda de gado) geram R$ 372 mil de resultado no milho em 10 meses</div>
+    </div>
+</div></div>
+
+<div class="card"><div class="card-header pur">🔀 Cenário D — Desfazer a Pecuária (Vender Tudo)</div><div class="card-body">
+    <p style="margin-bottom:14px">Para efeito de comparação, se o senhor decidisse <strong>encerrar a pecuária</strong> e vender todos os 302 animais:</p>
+    <table>
+        <thead><tr><th>Lote</th><th class="n">Qtd</th><th class="n">@ estimadas</th><th class="n">Preço/@</th><th class="n">Receita</th></tr></thead>
+        <tbody>
+            <tr><td>56 matrizes (média ~8@)</td><td class="n">56</td><td class="n">448</td><td class="n">R$ 340</td><td class="n">R$ 152.320</td></tr>
+            <tr><td>147 crias (bezerros, média ~5@)</td><td class="n">147</td><td class="n">735</td><td class="n">R$ 350</td><td class="n">R$ 257.250</td></tr>
+            <tr><td>104 solteiras (sem cria, média ~9@)</td><td class="n">99</td><td class="n">891</td><td class="n">R$ 340</td><td class="n">R$ 302.940</td></tr>
+            <tr class="tr-total"><td><strong>TOTAL</strong></td><td class="n"><strong>302</strong></td><td class="n"><strong>~2.074 @</strong></td><td></td><td class="n" style="color:#2E7D32"><strong>~R$ 712.510</strong></td></tr>
+        </tbody>
+    </table>
+    <div class="versus">
+        <div class="vs-box g"><div class="vs-label">Caixa Imediato</div><div class="vs-val">R$ 712 mil</div><div style="font-size:.72rem;margin-top:4px">Resolve TODAS as necessidades de caixa</div></div>
+        <div class="vs-div">MAS</div>
+        <div class="vs-box r"><div class="vs-label">Perde para Sempre</div><div class="vs-val">R$ 845 mil</div><div style="font-size:.72rem;margin-top:4px">Receita futura de 8 safras de cria</div></div>
+    </div>
+    <div class="hbox danger">
+        <h4>❌ Não recomendado</h4>
+        <ul>
+            <li>Elimina uma <strong>fonte permanente de renda (~R$ 90-110 mil/ano)</strong></li>
+            <li>Abre mão de R$ 845 mil em receita futura por R$ 712 mil hoje</li>
+            <li>Perde a <strong>diversificação</strong> — fica 100% dependente da lavoura</li>
+            <li>A pecuária é a <strong>rede de segurança</strong> contra uma safra ruim</li>
+            <li>Impacto emocional e patrimonial: desfaz trabalho de décadas</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- COMPARATIVO DOS CENÁRIOS -->
+<div class="card"><div class="card-header drk">📊 Quadro Comparativo — 4 Cenários em 8 Anos</div><div class="card-body">
+    <table>
+        <thead><tr><th>Indicador</th><th class="n">A: Manter</th><th class="n">B: Vender, Não Repor</th><th class="n">🏆 C: Vender + Repor</th><th class="n">D: Desfazer Tudo</th></tr></thead>
+        <tbody>
+            <tr><td>Caixa imediato (mai/26)</td><td class="n" style="color:#C62828">R$ 0</td><td class="n">R$ 140 mil</td><td class="n">R$ 139 mil</td><td class="n" style="color:#2E7D32">R$ 712 mil</td></tr>
+            <tr><td>Custo financeiro (juros/deságio)</td><td class="n" style="color:#C62828">R$ 50-93 mil</td><td class="n">R$ 50 mil</td><td class="n">R$ 50 mil</td><td class="n" style="color:#2E7D32">R$ 0</td></tr>
+            <tr><td>Investimento em recompra</td><td class="n">R$ 0</td><td class="n">R$ 0</td><td class="n">R$ 45 mil</td><td class="n">R$ 0</td></tr>
+            <tr><td>Matrizes em 2027</td><td class="n">53</td><td class="n">43</td><td class="n"><strong>43 → 58*</strong></td><td class="n" style="color:#C62828">0</td></tr>
+            <tr><td>Matrizes no ano 8</td><td class="n" style="color:#C62828">32</td><td class="n" style="color:#C62828">25</td><td class="n" style="color:#2E7D32"><strong>65</strong></td><td class="n" style="color:#C62828">0</td></tr>
+            <tr><td>Receita pecuária 8 safras</td><td class="n">R$ 682 mil</td><td class="n">R$ 540 mil</td><td class="n" style="color:#2E7D32"><strong>R$ 845 mil</strong></td><td class="n" style="color:#C62828">R$ 0</td></tr>
+            <tr><td>Margem acumulada 8 safras</td><td class="n">R$ 111 mil</td><td class="n">R$ 68 mil</td><td class="n" style="color:#2E7D32"><strong>R$ 170 mil</strong></td><td class="n" style="color:#C62828">R$ 0</td></tr>
+            <tr><td>Patrimônio pecuário final</td><td class="n">R$ 112 mil</td><td class="n">R$ 88 mil</td><td class="n" style="color:#2E7D32"><strong>R$ 228 mil</strong></td><td class="n" style="color:#C62828">R$ 0</td></tr>
+            <tr><td><strong>Valor total criado (margem + patrimônio)</strong></td><td class="n">R$ 223 mil</td><td class="n">R$ 156 mil</td><td class="n" style="color:#2E7D32"><strong>R$ 398 mil</strong></td><td class="n">R$ 712 mil*</td></tr>
+            <tr><td>Risco</td><td class="n"><span class="badge-inline b-crit">ALTO</span></td><td class="n"><span class="badge-inline b-warn">MÉDIO</span></td><td class="n"><span class="badge-inline b-ok">BAIXO</span></td><td class="n"><span class="badge-inline b-crit">IRREVERSÍVEL</span></td></tr>
+            <tr class="tr-total"><td><strong>NOTA GERAL</strong></td><td class="n"><strong>5/10</strong></td><td class="n"><strong>6/10</strong></td><td class="n" style="color:#2E7D32"><strong>9/10 ✅</strong></td><td class="n"><strong>4/10</strong></td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.78rem;color:#9E9E9E">* Cenário C: 15 bezerras compradas em 2027 começam a parir em 2030 (3 anos para 1ª cria). O rebanho salta de 46 para 65 a partir de 30/31.</p>
+    <p style="font-size:.78rem;color:#9E9E9E">* Cenário D: R$ 712 mil é caixa imediato, mas sem geração futura. Em 8 anos, os outros cenários geram mais valor.</p>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 7: O TRADE — VENDER CARO E RECOMPRAR -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 7 — O Trade: Vender no Topo e Recomprar</span></div>
+
+<div class="card"><div class="card-header gold">📈 Matriz de Sensibilidade: Preço de Venda × Preço de Recompra</div><div class="card-body">
+    <p style="margin-bottom:14px">Se o senhor vender 400 arrobas agora e recomprar 400 arrobas depois (em forma de bezerras/novilhas), qual é o <strong>ganho ou perda financeira</strong> apenas no "trade" de arrobas? (Em R$ mil)</p>
+
+    <div class="matrix-wrapper">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th class="corner">RESULTADO (R$ mil)<br>Preço Venda ↓ / Preço Recompra →</th>
+                    <th>R$ 280/@</th>
+                    <th>R$ 300/@</th>
+                    <th>R$ 320/@</th>
+                    <th>R$ 340/@</th>
+                    <th>R$ 360/@</th>
+                    <th>R$ 380/@</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-header">R$ 300/@</td>
+                    <td class="cell-pos">+8</td>
+                    <td class="cell-zero">0</td>
+                    <td class="cell-neg">-8</td>
+                    <td class="cell-neg">-16</td>
+                    <td class="cell-neg">-24</td>
+                    <td class="cell-deep-neg">-32</td>
+                </tr>
+                <tr>
+                    <td class="row-header">R$ 320/@</td>
+                    <td class="cell-pos">+16</td>
+                    <td class="cell-pos">+8</td>
+                    <td class="cell-zero">0</td>
+                    <td class="cell-neg">-8</td>
+                    <td class="cell-neg">-16</td>
+                    <td class="cell-neg">-24</td>
+                </tr>
+                <tr>
+                    <td class="row-header">R$ 340/@</td>
+                    <td class="cell-pos">+24</td>
+                    <td class="cell-pos">+16</td>
+                    <td class="cell-pos">+8</td>
+                    <td class="cell-zero">0</td>
+                    <td class="cell-neg">-8</td>
+                    <td class="cell-neg">-16</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>R$ 350/@ ← HOJE</strong></td>
+                    <td class="cell-strong-pos pe-line"><strong>+28</strong></td>
+                    <td class="cell-pos pe-line"><strong>+20</strong></td>
+                    <td class="cell-pos pe-line"><strong>+12</strong></td>
+                    <td class="cell-pos">+4</td>
+                    <td class="cell-neg">-4</td>
+                    <td class="cell-neg">-12</td>
+                </tr>
+                <tr>
+                    <td class="row-header">R$ 360/@</td>
+                    <td class="cell-strong-pos">+32</td>
+                    <td class="cell-pos">+24</td>
+                    <td class="cell-pos">+16</td>
+                    <td class="cell-pos">+8</td>
+                    <td class="cell-zero">0</td>
+                    <td class="cell-neg">-8</td>
+                </tr>
+                <tr>
+                    <td class="row-header">R$ 380/@</td>
+                    <td class="cell-strong-pos">+40</td>
+                    <td class="cell-strong-pos">+32</td>
+                    <td class="cell-pos">+24</td>
+                    <td class="cell-pos">+16</td>
+                    <td class="cell-pos">+8</td>
+                    <td class="cell-zero">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="hbox info">
+        <h4>📌 Leitura da Matriz</h4>
+        <ul>
+            <li>Se vender a R$ 350 (hoje) e recomprar a R$ 300 ou menos: <strong>ganha R$ 20-28 mil</strong> no trade</li>
+            <li>Se vender a R$ 350 e recomprar ao <strong>MESMO preço</strong>: ganha R$ 4 mil (troca vaca velha por vaca nova — valor biológico)</li>
+            <li>Só perde no trade se a recompra for a <strong>R$ 360/@ ou mais</strong> — cenário possível mas parcialmente mitigável pela escolha de bezerras (mais baratas que vacas)</li>
+        </ul>
+    </div>
+
+    <div class="hbox gold">
+        <h4>🏆 O verdadeiro ganho NÃO está no trade de arrobas</h4>
+        <p>O valor real da operação é:</p>
+        <ol>
+            <li><strong>Vender R$ 139 mil de gado</strong> → transformar em capital de giro</li>
+            <li><strong>Capital de giro viabiliza milho</strong> → milho gera R$ 274 mil de resultado</li>
+            <li><strong>Resultado do milho recompra as bezerras</strong> → rebanho se reconstitui E cresce</li>
+            <li><strong>Retorno total: R$ 139 mil viram R$ 372 mil</strong> → retorno de 172% em 10 meses</li>
+        </ol>
+        <p style="margin-top:8px"><strong>Cada arroba vendida hoje retorna como 2,67 arrobas em março/2027.</strong></p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 8: PROJEÇÃO COM REPOSIÇÃO -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 8 — Projeção de 8 Anos: Com vs. Sem Reposição</span></div>
+
+<div class="card"><div class="card-header grn">📊 Evolução do Rebanho e Receita — Cenário C (Recomendado)</div><div class="card-body">
+    <h4 style="margin:0 0 10px;font-size:.9rem">Com Reposição: Venda + Recompra 15 Bezerras + Retenção de 5 bezerras/ano</h4>
+    <table>
+        <thead><tr><th>Safra</th><th class="n">Matrizes</th><th class="n">Crias Desm.</th><th class="n">Vendidas</th><th class="n">Receita Bezerros</th><th class="n">Receita Descarte</th><th class="n">Receita Total</th><th class="n">(-) Custo</th><th class="n"><strong>Margem</strong></th></tr></thead>
+        <tbody>
+            <tr class="hy"><td><strong>26/27</strong></td><td class="n">56→43</td><td class="n">38</td><td class="n">38</td><td class="n">R$ 95.000</td><td class="n">R$ 44.500</td><td class="n">R$ 139.500</td><td class="n">-R$ 72.000</td><td class="n" style="color:#2E7D32"><strong>+R$ 67.500*</strong></td></tr>
+            <tr><td>27/28</td><td class="n">43</td><td class="n">29</td><td class="n">24</td><td class="n">R$ 60.000</td><td class="n">R$ 15.000</td><td class="n">R$ 75.000</td><td class="n">-R$ 71.000</td><td class="n" style="color:#2E7D32">+R$ 4.000</td></tr>
+            <tr><td>28/29</td><td class="n">40</td><td class="n">27</td><td class="n">22</td><td class="n">R$ 55.000</td><td class="n">R$ 10.000</td><td class="n">R$ 65.000</td><td class="n">-R$ 66.000</td><td class="n" style="color:#C62828">-R$ 1.000</td></tr>
+            <tr class="hg"><td><strong>29/30</strong></td><td class="n">42</td><td class="n">29</td><td class="n">24</td><td class="n">R$ 60.000</td><td class="n">R$ 10.000</td><td class="n">R$ 70.000</td><td class="n">-R$ 69.000</td><td class="n" style="color:#2E7D32">+R$ 1.000</td></tr>
+            <tr class="hg"><td><strong>30/31 ← bezerras compradas começam a parir</strong></td><td class="n"><strong>57</strong></td><td class="n"><strong>39</strong></td><td class="n">34</td><td class="n">R$ 85.000</td><td class="n">R$ 10.000</td><td class="n"><strong>R$ 95.000</strong></td><td class="n">-R$ 84.000</td><td class="n" style="color:#2E7D32"><strong>+R$ 11.000</strong></td></tr>
+            <tr class="hg"><td>31/32</td><td class="n">62</td><td class="n">42</td><td class="n">37</td><td class="n">R$ 93.000</td><td class="n">R$ 10.000</td><td class="n">R$ 103.000</td><td class="n">-R$ 90.000</td><td class="n" style="color:#2E7D32"><strong>+R$ 13.000</strong></td></tr>
+            <tr class="hg"><td>32/33</td><td class="n">64</td><td class="n">44</td><td class="n">39</td><td class="n">R$ 98.000</td><td class="n">R$ 8.000</td><td class="n">R$ 106.000</td><td class="n">-R$ 92.000</td><td class="n" style="color:#2E7D32"><strong>+R$ 14.000</strong></td></tr>
+            <tr class="hg"><td>33/34</td><td class="n">65</td><td class="n">44</td><td class="n">39</td><td class="n">R$ 98.000</td><td class="n">R$ 8.000</td><td class="n">R$ 106.000</td><td class="n">-R$ 93.000</td><td class="n" style="color:#2E7D32"><strong>+R$ 13.000</strong></td></tr>
+            <tr class="tr-total"><td><strong>TOTAL 8 SAFRAS</strong></td><td></td><td class="n"><strong>292</strong></td><td class="n"><strong>257</strong></td><td class="n"><strong>R$ 644.000</strong></td><td class="n"><strong>R$ 115.500</strong></td><td class="n"><strong>R$ 759.500</strong></td><td class="n"><strong>-R$ 637.000</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 122.500</strong></td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.78rem;color:#9E9E9E">* Safra 26/27: margem inclui receita extraordinária de descarte das 13 vacas velhas (R$ 44.500) + menor custo (menos matrizes no 2º semestre)</p>
+
+    <h4 style="margin:20px 0 10px;font-size:.9rem">Sem Reposição (Comparativo)</h4>
+    <table>
+        <thead><tr><th>Safra</th><th class="n">Matrizes</th><th class="n">Crias Desm.</th><th class="n">Receita Total</th><th class="n"><strong>Margem</strong></th></tr></thead>
+        <tbody>
+            <tr><td>26/27</td><td class="n">56→53</td><td class="n">38</td><td class="n">R$ 110.000</td><td class="n">+R$ 17.600</td></tr>
+            <tr><td>27/28</td><td class="n">53→47</td><td class="n">36</td><td class="n">R$ 112.800</td><td class="n">+R$ 25.350</td></tr>
+            <tr><td>28/29</td><td class="n">47→44</td><td class="n">32</td><td class="n">R$ 88.600</td><td class="n">+R$ 11.050</td></tr>
+            <tr><td>29/30</td><td class="n">44→41</td><td class="n">30</td><td class="n">R$ 84.000</td><td class="n">+R$ 11.400</td></tr>
+            <tr><td>30/31</td><td class="n">41→38</td><td class="n">28</td><td class="n">R$ 79.400</td><td class="n">+R$ 11.750</td></tr>
+            <tr><td>31/32</td><td class="n">38→35</td><td class="n">26</td><td class="n">R$ 74.000</td><td class="n">+R$ 11.300</td></tr>
+            <tr><td>32/33</td><td class="n">35→32</td><td class="n">24</td><td class="n">R$ 69.000</td><td class="n">+R$ 11.250</td></tr>
+            <tr><td>33/34</td><td class="n">32→29</td><td class="n">22</td><td class="n">R$ 64.000</td><td class="n">+R$ 11.200</td></tr>
+            <tr class="tr-total"><td><strong>TOTAL</strong></td><td></td><td class="n"><strong>236</strong></td><td class="n"><strong>R$ 681.800</strong></td><td class="n"><strong>+R$ 110.900</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="versus" style="margin-top:20px">
+        <div class="vs-box r"><div class="vs-label">Sem Reposição (8 anos)</div><div class="vs-val">32 matrizes</div><div style="font-size:.72rem;margin-top:4px">Margem: R$ 111 mil · Patrimônio: R$ 112 mil</div></div>
+        <div class="vs-div">vs.</div>
+        <div class="vs-box g"><div class="vs-label">Com Reposição — Cenário C (8 anos)</div><div class="vs-val">65 matrizes</div><div style="font-size:.72rem;margin-top:4px">Margem: R$ 123 mil · Patrimônio: R$ 228 mil</div></div>
+    </div>
+
+    <div class="callout">
+        <div class="cl">VALOR ADICIONAL CRIADO PELA REPOSIÇÃO</div>
+        <div class="cv">+R$ 175 mil em 8 anos</div>
+        <div class="cs">R$ 45 mil investidos em 15 bezerras geram R$ 175 mil de valor adicional em receita + patrimônio · ROI de 289%</div>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 9: CONCLUSÃO -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 9 — Conclusão e Recomendações</span></div>
+
+<div class="card"><div class="card-header grn">📌 Síntese da Análise — O Que o Rebanho Revela</div><div class="card-body">
+
+    <div class="hbox success">
+        <h4>✅ O que está funcionando bem</h4>
+        <ul>
+            <li><strong>80% de taxa de prenhez</strong> — acima da média nacional, resultado de IATF bem executada</li>
+            <li><strong>78,6% do plantel com 5-9 anos</strong> — 44 vacas no auge reprodutivo com 4-10 safras pela frente</li>
+            <li><strong>Mortalidade de 2,2%</strong> — abaixo da média do setor</li>
+            <li><strong>Patrimônio de ~2.074 arrobas</strong> — reserva patrimonial de ~R$ 712 mil que pode ser mobilizada a qualquer momento</li>
+            <li><strong>Boi gordo no topo histórico</strong> — melhor momento em uma década para vender</li>
+        </ul>
+    </div>
+
+    <div class="hbox warning">
+        <h4>⚠️ O que precisa de atenção</h4>
+        <ul>
+            <li><strong>21,4% do plantel (12 vacas) com 13-14 anos</strong> — última safra reprodutiva, devem ser vendidas</li>
+            <li><strong>Sem reposição, o rebanho encolhe 43% em 8 anos</strong> — de 56 para 32 matrizes</li>
+            <li><strong>Margem operacional apertada</strong> (~R$ 50/matriz/ano) — valor real está no patrimônio vivo, não na margem</li>
+            <li><strong>Reposição está 27% mais cara</strong> — mas o milho gera caixa para bancar</li>
+            <li><strong>Zero touros no plantel</strong> — 100% dependente de IATF (custo já orçado)</li>
+        </ul>
+    </div>
+
+    <div class="hbox gold">
+        <h4>🏆 Recomendação Final — O Melhor Caminho</h4>
+        <ol>
+            <li><strong>Vender as 13 vacas velhas/descarte + bezerros machos desmamados</strong> (~400 arrobas = ~R$ 139 mil) — agora, em maio/2026</li>
+            <li><strong>Usar essa receita como capital de giro</strong> para viabilizar a safra de milho verão 162,3 ha</li>
+            <li><strong>Complementar com FIDC</strong> (contrato a termo de 3.000 sc milho) para completar o capital necessário</li>
+            <li><strong>Colher milho em mar/2027</strong> — resultado projetado +R$ 274 mil</li>
+            <li><strong>Recomprar 15 bezerras Nelore</strong> com parte do lucro do milho (~R$ 45 mil)</li>
+            <li><strong>Reter 5 bezerras/ano</strong> das próprias crias para manter o plantel estável</li>
+            <li><strong>Resultado em 8 anos:</strong> rebanho CRESCE de 56 para 65 matrizes, gerando R$ 175 mil a mais de valor do que sem reposição</li>
+        </ol>
+    </div>
+
+    <div class="callout dark">
+        <div class="cl">A PECUÁRIA É A REDE DE SEGURANÇA. O MILHO É O MOTOR DE CAIXA.</div>
+        <div class="cv">As duas juntas tiram a fazenda do vermelho.</div>
+        <div class="cs">Vender gado no topo + Plantar milho + Recompor o rebanho = ciclo virtuoso que começa agora</div>
+    </div>
+</div></div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p><strong>Módulo Pecuária — Análise Estratégica do Rebanho · Grupo 8M</strong></p>
+    <p>56 Matrizes · Projeção de 8 Safras · Custo de Oportunidade · Cenários Comparativos</p>
+    <p style="margin-top:8px">Sr. Fernando Machado Mendonça · Fazendas Redenção e Gameleira · Doverlândia-GO</p>
+    <p style="margin-top:4px;font-size:.68rem">
+    Base de dados: Planilha CTRL PECUÁRIA com registro individual de 306 animais (ativos + vendidos + mortos)<br>
+    Cotações abr/2026: Boi gordo SP R$ 365/@ · Vaca gorda GO ~R$ 340/@ · Bezerro desmama GO +27% no ano<br>
+    Fontes de mercado: Scot Consultoria, Agrifatto, Agron, Globo Rural, Safras & Mercado, Compre Rural, Assocon<br>
+    Este documento é ferramenta de apoio à decisão. Valores projetados sujeitos a variação de mercado.
+    </p>
+</div>
+
+</div>
+</body>
+</html>
