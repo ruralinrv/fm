@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano Safra 26/27 — Milho Verão · Análise Comparativa e Plano de Ação</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#F0F2F5;color:#212121;line-height:1.7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        .container{max-width:1200px;margin:0 auto;padding:20px}
+
+        .mod-header{background:linear-gradient(135deg,#0D47A1,#1565C0,#1976D2,#42A5F5);padding:50px 40px;text-align:center;color:#fff;border-radius:16px;margin-bottom:30px;position:relative;overflow:hidden}
+        .mod-header::before{content:'';position:absolute;top:-30%;right:-10%;width:300px;height:300px;background:rgba(255,255,255,.04);border-radius:50%}
+        .mod-header .badge{display:inline-block;background:rgba(255,255,255,.15);padding:6px 20px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:14px;backdrop-filter:blur(4px)}
+        .mod-header h1{font-size:2rem;font-weight:800;margin-bottom:8px}
+        .mod-header .sub{font-size:1rem;opacity:.85}
+        .mod-header .date{font-size:.82rem;opacity:.65;margin-top:8px}
+
+        .card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:24px;overflow:hidden;border:1px solid #E0E0E0}
+        .card-header{padding:16px 24px;font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E0E0E0}
+        .card-header.grn{background:linear-gradient(90deg,#E8F5E9,#F1F8E9);color:#1B5E20}
+        .card-header.red{background:linear-gradient(90deg,#FFEBEE,#FFF3E0);color:#B71C1C}
+        .card-header.org{background:linear-gradient(90deg,#FFF3E0,#FFF8E1);color:#E65100}
+        .card-header.blu{background:linear-gradient(90deg,#E3F2FD,#E8EAF6);color:#1565C0}
+        .card-header.drk{background:linear-gradient(90deg,#263238,#37474F);color:#fff}
+        .card-header.pur{background:linear-gradient(90deg,#EDE7F6,#E8EAF6);color:#4527A0}
+        .card-header.tea{background:linear-gradient(90deg,#E0F2F1,#E8F5E9);color:#004D40}
+        .card-header.ind{background:linear-gradient(90deg,#E8EAF6,#C5CAE9);color:#1A237E}
+        .card-header.amb{background:linear-gradient(90deg,#FFF8E1,#FFECB3);color:#FF6F00}
+        .card-header.cyn{background:linear-gradient(90deg,#E0F7FA,#B2EBF2);color:#006064}
+        .card-header.lgrn{background:linear-gradient(90deg,#F1F8E9,#DCEDC8);color:#33691E}
+        .card-header.gold{background:linear-gradient(90deg,#FFF8E1,#FFE082);color:#E65100}
+        .card-body{padding:24px}
+
+        table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.82rem}
+        thead th{background:#F5F5F5;padding:10px 8px;text-align:left;font-weight:700;border-bottom:2px solid #E0E0E0;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:#616161}
+        thead th.n{text-align:right}
+        thead th.soja{background:#E8F5E9;color:#1B5E20}
+        thead th.milho{background:#FFF8E1;color:#E65100}
+        tbody td{padding:8px;border-bottom:1px solid #F0F0F0}
+        tbody td.n{text-align:right;font-family:'Consolas','Courier New',monospace;font-weight:600;font-size:.82rem}
+        tbody tr:hover{background:#FAFAFA}
+        .tr-total{background:#F5F5F5;font-weight:700;border-top:2px solid #E0E0E0}
+        .tr-total td{padding:10px 8px}
+        .hr{background:#FFF5F5}.hg{background:#F5FFF5}.hy{background:#FFFDE7}.hb{background:#F5F9FF}.hp{background:#F9F5FF}
+
+        .badge-inline{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:700}
+        .b-crit{background:#FFCDD2;color:#B71C1C}
+        .b-warn{background:#FFF9C4;color:#F57F17}
+        .b-ok{background:#C8E6C9;color:#1B5E20}
+        .b-info{background:#BBDEFB;color:#0D47A1}
+        .b-pur{background:#E1BEE7;color:#6A1B9A}
+
+        .hbox{border-radius:10px;padding:18px;margin:16px 0}
+        .hbox.danger{background:linear-gradient(135deg,#FFEBEE,#FCE4EC);border-left:5px solid #C62828}
+        .hbox.warning{background:linear-gradient(135deg,#FFF8E1,#FFF3E0);border-left:5px solid #FF8F00}
+        .hbox.success{background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-left:5px solid #2E7D32}
+        .hbox.info{background:linear-gradient(135deg,#E3F2FD,#E8EAF6);border-left:5px solid #1565C0}
+        .hbox.purple{background:linear-gradient(135deg,#EDE7F6,#E8EAF6);border-left:5px solid #4527A0}
+        .hbox.dark{background:linear-gradient(135deg,#ECEFF1,#CFD8DC);border-left:5px solid #263238}
+        .hbox.teal{background:linear-gradient(135deg,#E0F2F1,#B2DFDB);border-left:5px solid #00695C}
+        .hbox.gold{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-left:5px solid #FF8F00}
+        .hbox h4{margin-bottom:8px;font-size:.95rem}
+        .hbox p,.hbox li{font-size:.88rem;color:#424242}
+        .hbox ul,.hbox ol{margin-left:18px;margin-top:6px}
+        .hbox li{margin-bottom:4px}
+
+        .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+        .mcard{background:#FAFAFA;border:1px solid #E0E0E0;border-radius:10px;padding:18px;text-align:center}
+        .mcard .val{font-size:1.4rem;font-weight:800;margin:6px 0;font-family:'Consolas',monospace}
+        .mcard .label{font-size:.72rem;color:#616161;text-transform:uppercase;letter-spacing:.5px}
+        .mcard .sub{font-size:.72rem;margin-top:6px;padding-top:6px;border-top:1px solid #eee}
+
+        .bar-container{margin:8px 0}
+        .bar-label{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;font-weight:600}
+        .bar-track{width:100%;height:28px;background:#ECEFF1;border-radius:7px;overflow:hidden;position:relative}
+        .bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:.72rem;color:#fff;font-weight:700}
+        .bar-fill.green{background:linear-gradient(90deg,#43A047,#66BB6A)}
+        .bar-fill.red{background:linear-gradient(90deg,#E53935,#EF5350)}
+        .bar-fill.orange{background:linear-gradient(90deg,#FB8C00,#FFA726)}
+        .bar-fill.blue{background:linear-gradient(90deg,#1E88E5,#42A5F5)}
+        .bar-fill.purple{background:linear-gradient(90deg,#7B1FA2,#AB47BC)}
+        .bar-fill.teal{background:linear-gradient(90deg,#00897B,#26A69A)}
+        .bar-fill.gold{background:linear-gradient(90deg,#FF8F00,#FFB300)}
+        .bar-fill.dark{background:linear-gradient(90deg,#455A64,#78909C)}
+
+        .section-div{text-align:center;margin:40px 0 24px;position:relative}
+        .section-div::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:#E0E0E0}
+        .section-div span{background:#F0F2F5;padding:0 20px;position:relative;font-size:.82rem;color:#9E9E9E;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+
+        .dual{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+        .versus{display:flex;align-items:center;justify-content:center;gap:8px;margin:20px 0;flex-wrap:wrap}
+        .vs-box{padding:14px 20px;border-radius:10px;text-align:center;flex:1;min-width:180px}
+        .vs-box .vs-val{font-size:1.5rem;font-weight:800;font-family:'Consolas',monospace}
+        .vs-box .vs-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+        .vs-box.r{background:#FFEBEE;border:2px solid #C62828;color:#C62828}
+        .vs-box.g{background:#E8F5E9;border:2px solid #2E7D32;color:#1B5E20}
+        .vs-box.b{background:#E3F2FD;border:2px solid #1565C0;color:#0D47A1}
+        .vs-box.p{background:#EDE7F6;border:2px solid #6A1B9A;color:#4527A0}
+        .vs-div{font-size:1.5rem;font-weight:900;color:#9E9E9E;align-self:center;padding:0 4px}
+
+        .callout{background:linear-gradient(135deg,#1A237E,#283593);color:#fff;border-radius:14px;padding:30px;text-align:center;margin:24px 0}
+        .callout .cv{font-size:2rem;font-weight:900;font-family:'Consolas',monospace;margin:12px 0}
+        .callout .cl{font-size:.9rem;opacity:.85}
+        .callout .cs{font-size:.78rem;opacity:.65;margin-top:8px}
+
+        .timeline{position:relative;padding-left:30px;margin:16px 0}
+        .timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#E0E0E0}
+        .tl-item{position:relative;margin-bottom:16px;padding:14px 18px;background:#fff;border-radius:10px;border:1px solid #E0E0E0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+        .tl-item::before{content:'';position:absolute;left:-24px;top:18px;width:10px;height:10px;border-radius:50%;border:2px solid}
+        .tl-item.crit::before{background:#FFCDD2;border-color:#C62828}
+        .tl-item.ok::before{background:#C8E6C9;border-color:#2E7D32}
+        .tl-item.warn::before{background:#FFF9C4;border-color:#FF8F00}
+        .tl-item.info::before{background:#BBDEFB;border-color:#1565C0}
+        .tl-item h4{font-size:.88rem;font-weight:700}
+        .tl-item p{font-size:.82rem;color:#616161;margin-top:3px}
+
+        /* MATRIX STYLES */
+        .matrix-wrapper{overflow-x:auto;margin:16px 0}
+        .matrix{border-collapse:collapse;font-size:.75rem;width:100%}
+        .matrix th,.matrix td{padding:6px 8px;text-align:center;border:1px solid #E0E0E0;font-family:'Consolas',monospace}
+        .matrix th{background:#F5F5F5;font-weight:700;font-size:.68rem;text-transform:uppercase}
+        .matrix .corner{background:#263238;color:#fff;font-size:.65rem}
+        .matrix .row-header{background:#F5F5F5;font-weight:700;text-align:right;padding-right:10px}
+        .matrix .cell-pos{background:#C8E6C9;color:#1B5E20;font-weight:700}
+        .matrix .cell-zero{background:#FFF9C4;color:#F57F17;font-weight:700}
+        .matrix .cell-neg{background:#FFCDD2;color:#B71C1C;font-weight:700}
+        .matrix .cell-deep-neg{background:#B71C1C;color:#fff;font-weight:700}
+        .matrix .cell-strong-pos{background:#2E7D32;color:#fff;font-weight:700}
+        .matrix .pe-line{outline:3px solid #212121;outline-offset:-1px}
+
+        @media(max-width:768px){.dual{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr 1fr}}
+        @media(max-width:480px){.mgrid{grid-template-columns:1fr}}
+        @media print{.mod-header{padding:20px}.card{break-inside:avoid}body{font-size:10pt}}
+
+        .footer{text-align:center;padding:30px;color:#9E9E9E;font-size:.75rem;border-top:1px solid #E0E0E0;margin-top:40px}
+    </style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<div class="mod-header">
+    <div class="badge">PLANO SAFRA 2026/2027</div>
+    <h1>Milho Verão 162,3 ha — Análise e Plano de Ação</h1>
+    <div class="sub">Comparativo Soja vs. Milho · Matrizes de Sensibilidade · Fontes de Capital · Cronograma</div>
+    <div class="date">Sr. Fernando Machado Mendonça · Preparado em 21/04/2026</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 1: APRESENTAÇÃO -->
+<!-- ============================================================ -->
+<div class="card"><div class="card-header grn">📋 Apresentação</div><div class="card-body">
+    <p>Sr. Fernando, este documento foi preparado para apresentar de forma objetiva e transparente a <strong>análise comparativa entre soja e milho verão</strong> para a safra 26/27, bem como as <strong>alternativas concretas de capital de giro</strong> disponíveis para viabilizar a operação.</p>
+    <p style="margin-top:10px">Os dados utilizados são reais e atualizados:</p>
+    <ul style="margin:10px 0 10px 20px">
+        <li>Histórico de 3 safras da propriedade (Módulos 1-6 já apresentados)</li>
+        <li>Planejamento de fertilizantes da <strong>Terram Agronomia</strong> (17/04/2026)</li>
+        <li>Cotações de mercado de abril/2026 (milho, soja, boi gordo, fertilizantes)</li>
+        <li>Saldos bancários e posição patrimonial atualizados</li>
+    </ul>
+    <p>O objetivo é que, ao final da leitura, o senhor tenha <strong>todos os números e cenários necessários</strong> para tomar a melhor decisão possível para a safra 26/27.</p>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 2: POSIÇÃO ATUAL -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 1 — Posição Financeira Atual</span></div>
+
+<div class="card"><div class="card-header red">📍 Onde Estamos Hoje — Abril/2026</div><div class="card-body">
+    <div class="mgrid">
+        <div class="mcard" style="border-top:4px solid #C62828"><div class="label">Caixa Disponível</div><div class="val" style="color:#C62828">R$ 12.331</div><div class="sub">Todas as contas somadas</div></div>
+        <div class="mcard" style="border-top:4px solid #E65100"><div class="label">Dívida Bancária</div><div class="val" style="color:#E65100">R$ 3,68 mi</div><div class="sub">Cobranças suspensas judicialmente ✅</div></div>
+        <div class="mcard" style="border-top:4px solid #2E7D32"><div class="label">Estoque Pecuário</div><div class="val" style="color:#2E7D32">2.376 @</div><div class="sub">~R$ 665-855 mil (conforme cotação)</div></div>
+        <div class="mcard" style="border-top:4px solid #1565C0"><div class="label">Prejuízo Acum. 3 Safras</div><div class="val" style="color:#1565C0">-R$ 1,68 mi</div><div class="sub">Safras 23/24 a 25/26</div></div>
+    </div>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">💳 Saldos Bancários — Posição Abril/2026</h4>
+    <table>
+        <thead><tr><th>Conta</th><th>Banco</th><th>Tipo</th><th class="n">Saldo Atual</th></tr></thead>
+        <tbody>
+            <tr><td>BB Lavoura</td><td>Banco do Brasil</td><td>—</td><td class="n">R$ 4.075,62</td></tr>
+            <tr><td>CEF Lavoura</td><td>Caixa</td><td>Corrente</td><td class="n">R$ 3.105,37</td></tr>
+            <tr><td>CEF Lavoura Inv.</td><td>Caixa</td><td>Investimento</td><td class="n">R$ 0,00</td></tr>
+            <tr><td>SCO Lavoura</td><td>Sicoob</td><td>Corrente</td><td class="n">R$ 4.729,61</td></tr>
+            <tr><td>SCO Lavoura Inv.</td><td>Sicoob</td><td>Investimento</td><td class="n">R$ 0,00</td></tr>
+            <tr><td>BB Pecuária</td><td>Banco do Brasil</td><td>Corrente</td><td class="n">R$ 420,42</td></tr>
+            <tr><td>Caixa Fechamentos</td><td>—</td><td>—</td><td class="n">R$ 0,00</td></tr>
+            <tr class="tr-total"><td colspan="3"><strong>TOTAL DISPONÍVEL</strong></td><td class="n" style="color:#C62828"><strong>R$ 12.331,02</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox info">
+        <h4>📌 O que está a favor neste momento</h4>
+        <ul>
+            <li><strong>Liminar judicial ativa:</strong> cobranças bancárias suspensas — sem pressão de curto prazo</li>
+            <li><strong>Custo operacional em queda consistente:</strong> de R$ 12.269/ha (23/24) para ~R$ 6.383/ha (26/27) — redução de 48%</li>
+            <li><strong>Arrendamento renovado:</strong> 162,3 ha confirmados para a próxima safra</li>
+            <li><strong>Investimentos zerados:</strong> disciplina de caixa mantida</li>
+            <li><strong>Equipe técnica Terram:</strong> recomendação profissional de adubação para milho verão já elaborada</li>
+            <li><strong>Patrimônio pecuário:</strong> 150 matrizes + cria, estoque de 2.376 arrobas</li>
+            <li><strong>Boi gordo no topo histórico:</strong> R$ 320-365/@ em Goiás (abril/2026)</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 3: SOJA VS MILHO -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 2 — Por Que Milho Verão e Não Soja</span></div>
+
+<div class="card"><div class="card-header org">🌱 vs. 🌽 Comparativo Soja e Milho — 162,3 ha Safra 26/27</div><div class="card-body">
+
+    <p style="margin-bottom:14px">Sr. Fernando, a análise abaixo compara os dois caminhos possíveis para a safra 26/27. Os números são baseados no histórico real da propriedade (para a soja) e na estimativa técnica da Terram (para o milho).</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Premissas Utilizadas</h4>
+    <table>
+        <thead><tr><th>Premissa</th><th class="n soja">🌱 SOJA</th><th class="n milho">🌽 MILHO VERÃO</th><th>Fonte / Justificativa</th></tr></thead>
+        <tbody>
+            <tr><td>Área</td><td class="n">166 ha</td><td class="n">162,3 ha</td><td>Planejamento atual / Terram</td></tr>
+            <tr><td><strong>Produtividade estimada</strong></td><td class="n" style="color:#C62828"><strong>60 sc/ha</strong></td><td class="n" style="color:#2E7D32"><strong>140-150 sc/ha</strong></td><td>Média 3 safras: 53,24 / Estimativa Terram</td></tr>
+            <tr><td>Produção total</td><td class="n">9.960 sc</td><td class="n">22.722 - 24.345 sc</td><td></td></tr>
+            <tr><td>Preço referência</td><td class="n">R$ 105/sc</td><td class="n">R$ 60/sc</td><td>Planejamento / Grão Direto Rio Verde</td></tr>
+            <tr><td>COT total</td><td class="n">R$ 1.059.500</td><td class="n">~R$ 952.000</td><td></td></tr>
+            <tr><td>COT/ha</td><td class="n">R$ 6.382</td><td class="n">~R$ 5.866</td><td></td></tr>
+            <tr><td><strong>P.E. (sc/ha para empatar)</strong></td><td class="n" style="color:#C62828"><strong>68,93</strong></td><td class="n" style="color:#2E7D32"><strong>~97,6</strong></td><td>COT/ha ÷ Preço/sc</td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Resultado Comparativo — Cenário Base</h4>
+    <table>
+        <thead><tr><th>Item</th><th class="n soja">🌱 SOJA (60 sc)</th><th class="n milho">🌽 MILHO Conservador (140 sc)</th><th class="n milho">🌽 MILHO Base (145 sc)</th><th class="n milho">🌽 MILHO Otimista (150 sc)</th></tr></thead>
+        <tbody>
+            <tr><td>Produção total</td><td class="n">9.960 sc</td><td class="n">22.722 sc</td><td class="n">23.534 sc</td><td class="n">24.345 sc</td></tr>
+            <tr><td>Receita bruta</td><td class="n">R$ 1.045.800</td><td class="n">R$ 1.363.320</td><td class="n">R$ 1.412.040</td><td class="n">R$ 1.460.700</td></tr>
+            <tr><td>(-) COT total</td><td class="n">-R$ 1.059.500</td><td class="n">-R$ 952.000</td><td class="n">-R$ 952.000</td><td class="n">-R$ 952.000</td></tr>
+            <tr style="background:#F5F5F5;font-weight:700"><td><strong>Resultado da Lavoura</strong></td><td class="n" style="color:#C62828"><strong>-R$ 13.700</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 411.320</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 460.040</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 508.700</strong></td></tr>
+            <tr><td>(-) Despesas operacionais</td><td class="n">-R$ 185.868</td><td class="n">-R$ 185.868</td><td class="n">-R$ 185.868</td><td class="n">-R$ 185.868</td></tr>
+            <tr class="tr-total"><td><strong>Resultado Líquido Lavoura</strong></td><td class="n" style="color:#C62828"><strong>-R$ 199.568</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 225.452</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 274.172</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 322.832</strong></td></tr>
+            <tr><td>(+) Resultado pecuária</td><td class="n">+R$ 98.100</td><td class="n">+R$ 98.100</td><td class="n">+R$ 98.100</td><td class="n">+R$ 98.100</td></tr>
+            <tr class="tr-total" style="background:#E8F5E9"><td><strong>RESULTADO TOTAL SAFRA 26/27</strong></td><td class="n" style="color:#C62828"><strong>-R$ 101.468</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 323.552</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 372.272</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 420.932</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="versus">
+        <div class="vs-box r"><div class="vs-label">🌱 Soja 166 ha</div><div class="vs-val">-R$ 101.468</div><div style="font-size:.72rem;margin-top:4px">5º prejuízo consecutivo</div></div>
+        <div class="vs-div">vs.</div>
+        <div class="vs-box g"><div class="vs-label">🌽 Milho 162,3 ha (base)</div><div class="vs-val">+R$ 372.272</div><div style="font-size:.72rem;margin-top:4px">1ª safra positiva desde 22/23</div></div>
+    </div>
+
+    <div class="callout">
+        <div class="cl">DIFERENÇA ENTRE PLANTAR SOJA E PLANTAR MILHO</div>
+        <div class="cv">R$ 473.740</div>
+        <div class="cs">Cenário base · Mesma terra · Mesmo produtor · Mesma safra</div>
+    </div>
+</div></div>
+
+<!-- FUNDAMENTAÇÃO TERRAM -->
+<div class="card"><div class="card-header amb">🧪 Planejamento de Adubação — Terram Agronomia (17/04/2026)</div><div class="card-body">
+    <p style="margin-bottom:14px">A equipe técnica da Terram elaborou o planejamento completo de fertilizantes para milho verão, por fazenda:</p>
+    <table>
+        <thead><tr><th>Produto</th><th class="n">Estrela (57,4 ha)</th><th class="n">São Joaquim (104,9 ha)</th><th class="n">Volume Total</th></tr></thead>
+        <tbody>
+            <tr><td><strong>KCl (60%)</strong> — Potássio</td><td class="n">200 kg/ha → 12 ton</td><td class="n">250 kg/ha → 26 ton</td><td class="n"><strong>38 ton</strong></td></tr>
+            <tr><td><strong>SFT (00-46-00)</strong> — Fósforo (Opção 2)</td><td class="n">280 kg/ha → 16 ton</td><td class="n">180 kg/ha → 19 ton</td><td class="n"><strong>35 ton</strong></td></tr>
+            <tr><td><strong>Sulfato de Amônio</strong> — Nitrogênio</td><td class="n">600 kg/ha → 35 ton</td><td class="n">500 kg/ha → 52 ton</td><td class="n"><strong>87 ton</strong></td></tr>
+        </tbody>
+    </table>
+    <p style="font-size:.82rem;color:#616161;margin-top:8px"><strong>Obs. da Terram:</strong> Na fazenda São Joaquim (Gameleira), parcelar o Potássio e Nitrogênio. Estimativa de produção baseada nas condições de solo, clima e topografia: <strong>140 a 150 sc/ha</strong>.</p>
+
+    <div class="hbox warning">
+        <h4>⚠️ Alerta de mercado: fertilizantes em alta (abril/2026)</h4>
+        <p>Os preços de fertilizantes estão em forte elevação neste mês:</p>
+        <ul>
+            <li><strong>Ureia:</strong> +75% nos portos (conflito Oriente Médio + crise energética)</li>
+            <li><strong>KCl:</strong> +17% no acumulado do ano</li>
+            <li><strong>Fósforo:</strong> +14% no acumulado do ano</li>
+        </ul>
+        <p style="margin-top:8px"><strong>Quanto antes fechar a negociação de barter/prazo safra, menor será o custo.</strong> Cada semana de atraso pode representar R$ 20-40 mil a mais no custo total de insumos.</p>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 4: MATRIZES DE SENSIBILIDADE -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 3 — Matrizes de Sensibilidade: Produtividade × Preço</span></div>
+
+<div class="card"><div class="card-header ind">📐 Entendendo as Matrizes</div><div class="card-body">
+    <p>Sr. Fernando, as matrizes abaixo mostram o <strong>resultado líquido da lavoura</strong> (receita menos COT e despesas operacionais) para diferentes combinações de <strong>produtividade</strong> (linhas) e <strong>preço de venda</strong> (colunas).</p>
+    <ul style="margin:10px 0 10px 20px">
+        <li>Células <strong style="color:#1B5E20;background:#C8E6C9;padding:2px 6px;border-radius:4px">verdes</strong> = resultado positivo (lucro)</li>
+        <li>Células <strong style="color:#F57F17;background:#FFF9C4;padding:2px 6px;border-radius:4px">amarelas</strong> = próximo do ponto de equilíbrio</li>
+        <li>Células <strong style="color:#B71C1C;background:#FFCDD2;padding:2px 6px;border-radius:4px">vermelhas</strong> = resultado negativo (prejuízo)</li>
+        <li>Células <strong style="color:#fff;background:#B71C1C;padding:2px 6px;border-radius:4px">vermelhas escuras</strong> = prejuízo grave</li>
+        <li>Células <strong style="color:#fff;background:#2E7D32;padding:2px 6px;border-radius:4px">verdes escuras</strong> = resultado forte</li>
+        <li>O <strong>contorno preto</strong> marca a região do ponto de equilíbrio</li>
+    </ul>
+    <p style="margin-top:10px">Todos os valores em <strong>R$ mil</strong> (milhares de reais). Valores já descontam COT + despesas operacionais de R$ 185.868. <strong>NÃO incluem resultado da pecuária</strong> (que adiciona ~R$ 98 mil positivos).</p>
+</div></div>
+
+<!-- MATRIZ SOJA -->
+<div class="card"><div class="card-header red">🌱 Matriz de Sensibilidade — SOJA (166 ha · COT R$ 1.059.500 + Desp. R$ 185.868)</div><div class="card-body">
+    <p style="margin-bottom:14px">Resultado líquido da lavoura de <strong>soja</strong> (R$ mil) para cada combinação de produtividade e preço. Custo total fixo: R$ 1.245.368.</p>
+
+    <div class="matrix-wrapper">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th class="corner">SOJA<br>Prod. ↓ / Preço →</th>
+                    <th>R$ 90/sc</th>
+                    <th>R$ 95/sc</th>
+                    <th>R$ 100/sc</th>
+                    <th>R$ 105/sc</th>
+                    <th>R$ 110/sc</th>
+                    <th>R$ 115/sc</th>
+                    <th>R$ 120/sc</th>
+                    <th>R$ 125/sc</th>
+                    <th>R$ 130/sc</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-header">45 sc/ha</td>
+                    <td class="cell-deep-neg">-578</td>
+                    <td class="cell-deep-neg">-541</td>
+                    <td class="cell-deep-neg">-504</td>
+                    <td class="cell-deep-neg">-466</td>
+                    <td class="cell-deep-neg">-429</td>
+                    <td class="cell-deep-neg">-392</td>
+                    <td class="cell-deep-neg">-354</td>
+                    <td class="cell-deep-neg">-317</td>
+                    <td class="cell-deep-neg">-280</td>
+                </tr>
+                <tr>
+                    <td class="row-header">50 sc/ha</td>
+                    <td class="cell-deep-neg">-503</td>
+                    <td class="cell-deep-neg">-462</td>
+                    <td class="cell-deep-neg">-421</td>
+                    <td class="cell-deep-neg">-380</td>
+                    <td class="cell-deep-neg">-338</td>
+                    <td class="cell-deep-neg">-297</td>
+                    <td class="cell-neg">-256</td>
+                    <td class="cell-neg">-214</td>
+                    <td class="cell-neg">-173</td>
+                </tr>
+                <tr>
+                    <td class="row-header">55 sc/ha</td>
+                    <td class="cell-deep-neg">-428</td>
+                    <td class="cell-deep-neg">-382</td>
+                    <td class="cell-neg">-337</td>
+                    <td class="cell-neg">-291</td>
+                    <td class="cell-neg">-245</td>
+                    <td class="cell-neg">-200</td>
+                    <td class="cell-neg">-154</td>
+                    <td class="cell-neg">-109</td>
+                    <td class="cell-neg">-63</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>60 sc/ha ←</strong></td>
+                    <td class="cell-deep-neg">-349</td>
+                    <td class="cell-neg">-300</td>
+                    <td class="cell-neg">-250</td>
+                    <td class="cell-neg"><strong>-200</strong></td>
+                    <td class="cell-neg">-150</td>
+                    <td class="cell-neg">-100</td>
+                    <td class="cell-neg">-50</td>
+                    <td class="cell-zero">-1</td>
+                    <td class="cell-pos">+49</td>
+                </tr>
+                <tr>
+                    <td class="row-header">65 sc/ha</td>
+                    <td class="cell-neg">-274</td>
+                    <td class="cell-neg">-219</td>
+                    <td class="cell-neg">-164</td>
+                    <td class="cell-neg">-109</td>
+                    <td class="cell-neg">-55</td>
+                    <td class="cell-zero">0</td>
+                    <td class="cell-pos pe-line">+55</td>
+                    <td class="cell-pos">+110</td>
+                    <td class="cell-pos">+164</td>
+                </tr>
+                <tr>
+                    <td class="row-header">68,93 sc/ha (P.E.)</td>
+                    <td class="cell-neg">-215</td>
+                    <td class="cell-neg">-157</td>
+                    <td class="cell-neg">-99</td>
+                    <td class="cell-zero pe-line"><strong>~0</strong></td>
+                    <td class="cell-pos">+57</td>
+                    <td class="cell-pos">+114</td>
+                    <td class="cell-pos">+171</td>
+                    <td class="cell-pos">+228</td>
+                    <td class="cell-pos">+285</td>
+                </tr>
+                <tr>
+                    <td class="row-header">70 sc/ha</td>
+                    <td class="cell-neg">-199</td>
+                    <td class="cell-neg">-139</td>
+                    <td class="cell-neg">-79</td>
+                    <td class="cell-neg">-19</td>
+                    <td class="cell-pos">+41</td>
+                    <td class="cell-pos">+101</td>
+                    <td class="cell-pos">+161</td>
+                    <td class="cell-pos">+221</td>
+                    <td class="cell-pos">+281</td>
+                </tr>
+                <tr>
+                    <td class="row-header">75 sc/ha</td>
+                    <td class="cell-neg">-120</td>
+                    <td class="cell-neg">-57</td>
+                    <td class="cell-pos">+7</td>
+                    <td class="cell-pos">+70</td>
+                    <td class="cell-pos">+133</td>
+                    <td class="cell-pos">+196</td>
+                    <td class="cell-strong-pos">+260</td>
+                    <td class="cell-strong-pos">+323</td>
+                    <td class="cell-strong-pos">+386</td>
+                </tr>
+                <tr>
+                    <td class="row-header">80 sc/ha</td>
+                    <td class="cell-neg">-44</td>
+                    <td class="cell-pos">+23</td>
+                    <td class="cell-pos">+90</td>
+                    <td class="cell-pos">+157</td>
+                    <td class="cell-pos">+224</td>
+                    <td class="cell-strong-pos">+291</td>
+                    <td class="cell-strong-pos">+358</td>
+                    <td class="cell-strong-pos">+425</td>
+                    <td class="cell-strong-pos">+492</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="hbox danger">
+        <h4>🔴 Leitura da Matriz — Soja</h4>
+        <ul>
+            <li>No cenário mais provável (60 sc/ha a R$ 105/sc), o resultado é <strong>-R$ 200 mil</strong></li>
+            <li>Para empatar com soja a R$ 105, é necessário produzir <strong>68,93 sc/ha</strong> — a média de 3 safras é 53,24</li>
+            <li>Para empatar com 60 sc/ha, o preço precisaria chegar a <strong>R$ 125/sc</strong> — 19% acima do atual</li>
+            <li>Para a soja dar lucro de fato, precisaria combinar <strong>produtividade acima de 70 sc/ha E preço acima de R$ 110/sc</strong></li>
+            <li>A zona verde (resultado positivo) está <strong>fora do alcance histórico</strong> desta propriedade na média geral</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- MATRIZ MILHO -->
+<div class="card"><div class="card-header grn">🌽 Matriz de Sensibilidade — MILHO VERÃO (162,3 ha · COT ~R$ 952.000 + Desp. R$ 185.868)</div><div class="card-body">
+    <p style="margin-bottom:14px">Resultado líquido da lavoura de <strong>milho verão</strong> (R$ mil) para cada combinação de produtividade e preço. Custo total fixo: R$ 1.137.868.</p>
+
+    <div class="matrix-wrapper">
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th class="corner">MILHO<br>Prod. ↓ / Preço →</th>
+                    <th>R$ 45/sc</th>
+                    <th>R$ 50/sc</th>
+                    <th>R$ 55/sc</th>
+                    <th>R$ 60/sc</th>
+                    <th>R$ 65/sc</th>
+                    <th>R$ 70/sc</th>
+                    <th>R$ 75/sc</th>
+                    <th>R$ 80/sc</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-header">100 sc/ha</td>
+                    <td class="cell-deep-neg">-407</td>
+                    <td class="cell-neg">-326</td>
+                    <td class="cell-neg">-245</td>
+                    <td class="cell-neg">-164</td>
+                    <td class="cell-neg">-83</td>
+                    <td class="cell-zero">-2</td>
+                    <td class="cell-pos">+79</td>
+                    <td class="cell-pos">+160</td>
+                </tr>
+                <tr>
+                    <td class="row-header">110 sc/ha</td>
+                    <td class="cell-neg">-334</td>
+                    <td class="cell-neg">-245</td>
+                    <td class="cell-neg">-156</td>
+                    <td class="cell-neg">-67</td>
+                    <td class="cell-pos">+22</td>
+                    <td class="cell-pos">+111</td>
+                    <td class="cell-pos">+200</td>
+                    <td class="cell-strong-pos">+289</td>
+                </tr>
+                <tr>
+                    <td class="row-header">120 sc/ha</td>
+                    <td class="cell-neg">-261</td>
+                    <td class="cell-neg">-164</td>
+                    <td class="cell-neg">-67</td>
+                    <td class="cell-pos">+30</td>
+                    <td class="cell-pos">+127</td>
+                    <td class="cell-pos">+224</td>
+                    <td class="cell-strong-pos">+321</td>
+                    <td class="cell-strong-pos">+418</td>
+                </tr>
+                <tr>
+                    <td class="row-header">130 sc/ha</td>
+                    <td class="cell-neg">-188</td>
+                    <td class="cell-neg">-83</td>
+                    <td class="cell-pos">+22</td>
+                    <td class="cell-pos">+127</td>
+                    <td class="cell-strong-pos">+232</td>
+                    <td class="cell-strong-pos">+337</td>
+                    <td class="cell-strong-pos">+442</td>
+                    <td class="cell-strong-pos">+547</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>140 sc/ha ←</strong></td>
+                    <td class="cell-neg">-115</td>
+                    <td class="cell-zero">-2</td>
+                    <td class="cell-pos pe-line">+112</td>
+                    <td class="cell-pos"><strong>+225</strong></td>
+                    <td class="cell-strong-pos">+339</td>
+                    <td class="cell-strong-pos">+452</td>
+                    <td class="cell-strong-pos">+566</td>
+                    <td class="cell-strong-pos">+679</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>145 sc/ha ←</strong></td>
+                    <td class="cell-neg">-78</td>
+                    <td class="cell-pos">+38</td>
+                    <td class="cell-pos">+154</td>
+                    <td class="cell-pos"><strong>+274</strong></td>
+                    <td class="cell-strong-pos">+390</td>
+                    <td class="cell-strong-pos">+507</td>
+                    <td class="cell-strong-pos">+623</td>
+                    <td class="cell-strong-pos">+739</td>
+                </tr>
+                <tr>
+                    <td class="row-header"><strong>150 sc/ha ←</strong></td>
+                    <td class="cell-neg">-40</td>
+                    <td class="cell-pos">+79</td>
+                    <td class="cell-pos">+197</td>
+                    <td class="cell-strong-pos">+323</td>
+                    <td class="cell-strong-pos">+441</td>
+                    <td class="cell-strong-pos">+562</td>
+                    <td class="cell-strong-pos">+681</td>
+                    <td class="cell-strong-pos">+800</td>
+                </tr>
+                <tr>
+                    <td class="row-header">160 sc/ha</td>
+                    <td class="cell-pos">+33</td>
+                    <td class="cell-pos">+160</td>
+                    <td class="cell-strong-pos">+287</td>
+                    <td class="cell-strong-pos">+421</td>
+                    <td class="cell-strong-pos">+548</td>
+                    <td class="cell-strong-pos">+675</td>
+                    <td class="cell-strong-pos">+802</td>
+                    <td class="cell-strong-pos">+929</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="hbox success">
+        <h4>✅ Leitura da Matriz — Milho</h4>
+        <ul>
+            <li>No cenário base (145 sc/ha a R$ 60/sc), o resultado é <strong>+R$ 274 mil</strong></li>
+            <li>Mesmo no cenário conservador (140 sc/ha a R$ 60/sc), o resultado é <strong>+R$ 225 mil</strong></li>
+            <li>O ponto de equilíbrio a R$ 60/sc está em <strong>~117 sc/ha</strong> — muito abaixo da projeção técnica de 140-150</li>
+            <li>Mesmo com preço caindo para <strong>R$ 50/sc</strong>, o milho empata a 140 sc/ha e dá lucro a 145+</li>
+            <li>Se o preço subir para <strong>R$ 70/sc</strong> (possível com clima adverso nos EUA), o resultado a 145 sc/ha chega a <strong>+R$ 507 mil</strong></li>
+            <li>A zona verde (positiva) começa a partir de <strong>120 sc/ha a R$ 60</strong> — margem de segurança de 20-30 sc/ha abaixo da estimativa técnica</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- COMPARATIVO DAS MATRIZES -->
+<div class="card"><div class="card-header drk">⚖️ Comparativo: Onde Cada Cultura Empata e Onde Dá Lucro</div><div class="card-body">
+    <table>
+        <thead><tr><th>Indicador</th><th class="n soja">🌱 SOJA</th><th class="n milho">🌽 MILHO</th><th>Vantagem</th></tr></thead>
+        <tbody>
+            <tr><td><strong>P.E. no preço de referência</strong></td><td class="n">68,93 sc/ha</td><td class="n">~117 sc/ha</td><td>—</td></tr>
+            <tr><td><strong>Margem acima do P.E. (cenário base)</strong></td><td class="n" style="color:#C62828">-8,93 sc/ha (ABAIXO)</td><td class="n" style="color:#2E7D32">+28 sc/ha (ACIMA)</td><td><span class="badge-inline b-ok">🌽 MILHO</span></td></tr>
+            <tr><td><strong>Preço mínimo para empatar (prod. esperada)</strong></td><td class="n">R$ 125/sc (a 60 sc)</td><td class="n">R$ 49/sc (a 145 sc)</td><td><span class="badge-inline b-ok">🌽 MILHO</span></td></tr>
+            <tr><td><strong>Produtividade mínima para empatar (preço ref.)</strong></td><td class="n">68,93 sc/ha</td><td class="n">~117 sc/ha</td><td>—</td></tr>
+            <tr><td><strong>Quanto a produção pode cair e ainda empatar?</strong></td><td class="n">NÃO PODE — já está abaixo</td><td class="n">Pode cair 28 sc/ha (-19%)</td><td><span class="badge-inline b-ok">🌽 MILHO</span></td></tr>
+            <tr><td><strong>Quanto o preço pode cair e ainda empatar?</strong></td><td class="n">NÃO PODE — já dá prejuízo</td><td class="n">Pode cair R$ 11/sc (-18%)</td><td><span class="badge-inline b-ok">🌽 MILHO</span></td></tr>
+            <tr><td><strong>Cenários positivos na matriz (de 72)</strong></td><td class="n" style="color:#C62828">20 de 72 (28%)</td><td class="n" style="color:#2E7D32">50 de 64 (78%)</td><td><span class="badge-inline b-ok">🌽 MILHO</span></td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox info">
+        <h4>📌 Conclusão das Matrizes</h4>
+        <p>As matrizes deixam claro que:</p>
+        <ol>
+            <li><strong>A soja opera na zona vermelha</strong> em praticamente todos os cenários realistas. Para dar lucro, precisaria combinar produtividade E preço acima do histórico e do mercado atual.</li>
+            <li><strong>O milho opera na zona verde</strong> em quase todos os cenários. Mesmo com quedas significativas de preço ou produtividade, o resultado se mantém positivo ou próximo do equilíbrio.</li>
+            <li><strong>A margem de segurança do milho</strong> é muito maior: pode perder 19% de produtividade OU 18% de preço e ainda empatar. A soja não tem margem — <strong>já começa abaixo do equilíbrio</strong>.</li>
+        </ol>
+    </div>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 5: CAPITAL DE GIRO -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 4 — Capital de Giro: O Desafio e as Soluções</span></div>
+
+<div class="card"><div class="card-header red">💰 A Necessidade de Capital de Giro — Mai/26 a Mar/27</div><div class="card-body">
+
+    <p style="margin-bottom:14px">Sr. Fernando, os insumos da lavoura (fertilizantes, sementes, defensivos) serão adquiridos via <strong>barter ou prazo safra</strong>, sem desembolso imediato. O que precisa de dinheiro são as <strong>despesas correntes do dia a dia</strong>: salários, diesel, manutenção, pró-labore e o custeio da pecuária.</p>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📋 O que NÃO precisa de dinheiro agora</h4>
+    <table>
+        <thead><tr><th>Item</th><th class="n">Valor</th><th>Forma de Aquisição</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td>Fertilizantes (Terram)</td><td class="n">~R$ 413.000</td><td>Barter / Prazo safra (venc. 30/04/2027)</td></tr>
+            <tr class="hg"><td>Sementes milho</td><td class="n">~R$ 146.000</td><td>Barter / Prazo safra</td></tr>
+            <tr class="hg"><td>Defensivos</td><td class="n">~R$ 146.000</td><td>Barter / Prazo safra</td></tr>
+            <tr class="tr-total"><td colspan="2"><strong>Total sem desembolso imediato</strong></td><td><strong>~R$ 705.000</strong></td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📋 O que PRECISA de dinheiro (11 meses: mai/26 → mar/27)</h4>
+    <table>
+        <thead><tr><th>Despesa</th><th class="n">R$/mês</th><th class="n">Total 11 meses</th></tr></thead>
+        <tbody>
+            <tr class="hr"><td><strong>Pró-labore</strong></td><td class="n">R$ 12.000</td><td class="n"><strong>R$ 132.000</strong></td></tr>
+            <tr><td>Salários + Encargos</td><td class="n">R$ 5.000</td><td class="n">R$ 55.000</td></tr>
+            <tr><td>Diesel + combustível</td><td class="n">R$ 4.000</td><td class="n">R$ 44.000</td></tr>
+            <tr><td>Manutenção máquinas/peças</td><td class="n">R$ 2.500</td><td class="n">R$ 27.500</td></tr>
+            <tr><td>Consultoria + contabilidade + outros</td><td class="n">R$ 4.000</td><td class="n">R$ 44.000</td></tr>
+            <tr><td>Arrendamento (50% no período / 50% pós-colheita)</td><td class="n">~R$ 6.500</td><td class="n">R$ 71.500</td></tr>
+            <tr style="background:#F5F5F5;font-weight:700"><td><strong>Subtotal Lavoura</strong></td><td class="n"></td><td class="n"><strong>R$ 374.000</strong></td></tr>
+            <tr class="hb"><td>Pecuária (nutrição + mão de obra + pasto + IATF)</td><td class="n">~R$ 23.900</td><td class="n"><strong>R$ 262.555</strong></td></tr>
+            <tr class="tr-total"><td colspan="2"><strong>TOTAL NECESSÁRIO</strong></td><td class="n" style="color:#C62828"><strong>R$ 636.555</strong></td></tr>
+        </tbody>
+    </table>
+
+    <h4 style="margin:16px 0 10px;font-size:.9rem">📊 Quanto FALTA levantar?</h4>
+    <table>
+        <thead><tr><th>Item</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr class="hr"><td>Total necessário</td><td class="n">R$ 636.555</td></tr>
+            <tr class="hg"><td>(-) Receitas da pecuária ao longo do ano</td><td class="n" style="color:#2E7D32">-R$ 330.600</td></tr>
+            <tr class="hg"><td>(-) Caixa disponível</td><td class="n" style="color:#2E7D32">-R$ 12.331</td></tr>
+            <tr class="tr-total"><td><strong>GAP DE CAPITAL DE GIRO</strong></td><td class="n" style="color:#C62828"><strong>~R$ 294 mil</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout" style="background:linear-gradient(135deg,#B71C1C,#C62828)">
+        <div class="cl">CAPITAL QUE PRECISA SER LEVANTADO</div>
+        <div class="cv">~R$ 294 mil</div>
+        <div class="cs">Para operar lavoura + pecuária de mai/2026 a mar/2027 · Insumos já resolvidos via barter</div>
+    </div>
+
+    <div class="hbox info">
+        <h4>📌 Sobre os R$ 204 mil de "amortizações" do orçamento original</h4>
+        <p>Sr. Fernando, o orçamento original incluía R$ 204.350 em amortizações bancárias. Com a <strong>liminar judicial ativa e as cobranças suspensas</strong>, esse valor não precisa ser pago neste momento. A recomendação é: se houver sobra pós-colheita, destinar R$ 100 mil como pagamento de boa-fé (R$ 50 mil por banco) para fortalecer a posição judicial. Mas isso é decisão estratégica pós-resultado, não obrigação no capital de giro.</p>
+    </div>
+</div></div>
+
+<!-- AS 4 SAÍDAS -->
+<div class="card"><div class="card-header drk">🔑 Alternativas para Levantar os R$ 294 mil</div><div class="card-body">
+    <p style="margin-bottom:16px">Sr. Fernando, existem 4 caminhos possíveis. Cada um tem vantagens e desvantagens diferentes. Os números estão detalhados para que a decisão seja consciente.</p>
+
+    <!-- SAÍDA 1 -->
+    <div class="hbox success">
+        <h4>💚 ALTERNATIVA 1 — Venda Parcial de Gado</h4>
+        <p><strong>Conceito:</strong> Aproveitar que o boi gordo está no topo histórico (R$ 320-365/@ em GO), vender parte do rebanho, bancar o operacional e recomprar depois da colheita com o resultado do milho.</p>
+    </div>
+    <table>
+        <thead><tr><th>Parâmetro</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr><td>Arrobas necessárias para R$ 294 mil (a R$ 350/@)</td><td class="n">~840 @</td></tr>
+            <tr><td>% do estoque mobilizado</td><td class="n">35%</td></tr>
+            <tr><td>Estoque remanescente</td><td class="n">1.536 @ (~R$ 537 mil)</td></tr>
+            <tr><td><strong>Custo financeiro (juros)</strong></td><td class="n" style="color:#2E7D32"><strong>ZERO</strong></td></tr>
+        </tbody>
+    </table>
+    <div class="dual" style="margin-top:12px">
+        <div>
+            <p style="font-weight:700;color:#2E7D32;font-size:.85rem">✅ Vantagens</p>
+            <ul style="font-size:.82rem;margin-left:16px;color:#424242">
+                <li>Zero custo de juros</li>
+                <li>Boi no topo histórico — melhor momento para vender</li>
+                <li>Liquidez imediata (1-3 dias)</li>
+                <li>Pode recomprar com lucro do milho</li>
+                <li>Demonstra sacrifício patrimonial (argumento judicial)</li>
+            </ul>
+        </div>
+        <div>
+            <p style="font-weight:700;color:#C62828;font-size:.85rem">❌ Desvantagens</p>
+            <ul style="font-size:.82rem;margin-left:16px;color:#424242">
+                <li>Reduz patrimônio vivo em 35%</li>
+                <li>Menos receita futura da pecuária no curto prazo</li>
+                <li>Se boi subir mais, "perde" a valorização</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SAÍDA 2 -->
+    <div class="hbox purple" style="margin-top:24px">
+        <h4>💜 ALTERNATIVA 2 — Contrato a Termo de Milho + Antecipação de Recebível (FIDC)</h4>
+        <p><strong>Conceito:</strong> Vender antecipadamente 2.000 a 3.000 sacas de milho via contrato a termo, e antecipar esse recebível junto a um FIDC ou factoring para gerar caixa imediato, sem mexer no rebanho.</p>
+    </div>
+    <table>
+        <thead><tr><th>Parâmetro</th><th class="n">2.000 sacas</th><th class="n">3.000 sacas</th></tr></thead>
+        <tbody>
+            <tr><td>Valor do contrato (R$ 60/sc)</td><td class="n">R$ 120.000</td><td class="n">R$ 180.000</td></tr>
+            <tr><td>% da produção comprometida</td><td class="n">8,5%</td><td class="n">12,7%</td></tr>
+            <tr><td>Deságio/taxa FIDC (~25-35% a.a. em ~10 meses)</td><td class="n">~25-35%</td><td class="n">~25-35%</td></tr>
+            <tr><td><strong>Valor líquido recebido</strong></td><td class="n">R$ 78.000 - R$ 90.000</td><td class="n">R$ 117.000 - R$ 135.000</td></tr>
+            <tr><td>Custo do deságio</td><td class="n" style="color:#C62828">R$ 30-42 mil</td><td class="n" style="color:#C62828">R$ 45-63 mil</td></tr>
+        </tbody>
+    </table>
+    <div class="dual" style="margin-top:12px">
+        <div>
+            <p style="font-weight:700;color:#4527A0;font-size:.85rem">✅ Vantagens</p>
+            <ul style="font-size:.82rem;margin-left:16px;color:#424242">
+                <li><strong>Mantém o rebanho intacto</strong></li>
+                <li>Compromete apenas 8-13% da produção</li>
+                <li>Trava preço (protege contra queda)</li>
+                <li>Pode ser combinado com venda parcial de gado</li>
+            </ul>
+        </div>
+        <div>
+            <p style="font-weight:700;color:#C62828;font-size:.85rem">❌ Desvantagens</p>
+            <ul style="font-size:.82rem;margin-left:16px;color:#424242">
+                <li>Custo de R$ 30-63 mil em deságio/juros</li>
+                <li>Pode levar 30-60 dias para operacionalizar</li>
+                <li>FIDC pode exigir garantias adicionais</li>
+                <li>Sozinho, não levanta os R$ 294 mil — precisa complementar</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SAÍDA 3 -->
+    <div class="hbox gold" style="margin-top:24px">
+        <h4>🏆 ALTERNATIVA 3 — MODELO MISTO: Gado + Contrato a Termo + Ajustes (RECOMENDADA)</h4>
+        <p><strong>Conceito:</strong> Combinar as fontes para minimizar o impacto em cada uma, preservando a maior parte do rebanho e mantendo o custo controlado.</p>
+    </div>
+    <table>
+        <thead><tr><th>Fonte de Capital</th><th class="n">Valor</th><th>Quando</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td><strong>Venda de ~400 @ de gado</strong> (vacas descarte + excedentes)</td><td class="n" style="color:#2E7D32"><strong>R$ 140.000</strong></td><td>Mai/26 · ~25 cabeças</td></tr>
+            <tr class="hp"><td><strong>Contrato a Termo 3.000 sc milho + antecipação FIDC</strong></td><td class="n" style="color:#4527A0"><strong>R$ 117.000 - R$ 135.000</strong></td><td>Mai-Jun/26</td></tr>
+            <tr class="hy"><td><strong>Redução pró-labore p/ R$ 8.000/mês</strong> (economia)</td><td class="n" style="color:#E65100"><strong>+R$ 44.000</strong></td><td>Acumulado 11 meses</td></tr>
+            <tr class="hb"><td>Caixa atual</td><td class="n">R$ 12.331</td><td>Disponível</td></tr>
+            <tr class="tr-total"><td colspan="2"><strong>TOTAL MOBILIZADO</strong></td><td><strong>R$ 313 - R$ 331 mil</strong></td></tr>
+            <tr style="background:#E8F5E9"><td>Necessidade</td><td class="n">R$ 294 mil</td><td></td></tr>
+            <tr class="tr-total" style="background:#C8E6C9"><td><strong>Sobra / Reserva</strong></td><td class="n" style="color:#2E7D32"><strong>R$ 19 - R$ 37 mil</strong></td><td>Margem de segurança</td></tr>
+        </tbody>
+    </table>
+    <div class="hbox success">
+        <h4>✅ Por que este é o melhor caminho</h4>
+        <ol>
+            <li><strong>Vende MENOS boi</strong> (400 @ vs. 840 @) — preserva 83% do rebanho</li>
+            <li><strong>O contrato a termo protege o preço do milho</strong> em 3.000 sacas (12,7% da produção)</li>
+            <li><strong>A antecipação FIDC gera caixa antes da colheita</strong> — sem empréstimo bancário novo</li>
+            <li><strong>A redução do pró-labore</strong> demonstra comprometimento e economiza R$ 44 mil</li>
+            <li><strong>Sobra margem de segurança</strong> de R$ 19-37 mil para imprevistos</li>
+            <li><strong>Não aumenta dívida bancária</strong> — fundamental para a estratégia judicial</li>
+        </ol>
+    </div>
+
+    <!-- SAÍDA 4 -->
+    <div class="hbox dark" style="margin-top:24px">
+        <h4>⚫ ALTERNATIVA 4 — Empréstimo Pessoal/Privado (não recomendada)</h4>
+        <p>Custo estimado de R$ 53 a R$ 93 mil em juros (11 meses). Aumenta o endividamento, dificulta a posição judicial e há alternativas melhores disponíveis. <strong>Listada apenas para efeito comparativo.</strong></p>
+    </div>
+</div></div>
+
+<!-- COMPARATIVO VISUAL -->
+<div class="card"><div class="card-header blu">📊 Quadro Comparativo das Alternativas</div><div class="card-body">
+    <table>
+        <thead><tr><th>Critério</th><th class="n">💚 Alt. 1<br>Venda Gado</th><th class="n">💜 Alt. 2<br>Termo+FIDC</th><th class="n">🏆 Alt. 3<br>Misto</th><th class="n">⚫ Alt. 4<br>Empréstimo</th></tr></thead>
+        <tbody>
+            <tr><td>Levanta R$ 294 mil?</td><td class="n"><span class="badge-inline b-ok">SIM</span></td><td class="n"><span class="badge-inline b-warn">PARCIAL</span></td><td class="n"><span class="badge-inline b-ok">SIM</span></td><td class="n"><span class="badge-inline b-ok">SIM</span></td></tr>
+            <tr><td>Custo (juros/deságio)</td><td class="n" style="color:#2E7D32"><strong>R$ 0</strong></td><td class="n">R$ 45-63 mil</td><td class="n">R$ 45-63 mil</td><td class="n" style="color:#C62828">R$ 53-93 mil</td></tr>
+            <tr><td>Preserva rebanho?</td><td class="n"><span class="badge-inline b-crit">65%</span></td><td class="n"><span class="badge-inline b-ok">100%</span></td><td class="n"><span class="badge-inline b-ok">83%</span></td><td class="n"><span class="badge-inline b-ok">100%</span></td></tr>
+            <tr><td>Velocidade</td><td class="n"><span class="badge-inline b-ok">Imediato</span></td><td class="n"><span class="badge-inline b-warn">30-60 dias</span></td><td class="n"><span class="badge-inline b-ok">15-45 dias</span></td><td class="n"><span class="badge-inline b-warn">30+ dias</span></td></tr>
+            <tr><td>Risco de não conseguir</td><td class="n"><span class="badge-inline b-ok">ZERO</span></td><td class="n"><span class="badge-inline b-warn">MÉDIO</span></td><td class="n"><span class="badge-inline b-ok">BAIXO</span></td><td class="n"><span class="badge-inline b-crit">ALTO</span></td></tr>
+            <tr><td>Aumenta dívida?</td><td class="n" style="color:#2E7D32">NÃO</td><td class="n">Parcialmente</td><td class="n">Parcialmente</td><td class="n" style="color:#C62828">SIM</td></tr>
+            <tr><td>Impacto judicial</td><td class="n"><span class="badge-inline b-ok">POSITIVO</span></td><td class="n"><span class="badge-inline b-info">NEUTRO</span></td><td class="n"><span class="badge-inline b-ok">POSITIVO</span></td><td class="n"><span class="badge-inline b-crit">NEGATIVO</span></td></tr>
+            <tr class="tr-total"><td><strong>AVALIAÇÃO GERAL</strong></td><td class="n" style="color:#2E7D32"><strong>8/10</strong></td><td class="n"><strong>6/10</strong></td><td class="n" style="color:#2E7D32"><strong>9/10 ✅</strong></td><td class="n" style="color:#C62828"><strong>3/10</strong></td></tr>
+        </tbody>
+    </table>
+</div></div>
+
+<!-- ============================================================ -->
+<!-- SEÇÃO 6: RESULTADO FINAL E CRONOGRAMA -->
+<!-- ============================================================ -->
+<div class="section-div"><span>Seção 5 — Resultado Projetado e Cronograma</span></div>
+
+<div class="card"><div class="card-header grn">📊 Resultado Projetado — Safra 26/27 (Milho + Pecuária + Saída 3)</div><div class="card-body">
+    <table>
+        <thead><tr><th>Linha</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+            <tr class="hg"><td>Receita milho (23.534 sc × R$ 60)</td><td class="n" style="color:#2E7D32">+R$ 1.412.040</td></tr>
+            <tr class="hg"><td>Receita pecuária (cria + leite + descarte)</td><td class="n" style="color:#2E7D32">+R$ 330.600</td></tr>
+            <tr class="hg"><td>Receita venda parcial gado (400 @)</td><td class="n" style="color:#2E7D32">+R$ 140.000</td></tr>
+            <tr style="background:#F5F5F5;font-weight:700"><td><strong>RECEITA BRUTA TOTAL</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 1.882.640</strong></td></tr>
+            <tr class="hr"><td>(-) COT milho (insumos barter + operacional)</td><td class="n">-R$ 952.000</td></tr>
+            <tr class="hr"><td>(-) Despesas operacionais lavoura</td><td class="n">-R$ 185.868</td></tr>
+            <tr class="hr"><td>(-) Custo pecuária</td><td class="n">-R$ 262.555</td></tr>
+            <tr class="hr"><td>(-) Pró-labore ajustado (R$ 8.000 × 11)</td><td class="n">-R$ 88.000</td></tr>
+            <tr class="hr"><td>(-) Deságio FIDC</td><td class="n">-R$ 50.000</td></tr>
+            <tr style="background:#F5F5F5;font-weight:700"><td><strong>TOTAL CUSTOS + DESPESAS</strong></td><td class="n" style="color:#C62828"><strong>-R$ 1.538.423</strong></td></tr>
+            <tr class="tr-total" style="background:#E8F5E9"><td><strong>RESULTADO ANTES DA DÍVIDA</strong></td><td class="n" style="color:#2E7D32"><strong>+R$ 344.217</strong></td></tr>
+            <tr><td>(-) Pagamento boa-fé dívida (2 × R$ 50 mil)</td><td class="n">-R$ 100.000</td></tr>
+            <tr class="tr-total" style="background:#C8E6C9"><td><strong>SALDO FINAL LÍQUIDO SAFRA 26/27</strong></td><td class="n" style="color:#1B5E20"><strong>+R$ 244.217</strong></td></tr>
+        </tbody>
+    </table>
+
+    <div class="versus">
+        <div class="vs-box r"><div class="vs-label">Se plantar SOJA</div><div class="vs-val">-R$ 101.468</div><div style="font-size:.72rem;margin-top:4px">5º prejuízo consecutivo</div></div>
+        <div class="vs-div">vs.</div>
+        <div class="vs-box g"><div class="vs-label">Se plantar MILHO (Alternativa 3)</div><div class="vs-val">+R$ 244.217</div><div style="font-size:.72rem;margin-top:4px">1ª safra positiva · início da recuperação</div></div>
+    </div>
+
+    <div class="hbox success">
+        <h4>✅ O que R$ 244 mil de saldo representa</h4>
+        <ul>
+            <li><strong>Primeira safra positiva em 4 anos</strong> — rompe o ciclo de prejuízo acumulado de R$ 1,68 milhão</li>
+            <li><strong>Pode recomprar ~340 @ de gado</strong> (a R$ 350/@) e reconstituir 85% do que vendeu</li>
+            <li><strong>Ou manter como reserva de capital de giro</strong> para 27/28 — nunca mais começar do zero</li>
+            <li><strong>R$ 100 mil de boa-fé para os bancos</strong> — fortalece a posição na renegociação judicial</li>
+            <li><strong>Demonstra viabilidade objetiva da atividade</strong> — argumento decisivo para o juízo</li>
+        </ul>
+    </div>
+</div></div>
+
+<!-- CRONOGRAMA -->
+<div class="card"><div class="card-header ind">📅 Cronograma de Execução</div><div class="card-body">
+    <div class="timeline">
+        <div class="tl-item crit">
+            <h4>🔴 SEMANA 1 (22-28/abr): Decisões Urgentes</h4>
+            <p>Aprovar milho 162,3 ha · Iniciar negociação barter com revendas · Definir animais para venda · Contatar FIDC para antecipação</p>
+        </div>
+        <div class="tl-item warn">
+            <h4>🟡 SEMANA 2-3 (29/abr - 12/mai): Fechar Insumos e Gado</h4>
+            <p>Assinar contratos barter/prazo safra · Realizar venda de ~400 @ · Receber ~R$ 140 mil do gado</p>
+        </div>
+        <div class="tl-item info">
+            <h4>🔵 SEMANA 4-6 (13/mai - 2/jun): Contrato a Termo + FIDC</h4>
+            <p>Fechar contrato a termo de 3.000 sc milho · Submeter ao FIDC · Receber antecipação líquida</p>
+        </div>
+        <div class="tl-item ok">
+            <h4>🟢 JUN-SET/26: Preparação do Solo</h4>
+            <p>Preparo de solo, dessecação, logística de insumos. Capital de giro operando normalmente.</p>
+        </div>
+        <div class="tl-item ok">
+            <h4>🟢 OUT-NOV/26: Plantio</h4>
+            <p>Plantio milho verão 162,3 ha. Aplicação de fertilizantes conforme Terram. Acompanhamento agronômico.</p>
+        </div>
+        <div class="tl-item ok">
+            <h4>🟢 FEV-MAR/27: Colheita e Resultado</h4>
+            <p>Colheita milho · 3.000 sc entregues no termo · Venda livre das ~20.500 sc restantes · Pagamento barter · Pagamento boa-fé R$ 100 mil · Saldo positivo: ~R$ 244 mil</p>
+        </div>
+    </div>
+</div></div>
+
+<!-- RISCOS -->
+<div class="card"><div class="card-header red">⚠️ Riscos e Cenário de Estresse</div><div class="card-body">
+    <table>
+        <thead><tr><th>Risco</th><th>Probabilidade</th><th>Impacto</th><th>Mitigação</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Seca → produtividade < 120 sc</strong></td><td><span class="badge-inline b-warn">MÉDIA</span></td><td><span class="badge-inline b-crit">ALTO</span></td><td>Mesmo a 120 sc a R$ 60, milho gera +R$ 30 mil. Seguro agrícola se possível.</td></tr>
+            <tr><td><strong>Preço milho cai p/ R$ 50/sc</strong></td><td><span class="badge-inline b-warn">MÉDIA</span></td><td><span class="badge-inline b-warn">MÉDIO</span></td><td>3.000 sc travadas a R$ 60. Considerar hedge adicional na B3.</td></tr>
+            <tr><td><strong>FIDC não aceita recebível</strong></td><td><span class="badge-inline b-warn">MÉDIA</span></td><td><span class="badge-inline b-warn">MÉDIO</span></td><td>Plano B: vender mais 300 @ de gado (~R$ 105 mil).</td></tr>
+            <tr><td><strong>Fertilizantes sobem mais</strong></td><td><span class="badge-inline b-warn">MÉDIA</span></td><td><span class="badge-inline b-warn">MÉDIO</span></td><td>Fechar barter esta semana.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="hbox info" style="margin-top:16px">
+        <h4>📌 Cenário de estresse: se TUDO der errado</h4>
+        <p>Milho a 120 sc/ha + preço a R$ 50/sc + FIDC não aprova:</p>
+        <ul>
+            <li>Receita milho: 19.476 sc × R$ 50 = R$ 973.800</li>
+            <li>Resultado lavoura: empata (COT ~R$ 952 mil)</li>
+            <li>Pecuária: +R$ 98 mil</li>
+            <li>Venda 700 @ gado (plano B): +R$ 245 mil</li>
+            <li><strong>Resultado: ainda positivo (~+R$ 120 mil)</strong></li>
+        </ul>
+        <p style="margin-top:8px"><strong>Mesmo no pior cenário realista, o milho não gera o prejuízo que a soja já gera no cenário BASE.</strong></p>
+    </div>
+</div></div>
+
+<!-- NOTA FINAL -->
+<div class="card"><div class="card-header grn">📌 Considerações Finais</div><div class="card-body">
+    <p>Sr. Fernando, os dados apresentados neste documento mostram com clareza que:</p>
+    <ol style="margin:12px 0 12px 20px">
+        <li><strong>A soja, nas condições atuais da propriedade, não consegue gerar resultado positivo.</strong> Seria o 5º prejuízo consecutivo. As matrizes comprovam: para a soja funcionar, seria necessário combinar produtividade e preço acima do que o histórico e o mercado oferecem.</li>
+        <li><strong>O milho verão, com a recomendação técnica da Terram (140-150 sc/ha), projeta resultado positivo em praticamente todos os cenários.</strong> Mesmo com quedas de 19% na produtividade ou 18% no preço, o resultado se mantém positivo ou próximo do equilíbrio.</li>
+        <li><strong>O capital de giro de ~R$ 294 mil pode ser levantado sem novo endividamento bancário</strong>, combinando venda parcial de gado (no topo do ciclo) com contrato a termo de milho + antecipação de recebível.</li>
+        <li><strong>O resultado projetado de +R$ 244 mil</strong> permite pagar R$ 100 mil de boa-fé aos bancos, recompor parte do rebanho e iniciar a formação de reserva de capital de giro para a safra seguinte.</li>
+    </ol>
+    <p style="margin-top:12px">As decisões urgentes estão no cronograma da Seção 5. A recomendação é <strong>iniciar a negociação dos insumos (barter) imediatamente</strong>, dado o cenário de alta dos fertilizantes.</p>
+    <p style="margin-top:12px">Ficamos à disposição para esclarecer qualquer número ou cenário deste relatório na reunião de amanhã.</p>
+</div></div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p><strong>Plano Safra 2026/2027 — Análise Comparativa e Plano de Ação</strong></p>
+    <p>Milho Verão 162,3 ha · Matrizes de Sensibilidade · Fontes de Capital de Giro · Cronograma</p>
+    <p style="margin-top:8px">Propriedade Sr. Fernando Machado Mendonça · Abril/2026</p>
+    <p style="margin-top:4px;font-size:.68rem">
+    Planejamento de fertilizantes: Terram Agronomia (17/04/2026) · Produtividade milho estimada: 140-150 sc/ha<br>
+    Cotações abr/2026: Milho Rio Verde R$ 59,48/sc (Grão Direto) · Soja R$ 105/sc · Boi gordo GO R$ 320-365/@<br>
+    Fertilizantes: KCl +17%, Fósforo +14%, Ureia +75% no ano<br>
+    Este documento é ferramenta de apoio à decisão. Valores projetados sujeitos a variação de mercado.
+    </p>
+</div>
+
+</div>
+</body>
+</html>
