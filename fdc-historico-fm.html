@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Fluxo de Caixa | Fernando Machado | Abril/2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+  }
+  header h1 { font-size: 2em; margin-bottom: 10px; }
+  header .subtitle { font-size: 1.1em; opacity: 0.95; }
+  header .period {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    margin-top: 15px;
+    font-size: 0.95em;
+  }
+  .nav {
+    background: #f0f7f3;
+    padding: 15px 40px;
+    border-bottom: 2px solid #2d7a47;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 0.9em;
+  }
+  .nav a {
+    color: #1e5631;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #d4edda; }
+  .content { padding: 40px; }
+  section { margin-bottom: 50px; }
+  .part-divider {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    padding: 25px 40px;
+    margin: 0 -40px 40px -40px;
+    text-align: center;
+  }
+  .part-divider h2 {
+    border: none;
+    color: white;
+    font-size: 1.8em;
+    margin: 0;
+    padding: 0;
+  }
+  .part-divider .part-subtitle {
+    font-size: 1em;
+    opacity: 0.95;
+    margin-top: 8px;
+  }
+  h2 {
+    color: #1e5631;
+    border-bottom: 3px solid #2d7a47;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+  }
+  h3 {
+    color: #2d7a47;
+    margin: 25px 0 15px 0;
+    font-size: 1.2em;
+  }
+  h4 {
+    color: #1e5631;
+    margin: 15px 0 10px 0;
+    font-size: 1.05em;
+  }
+  p { margin-bottom: 15px; text-align: justify; }
+  .intro-box {
+    background: #e8f5e9;
+    border-left: 5px solid #2d7a47;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.92em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  th {
+    background: #1e5631;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  tr:nth-child(even) { background: #f9fafb; }
+  tr:hover { background: #f0f7f3; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .positive { color: #27ae60; font-weight: 600; }
+  .negative { color: #c0392b; font-weight: 600; }
+  .neutral { color: #7f8c8d; }
+  .highlight-row { background: #fff8e1 !important; font-weight: 600; }
+  .total-row { background: #1e5631 !important; color: white; font-weight: 700; }
+  .total-row td { color: white; }
+  .subtotal-row { background: #e8f5e9 !important; font-weight: 600; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    border-top: 4px solid #2d7a47;
+  }
+  .card.alert { border-top-color: #e67e22; }
+  .card.danger { border-top-color: #c0392b; }
+  .card.success { border-top-color: #27ae60; }
+  .card.info { border-top-color: #3498db; }
+  .card .label { font-size: 0.85em; color: #7f8c8d; margin-bottom: 8px; }
+  .card .value { font-size: 1.4em; font-weight: 700; color: #1e5631; }
+  .card.danger .value { color: #c0392b; }
+  .card.alert .value { color: #e67e22; }
+  .card.info .value { color: #3498db; }
+  .card .desc { font-size: 0.8em; color: #95a5a6; margin-top: 5px; }
+  .insight-box {
+    background: #fff8e1;
+    border-left: 5px solid #f39c12;
+    padding: 18px 22px;
+    border-radius: 6px;
+    margin: 20px 0;
+  }
+  .insight-box.info {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+  }
+  .insight-box.success {
+    background: #e8f5e9;
+    border-left-color: #27ae60;
+  }
+  .insight-box.didatic {
+    background: #f3e5f5;
+    border-left-color: #9c27b0;
+  }
+  .insight-box strong { color: #1e5631; }
+  .didatic strong { color: #6a1b9a; }
+  .progress-bar {
+    background: #ecf0f1;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 22px;
+    margin: 5px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2d7a47, #27ae60);
+    color: white;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 0.8em;
+    line-height: 22px;
+    font-weight: 600;
+  }
+  .progress-fill.warn { background: linear-gradient(90deg, #f39c12, #e67e22); }
+  .progress-fill.bad { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .recommendation {
+    background: #f0f7f3;
+    border: 1px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 18px;
+    margin: 12px 0;
+  }
+  .recommendation h4 {
+    color: #1e5631;
+    margin-bottom: 8px;
+  }
+  .footer {
+    background: #1e5631;
+    color: white;
+    padding: 30px;
+    text-align: center;
+    font-size: 0.9em;
+  }
+  .footer p { margin: 5px 0; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78em;
+    font-weight: 600;
+  }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-yellow { background: #fff3cd; color: #856404; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  .badge-blue { background: #d1ecf1; color: #0c5460; }
+  .scroll-table { overflow-x: auto; }
+  .glossary {
+    background: #f8f9fa;
+    border: 1px dashed #adb5bd;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    font-size: 0.9em;
+  }
+  .glossary-item {
+    margin: 8px 0;
+  }
+  .glossary-item strong {
+    color: #1e5631;
+  }
+  .summary-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .summary-bar > div {
+    padding: 25px;
+    text-align: center;
+    color: white;
+  }
+  .summary-bar .receita { background: #27ae60; }
+  .summary-bar .saida { background: #e67e22; }
+  .summary-bar .resultado { background: #c0392b; }
+  .summary-bar .label-bar { font-size: 0.9em; opacity: 0.95; margin-bottom: 8px; }
+  .summary-bar .value-bar { font-size: 1.6em; font-weight: 700; }
+  .icon-step {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: #2d7a47;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+  @media (max-width: 768px) {
+    .content { padding: 20px; }
+    header { padding: 25px; }
+    header h1 { font-size: 1.5em; }
+    table { font-size: 0.8em; }
+    .summary-bar { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📊 Análise de Fluxo de Caixa</h1>
+  <div class="subtitle">Fernando Machado — Atividade Rural</div>
+  <div class="period">Foco: Abril/2026 | Histórico: Jul/2025 a Abr/2026</div>
+</header>
+
+<nav class="nav">
+  <a href="#intro">📌 Introdução</a>
+  <a href="#parte1">PARTE 1 — Abril/2026</a>
+  <a href="#parte2">PARTE 2 — Histórico</a>
+  <a href="#parte3">PARTE 3 — Recomendações</a>
+</nav>
+
+<div class="content">
+
+<!-- INTRODUÇÃO -->
+<section id="intro">
+  <div class="intro-box">
+    <p><strong>Prezado Fernando,</strong></p>
+    <p>Apresentamos a seguir a análise do seu fluxo de caixa, organizada em três partes para facilitar a leitura:</p>
+    <p>
+      <span class="icon-step">1</span><strong>Análise do mês de Abril/2026</strong> — uma "fotografia" do que aconteceu no mês.<br><br>
+      <span class="icon-step">2</span><strong>Análise Histórica (Jul/2025 a Abr/2026)</strong> — um "filme" mostrando a evolução do caixa nos últimos 10 meses.<br><br>
+      <span class="icon-step">3</span><strong>Pontos para Diálogo Estratégico</strong> — temas que sugerimos discutir em reunião conjunta.
+    </p>
+    <p>Esta análise é construída com base nos dados primários informados e tende a ganhar precisão à medida que acumulamos um ciclo completo de safra. Ainda assim, o histórico atual já permite extrair leituras importantes.</p>
+  </div>
+
+  <div class="glossary">
+    <h4>📚 Glossário Rápido</h4>
+    <div class="glossary-item"><strong>Receita Produtiva:</strong> entradas geradas pela atividade (venda de soja, gado, etc.).</div>
+    <div class="glossary-item"><strong>Receita Financeira:</strong> entradas que não vêm da produção (empréstimos contratados, rendimentos, resgates).</div>
+    <div class="glossary-item"><strong>Custos:</strong> saídas diretamente ligadas à produção (sementes, fertilizantes, diesel, mão de obra do campo).</div>
+    <div class="glossary-item"><strong>Despesas Operacionais:</strong> saídas administrativas (escritório, contador, advogado, telefone).</div>
+    <div class="glossary-item"><strong>Investimentos:</strong> aplicações em bens duráveis (máquinas, animais, benfeitorias).</div>
+    <div class="glossary-item"><strong>Despesas Financeiras:</strong> juros, taxas, IOF e devoluções de empréstimos.</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- PARTE 1 - ANÁLISE DO MÊS DE ABRIL -->
+<!-- ============================================ -->
+<div class="part-divider" id="parte1">
+  <h2>📅 PARTE 1 — Análise do Mês de Abril/2026</h2>
+  <div class="part-subtitle">A "fotografia" financeira do mês</div>
+</div>
+
+<!-- VISÃO GERAL DO MÊS -->
+<section>
+  <h2>1.1 Resumo do Mês</h2>
+
+  <div class="summary-bar">
+    <div class="receita">
+      <div class="label-bar">💰 Total que ENTROU</div>
+      <div class="value-bar">R$ 347.646</div>
+    </div>
+    <div class="saida">
+      <div class="label-bar">💸 Total que SAIU</div>
+      <div class="value-bar">R$ 428.275</div>
+    </div>
+    <div class="resultado">
+      <div class="label-bar">📉 RESULTADO DO MÊS</div>
+      <div class="value-bar">−R$ 80.629</div>
+    </div>
+  </div>
+
+  <div class="insight-box didatic">
+    <strong>📖 Como ler este resultado:</strong> em abril, saíram <strong>R$ 80.629 a mais</strong> do caixa do que entraram. Isso significa que, para fechar o mês, foi necessário <strong>usar saldo bancário</strong> ou <strong>recorrer a crédito</strong>. Veja a seguir o detalhamento.
+  </div>
+</section>
+
+<!-- COMPOSIÇÃO DAS RECEITAS -->
+<section>
+  <h2>1.2 De onde veio o dinheiro?</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Origem</th>
+        <th>Detalhe</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">Participação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2"><strong>🌱 Receitas da Produção</strong></td>
+        <td>Venda de Soja</td>
+        <td class="num positive">300.815,47</td>
+        <td class="num">86,5%</td>
+      </tr>
+      <tr>
+        <td>Venda de Vaca Boiadeira</td>
+        <td class="num positive">5.160,00</td>
+        <td class="num">1,5%</td>
+      </tr>
+      <tr class="subtotal-row">
+        <td colspan="2">Subtotal Produção</td>
+        <td class="num">305.975,47</td>
+        <td class="num">88,0%</td>
+      </tr>
+      <tr>
+        <td><strong>💼 Receitas Financeiras</strong></td>
+        <td>Contratação de Empréstimo</td>
+        <td class="num neutral">40.000,00</td>
+        <td class="num">11,5%</td>
+      </tr>
+      <tr>
+        <td><strong>🔄 Receitas Operacionais</strong></td>
+        <td>Despesas Recuperadas</td>
+        <td class="num positive">1.670,88</td>
+        <td class="num">0,5%</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="2">TOTAL DE ENTRADAS</td>
+        <td class="num">347.646,35</td>
+        <td class="num">100%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box info">
+    <strong>📌 Pontos a destacar:</strong>
+    <ul style="margin: 10px 0 0 25px;">
+      <li>A <strong>venda de soja</strong> foi praticamente toda a receita produtiva do mês (98% da produção).</li>
+      <li>Os <strong>R$ 40.000 de empréstimo</strong> entraram no caixa, mas representam dívida a ser devolvida — não são receita "ganha".</li>
+      <li>Excluindo o empréstimo, a receita real do mês foi de <strong>R$ 307.646</strong>, contra saídas de R$ 428.275.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- COMPOSIÇÃO DAS SAÍDAS -->
+<section>
+  <h2>1.3 Para onde foi o dinheiro?</h2>
+
+  <h3>1.3.1 Saídas por Categoria</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Categoria</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">% do Total</th>
+        <th>Visualização</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🌾 Custos da Produção</td>
+        <td class="num negative">406.693,55</td>
+        <td class="num">94,96%</td>
+        <td><div class="progress-bar"><div class="progress-fill" style="width: 95%;">95%</div></div></td>
+      </tr>
+      <tr>
+        <td>🏢 Despesas Operacionais</td>
+        <td class="num negative">18.474,20</td>
+        <td class="num">4,31%</td>
+        <td><div class="progress-bar"><div class="progress-fill warn" style="width: 4%;">4%</div></div></td>
+      </tr>
+      <tr>
+        <td>🏗️ Investimentos</td>
+        <td class="num negative">1.846,20</td>
+        <td class="num">0,43%</td>
+        <td><div class="progress-bar"><div class="progress-fill warn" style="width: 1%;">0,4%</div></div></td>
+      </tr>
+      <tr>
+        <td>🛡️ Seguros</td>
+        <td class="num negative">1.010,93</td>
+        <td class="num">0,24%</td>
+        <td><div class="progress-bar"><div class="progress-fill warn" style="width: 1%;">0,2%</div></div></td>
+      </tr>
+      <tr>
+        <td>💰 Despesas Financeiras</td>
+        <td class="num negative">250,30</td>
+        <td class="num">0,06%</td>
+        <td><div class="progress-bar"><div class="progress-fill warn" style="width: 1%;">0,1%</div></div></td>
+      </tr>
+      <tr class="total-row">
+        <td>TOTAL</td>
+        <td class="num">428.275,18</td>
+        <td class="num">100%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>1.3.2 As 10 Maiores Saídas do Mês</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Rubrica</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">% do Total</th>
+        <th>Natureza</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Sementes</strong></td><td class="num">262.941,67</td><td class="num">61,4%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>2</td><td>Frete da Atividade</td><td class="num">27.666,20</td><td class="num">6,5%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>3</td><td>Pró-labore</td><td class="num">22.685,74</td><td class="num">5,3%</td><td><span class="badge badge-yellow">Familiar</span></td></tr>
+      <tr><td>4</td><td>Foliares</td><td class="num">19.910,95</td><td class="num">4,6%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>5</td><td>Consultoria Técnica</td><td class="num">17.700,90</td><td class="num">4,1%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>6</td><td>Herbicidas</td><td class="num">13.061,08</td><td class="num">3,0%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>7</td><td>Honorários Advocatícios</td><td class="num">12.000,00</td><td class="num">2,8%</td><td><span class="badge badge-yellow">Administrativo</span></td></tr>
+      <tr><td>8</td><td>Adjuvantes</td><td class="num">9.210,84</td><td class="num">2,2%</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>9</td><td>Diesel</td><td class="num">9.173,40</td><td class="num">2,1%</td><td><span class="badge badge-blue">Operação</span></td></tr>
+      <tr><td>10</td><td>Salários</td><td class="num">7.540,33</td><td class="num">1,8%</td><td><span class="badge badge-blue">Pessoal</span></td></tr>
+      <tr class="subtotal-row">
+        <td colspan="2">Subtotal Top 10</td>
+        <td class="num">401.891,11</td>
+        <td class="num">93,8%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box">
+    <strong>🎯 Concentração das saídas:</strong> apenas <strong>10 rubricas</strong> concentraram <strong>93,8% de tudo que saiu</strong> em abril. Esse é um sinal positivo do ponto de vista de controle: significa que poucas decisões impactam fortemente o caixa.
+  </div>
+</section>
+
+<!-- ANÁLISE POR ATIVIDADE -->
+<section>
+  <h2>1.4 Saídas por Atividade</h2>
+
+  <p>Separamos as principais saídas entre <strong>Lavoura</strong> e <strong>Pecuária</strong> para visualizar onde está concentrado o esforço financeiro do mês:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th colspan="2">🌱 Lavoura</th>
+        <th colspan="2">🐂 Pecuária</th>
+      </tr>
+      <tr>
+        <th>Rubrica</th>
+        <th class="num">Valor (R$)</th>
+        <th>Rubrica</th>
+        <th class="num">Valor (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Sementes</td><td class="num">262.941,67</td><td>Medicamentos Veterinários</td><td class="num">1.791,60</td></tr>
+      <tr><td>Frete da Atividade</td><td class="num">27.666,20</td><td>GTA</td><td class="num">300,00</td></tr>
+      <tr><td>Foliares</td><td class="num">19.910,95</td><td>Milho/Ração</td><td class="num">544,46</td></tr>
+      <tr><td>Consultoria Técnica</td><td class="num">17.700,90</td><td>—</td><td class="num">—</td></tr>
+      <tr><td>Herbicidas</td><td class="num">13.061,08</td><td>—</td><td class="num">—</td></tr>
+      <tr><td>Adjuvantes</td><td class="num">9.210,84</td><td>—</td><td class="num">—</td></tr>
+      <tr><td>Diesel</td><td class="num">9.173,40</td><td>—</td><td class="num">—</td></tr>
+      <tr class="subtotal-row">
+        <td><strong>Subtotal Lavoura</strong></td>
+        <td class="num"><strong>~359.665</strong></td>
+        <td><strong>Subtotal Pecuária</strong></td>
+        <td class="num"><strong>~2.636</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box info">
+    <strong>📊 Leitura do mês:</strong> Abril foi um mês fortemente direcionado à <strong>lavoura</strong>, com a aquisição antecipada de <strong>sementes (R$ 262 mil)</strong> e demais insumos para a próxima safra. A pecuária teve baixíssima movimentação, o que é coerente com o ciclo de manejo do rebanho neste período.
+  </div>
+</section>
+
+<!-- POSIÇÃO BANCÁRIA -->
+<section>
+  <h2>1.5 Posição Bancária ao Final de Abril</h2>
+
+  <div class="cards">
+    <div class="card info">
+      <div class="label">BB Lavoura</div>
+      <div class="value">R$ 11.946</div>
+      <div class="desc">66% do saldo</div>
+    </div>
+    <div class="card info">
+      <div class="label">BB Pecuária</div>
+      <div class="value">R$ 2.988</div>
+      <div class="desc">17% do saldo</div>
+    </div>
+    <div class="card info">
+      <div class="label">Sicoob</div>
+      <div class="value">R$ 1.599</div>
+      <div class="desc">9% do saldo</div>
+    </div>
+    <div class="card info">
+      <div class="label">Caixa</div>
+      <div class="value">R$ 358</div>
+      <div class="desc">2% do saldo</div>
+    </div>
+    <div class="card alert">
+      <div class="label">SALDO TOTAL</div>
+      <div class="value">R$ 16.891</div>
+      <div class="desc">Liquidez disponível</div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <strong>💡 Observação:</strong> O saldo total ao final de abril foi de <strong>R$ 16.891</strong>. Considerando que a saída média diária do mês foi de cerca de R$ 14 mil, esse saldo equivale a aproximadamente <strong>1 a 2 dias de operação</strong>. É um indicador que merece atenção e que reforça a importância do planejamento de caixa para os próximos meses.
+  </div>
+</section>
+
+<!-- INDICADORES DO MÊS -->
+<section>
+  <h2>1.6 Indicadores de Abril</h2>
+
+  <div class="cards">
+    <div class="card alert">
+      <div class="label">Receita / Saída</div>
+      <div class="value">0,81</div>
+      <div class="desc">R$ 0,81 entrou para cada R$ 1 que saiu</div>
+    </div>
+    <div class="card info">
+      <div class="label">Custos / Saídas</div>
+      <div class="value">95%</div>
+      <div class="desc">Mês de pico de custeio</div>
+    </div>
+    <div class="card info">
+      <div class="label">Sementes / Receita Soja</div>
+      <div class="value">87%</div>
+      <div class="desc">Reaplicação na próxima safra</div>
+    </div>
+    <div class="card success">
+      <div class="label">Investimentos</div>
+      <div class="value">R$ 1.846</div>
+      <div class="desc">Mês de baixa capitalização</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESUMO ABRIL -->
+<section>
+  <h2>1.7 Síntese do Mês</h2>
+
+  <div class="intro-box">
+    <p>Abril foi um <strong>mês de transição</strong>: por um lado, encerrou a colheita da soja com <strong>R$ 300 mil de receita</strong>; por outro, concentrou a <strong>compra antecipada das sementes da próxima safra</strong> (R$ 262 mil), o que praticamente consumiu toda a receita gerada.</p>
+    <p>Para complementar o caixa, foi contratado um <strong>empréstimo de R$ 40 mil</strong>. Mesmo assim, o mês fechou com déficit de <strong>R$ 80,6 mil</strong> e o saldo bancário recuou para R$ 16,8 mil.</p>
+    <p>Esse comportamento — receita alta em um mês e custo alto no seguinte — é <strong>natural na atividade rural</strong>. O ponto a observar é se o saldo final do mês (R$ 16,8 mil) é suficiente para sustentar a operação até a próxima entrada relevante de receita, e é justamente isso que a análise histórica nos ajudará a entender.</p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- PARTE 2 - ANÁLISE HISTÓRICA -->
+<!-- ============================================ -->
+<div class="part-divider" id="parte2">
+  <h2>📈 PARTE 2 — Análise Histórica (Jul/2025 a Abr/2026)</h2>
+  <div class="part-subtitle">O "filme" da operação ao longo de 10 meses</div>
+</div>
+
+<!-- VISÃO CONSOLIDADA -->
+<section>
+  <h2>2.1 Visão Consolidada do Período</h2>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">Receita Total</div>
+      <div class="value">R$ 2,26 Mi</div>
+      <div class="desc">Soma de 10 meses</div>
+    </div>
+    <div class="card alert">
+      <div class="label">Saídas Totais</div>
+      <div class="value">R$ 2,84 Mi</div>
+      <div class="desc">Custos + Despesas + Investimentos</div>
+    </div>
+    <div class="card danger">
+      <div class="label">Resultado Acumulado</div>
+      <div class="value">−R$ 578 mil</div>
+      <div class="desc">Diferença entre entradas e saídas</div>
+    </div>
+    <div class="card alert">
+      <div class="label">Razão Receita/Saída</div>
+      <div class="value">0,80</div>
+      <div class="desc">Para cada R$ 1 que sai, entram R$ 0,80</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADO MÊS A MÊS -->
+<section>
+  <h2>2.2 Resultado Mês a Mês</h2>
+
+  <div class="scroll-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Mês</th>
+          <th class="num">Receitas (R$)</th>
+          <th class="num">Saídas (R$)</th>
+          <th class="num">Resultado (R$)</th>
+          <th class="num">Saldo Final (R$)</th>
+          <th>Característica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jul/2025</td>
+          <td class="num">830.639</td>
+          <td class="num">272.381</td>
+          <td class="num positive">+558.258</td>
+          <td class="num">572.276</td>
+          <td><span class="badge badge-green">Contratação custeio</span></td>
+        </tr>
+        <tr>
+          <td>Ago/2025</td>
+          <td class="num">110.169</td>
+          <td class="num">336.045</td>
+          <td class="num negative">−225.876</td>
+          <td class="num">336.953</td>
+          <td><span class="badge badge-blue">Investimento em animais</span></td>
+        </tr>
+        <tr>
+          <td>Set/2025</td>
+          <td class="num">16.255</td>
+          <td class="num">250.747</td>
+          <td class="num negative">−234.491</td>
+          <td class="num">102.681</td>
+          <td><span class="badge badge-yellow">Entressafra</span></td>
+        </tr>
+        <tr>
+          <td>Out/2025</td>
+          <td class="num">52.268</td>
+          <td class="num">245.108</td>
+          <td class="num negative">−192.840</td>
+          <td class="num">56.872</td>
+          <td><span class="badge badge-yellow">Aquisição máquinas</span></td>
+        </tr>
+        <tr>
+          <td>Nov/2025</td>
+          <td class="num">313.800</td>
+          <td class="num">343.573</td>
+          <td class="num negative">−29.773</td>
+          <td class="num">156.462</td>
+          <td><span class="badge badge-green">Venda novilhas</span></td>
+        </tr>
+        <tr>
+          <td>Dez/2025</td>
+          <td class="num">41.328</td>
+          <td class="num">70.747</td>
+          <td class="num negative">−29.418</td>
+          <td class="num">78.280</td>
+          <td><span class="badge badge-yellow">Entressafra</span></td>
+        </tr>
+        <tr>
+          <td>Jan/2026</td>
+          <td class="num">50.403</td>
+          <td class="num">107.517</td>
+          <td class="num negative">−57.113</td>
+          <td class="num">2.043</td>
+          <td><span class="badge badge-red">Liquidez muito baixa</span></td>
+        </tr>
+        <tr>
+          <td>Fev/2026</td>
+          <td class="num">43.156</td>
+          <td class="num">67.179</td>
+          <td class="num negative">−24.023</td>
+          <td class="num">21.337</td>
+          <td><span class="badge badge-yellow">Pré-colheita</span></td>
+        </tr>
+        <tr>
+          <td>Mar/2026</td>
+          <td class="num">454.928</td>
+          <td class="num">717.111</td>
+          <td class="num negative">−262.183</td>
+          <td class="num">110.223</td>
+          <td><span class="badge badge-blue">Soja + Fertilizante</span></td>
+        </tr>
+        <tr>
+          <td>Abr/2026</td>
+          <td class="num">347.646</td>
+          <td class="num">428.275</td>
+          <td class="num negative">−80.629</td>
+          <td class="num">16.891</td>
+          <td><span class="badge badge-blue">Soja + Sementes</span></td>
+        </tr>
+        <tr class="total-row">
+          <td>TOTAL</td>
+          <td class="num">2.260.594</td>
+          <td class="num">2.838.683</td>
+          <td class="num">−578.089</td>
+          <td class="num">—</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight-box info">
+    <strong>📊 Observação técnica:</strong> O mês de Jul/2025 foi superavitário em razão da contratação do <strong>custeio bancário (R$ 749 mil)</strong>, que entrou no caixa para financiar a safra. Esse aporte é uma "entrada" do ponto de vista contábil, mas representa dívida. Se desconsiderássemos esse valor, o período inteiro teria sido deficitário, sinalizando que <strong>a estrutura atual de saídas está acima do ritmo de geração própria de receita</strong>.
+  </div>
+</section>
+
+<!-- EVOLUÇÃO DO SALDO -->
+<section>
+  <h2>2.3 Evolução do Saldo Bancário</h2>
+
+  <p>O saldo bancário é um dos indicadores mais sensíveis da saúde financeira da operação. Ele mostra, de forma direta, quanto sobrou (ou faltou) de caixa ao final de cada mês:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mês</th>
+        <th class="num">Saldo (R$)</th>
+        <th>Trajetória</th>
+        <th>Variação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Jul/25</td><td class="num">572.276</td><td><div class="progress-bar"><div class="progress-fill" style="width: 100%;">100%</div></div></td><td>—</td></tr>
+      <tr><td>Ago/25</td><td class="num">336.953</td><td><div class="progress-bar"><div class="progress-fill" style="width: 59%;">59%</div></div></td><td><span class="negative">−41%</span></td></tr>
+      <tr><td>Set/25</td><td class="num">102.681</td><td><div class="progress-bar"><div class="progress-fill warn" style="width: 18%;">18%</div></div></td><td><span class="negative">−70%</span></td></tr>
+      <tr><td>Out/25</td><td class="num">56.872</td><td><div class="progress-bar"><div class="progress-fill warn" style="width: 10%;">10%</div></div></td><td><span class="negative">−45%</span></td></tr>
+      <tr><td>Nov/25</td><td class="num">156.462</td><td><div class="progress-bar"><div class="progress-fill" style="width: 27%;">27%</div></div></td><td><span class="positive">+175%</span></td></tr>
+      <tr><td>Dez/25</td><td class="num">78.280</td><td><div class="progress-bar"><div class="progress-fill warn" style="width: 14%;">14%</div></div></td><td><span class="negative">−50%</span></td></tr>
+      <tr><td>Jan/26</td><td class="num">2.043</td><td><div class="progress-bar"><div class="progress-fill bad" style="width: 1%;">0,4%</div></div></td><td><span class="negative">−97%</span></td></tr>
+      <tr><td>Fev/26</td><td class="num">21.337</td><td><div class="progress-bar"><div class="progress-fill bad" style="width: 4%;">4%</div></div></td><td><span class="positive">+944%</span></td></tr>
+      <tr><td>Mar/26</td><td class="num">110.223</td><td><div class="progress-bar"><div class="progress-fill warn" style="width: 19%;">19%</div></div></td><td><span class="positive">+417%</span></td></tr>
+      <tr><td>Abr/26</td><td class="num">16.891</td><td><div class="progress-bar"><div class="progress-fill bad" style="width: 3%;">3%</div></div></td><td><span class="negative">−85%</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box">
+    <strong>📉 Tendência observada:</strong> O saldo bancário recuou cerca de <strong>97%</strong> no período (de R$ 572 mil para R$ 17 mil). Esse comportamento mostra que a operação vem se sustentando pela <strong>redução das reservas</strong> e pela <strong>contratação de novos créditos</strong>. <strong>Recompor a liquidez</strong> deve estar entre as prioridades estratégicas dos próximos meses.
+  </div>
+</section>
+
+<!-- RECEITAS HISTÓRICAS -->
+<section>
+  <h2>2.4 Receitas Produtivas — Composição Histórica</h2>
+
+  <h3>2.4.1 Por Atividade</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Atividade</th>
+        <th class="num">Receita (R$)</th>
+        <th class="num">Participação</th>
+        <th>Visualização</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🌱 Soja (Lavoura)</td>
+        <td class="num positive">777.025</td>
+        <td class="num">58,4%</td>
+        <td><div class="progress-bar"><div class="progress-fill" style="width: 58%;">58%</div></div></td>
+      </tr>
+      <tr>
+        <td>🐂 Pecuária (Bovinos)</td>
+        <td class="num positive">552.860</td>
+        <td class="num">41,6%</td>
+        <td><div class="progress-bar"><div class="progress-fill" style="width: 42%;">42%</div></div></td>
+      </tr>
+      <tr class="total-row">
+        <td>TOTAL</td>
+        <td class="num">1.329.885</td>
+        <td class="num">100%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.4.2 Sazonalidade — Quando o Caixa Recebe?</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mês</th>
+        <th class="num">Soja (R$)</th>
+        <th class="num">Bovinos (R$)</th>
+        <th class="num">Total Produção (R$)</th>
+        <th>Característica</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Jul/25</td><td class="num">—</td><td class="num">38.178</td><td class="num">38.178</td><td>Marrucos + bezerros</td></tr>
+      <tr><td>Ago/25</td><td class="num">—</td><td class="num">98.638</td><td class="num">98.638</td><td>Vacas + bezerros</td></tr>
+      <tr><td>Set/25</td><td class="num">—</td><td class="num">4.400</td><td class="num">4.400</td><td>Bezerros (baixa)</td></tr>
+      <tr><td>Out/25</td><td class="num">—</td><td class="num">49.222</td><td class="num">49.222</td><td>Vaca boiadeira</td></tr>
+      <tr><td>Nov/25</td><td class="num">—</td><td class="num">313.800</td><td class="num">313.800</td><td>🟢 Pico pecuária (novilhas)</td></tr>
+      <tr><td>Dez/25</td><td class="num">—</td><td class="num">—</td><td class="num">0</td><td>🔴 Sem receita produtiva</td></tr>
+      <tr><td>Jan/26</td><td class="num">—</td><td class="num">25.403</td><td class="num">25.403</td><td>Vaca + bezerros</td></tr>
+      <tr><td>Fev/26</td><td class="num">22.866</td><td class="num">18.058</td><td class="num">40.925</td><td>Início soja</td></tr>
+      <tr><td>Mar/26</td><td class="num">453.343</td><td class="num">—</td><td class="num">453.343</td><td>🟢 Pico colheita soja</td></tr>
+      <tr><td>Abr/26</td><td class="num">300.815</td><td class="num">5.160</td><td class="num">305.975</td><td>🟢 Final colheita soja</td></tr>
+      <tr class="total-row"><td>TOTAL</td><td class="num">777.025</td><td class="num">552.860</td><td class="num">1.329.885</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box success">
+    <strong>✅ Ponto positivo identificado:</strong> A operação tem <strong>duas frentes de receita</strong> (lavoura e pecuária), o que dilui o risco. A pecuária aporta caixa em vários meses do ano, enquanto a soja concentra receita em março e abril. Essa <strong>complementaridade é uma vantagem estrutural</strong> que pode ser ainda mais explorada com um planejamento de desfrute mais regular do rebanho.
+  </div>
+
+  <div class="insight-box">
+    <strong>📌 Atenção a Dezembro:</strong> Foi o único mês do período <strong>sem qualquer receita produtiva</strong>. Esse "vazio" precisa ser previsto no planejamento de caixa, pois coincide com saídas fixas (pró-labore, energia, consultoria, etc.).
+  </div>
+</section>
+
+<!-- ENDIVIDAMENTO -->
+<section>
+  <h2>2.5 Movimentação de Crédito e Custo Financeiro</h2>
+
+  <p>Um dos componentes mais relevantes do fluxo são as <strong>operações financeiras</strong> (contratação e devolução de empréstimos, juros e taxas). Compreendê-las é essencial para a leitura correta do caixa.</p>
+
+  <h3>2.5.1 Movimentação de Empréstimos</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mês</th>
+        <th class="num">Contratação (R$)</th>
+        <th class="num">Devolução (R$)</th>
+        <th class="num">Saldo Líquido (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Jul/25</td><td class="num">12.000</td><td class="num">−55.450</td><td class="num negative">−43.450</td></tr>
+      <tr><td>Ago/25</td><td class="num">—</td><td class="num">−105.000</td><td class="num negative">−105.000</td></tr>
+      <tr><td>Nov/25</td><td class="num">—</td><td class="num">−118.000</td><td class="num negative">−118.000</td></tr>
+      <tr><td>Dez/25</td><td class="num">40.000</td><td class="num">—</td><td class="num positive">+40.000</td></tr>
+      <tr><td>Jan/26</td><td class="num">25.000</td><td class="num">—</td><td class="num positive">+25.000</td></tr>
+      <tr><td>Fev/26</td><td class="num">25.000</td><td class="num">—</td><td class="num positive">+25.000</td></tr>
+      <tr><td>Mar/26</td><td class="num">340.000</td><td class="num">−310.000</td><td class="num positive">+30.000</td></tr>
+      <tr><td>Abr/26</td><td class="num">40.000</td><td class="num">—</td><td class="num positive">+40.000</td></tr>
+      <tr class="total-row">
+        <td>TOTAL</td>
+        <td class="num">482.000</td>
+        <td class="num">−588.450</td>
+        <td class="num">−106.450</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.5.2 Custo Financeiro do Período</h3>
+
+  <table>
+    <thead>
+      <tr><th>Categoria</th><th class="num">Valor (R$)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Juros sobre empréstimos de terceiros</td><td class="num">~21.635</td></tr>
+      <tr><td>Juros sobre empréstimos bancários</td><td class="num">~68.224</td></tr>
+      <tr><td>Devolução de empréstimo bancário (principal)</td><td class="num">~192.362</td></tr>
+      <tr><td>Taxas bancárias e IOF</td><td class="num">~5.775</td></tr>
+      <tr class="total-row"><td>TOTAL</td><td class="num">~287.996</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box">
+    <strong>💡 Reflexão estratégica:</strong> O custo financeiro acumulado representou cerca de <strong>21,7% da receita total</strong> do período. Esse é um dos pontos com maior <strong>potencial de ganho</strong> — uma renegociação de contratos, alongamento de prazos ou substituição de linhas mais caras por linhas de custeio rural pode liberar caixa relevante para a atividade.
+  </div>
+</section>
+
+<!-- TOP SAÍDAS HISTÓRICAS -->
+<section>
+  <h2>2.6 As 10 Maiores Saídas Acumuladas</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Rubrica</th>
+        <th class="num">Total 10 meses (R$)</th>
+        <th class="num">Média Mensal (R$)</th>
+        <th>Natureza</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Fertilizantes</td><td class="num">307.624</td><td class="num">30.762</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>2</td><td>Sementes</td><td class="num">262.942</td><td class="num">26.294</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+      <tr><td>3</td><td>Pró-labore</td><td class="num">228.300</td><td class="num">22.830</td><td><span class="badge badge-yellow">Familiar</span></td></tr>
+      <tr><td>4</td><td>Devolução empréstimo bancário</td><td class="num">192.362</td><td class="num">19.236</td><td><span class="badge badge-red">Financeiro</span></td></tr>
+      <tr><td>5</td><td>Investimento em animais</td><td class="num">176.628</td><td class="num">17.663</td><td><span class="badge badge-green">Investimento</span></td></tr>
+      <tr><td>6</td><td>Aquisição de máquinas/equipamentos</td><td class="num">112.428</td><td class="num">11.243</td><td><span class="badge badge-green">Investimento</span></td></tr>
+      <tr><td>7</td><td>Diesel</td><td class="num">78.733</td><td class="num">7.873</td><td><span class="badge badge-blue">Operação</span></td></tr>
+      <tr><td>8</td><td>Salários</td><td class="num">60.638</td><td class="num">6.064</td><td><span class="badge badge-blue">Operação</span></td></tr>
+      <tr><td>9</td><td>Frete da atividade</td><td class="num">41.293</td><td class="num">4.129</td><td><span class="badge badge-blue">Operação</span></td></tr>
+      <tr><td>10</td><td>Foliares</td><td class="num">23.717</td><td class="num">2.372</td><td><span class="badge badge-blue">Lavoura</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box info">
+    <strong>📌 Leitura geral:</strong> Os <strong>insumos da lavoura</strong> (fertilizantes + sementes + foliares) somaram aproximadamente <strong>R$ 594 mil</strong>, formando o maior bloco de saídas. Em paralelo, os <strong>investimentos em animais e máquinas</strong> totalizaram <strong>R$ 289 mil</strong> — sinal de capitalização da operação no período, o que é positivo, mas precisa estar dimensionado à capacidade de geração de caixa.
+  </div>
+</section>
+
+<!-- INDICADORES HISTÓRICOS -->
+<section>
+  <h2>2.7 Indicadores Consolidados</h2>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">Receita Média Mensal</div>
+      <div class="value">R$ 226 mil</div>
+    </div>
+    <div class="card alert">
+      <div class="label">Saída Média Mensal</div>
+      <div class="value">R$ 284 mil</div>
+    </div>
+    <div class="card alert">
+      <div class="label">Déficit Médio Mensal</div>
+      <div class="value">R$ 58 mil</div>
+    </div>
+    <div class="card">
+      <div class="label">Pró-labore / Receita Produtiva</div>
+      <div class="value">17,2%</div>
+    </div>
+    <div class="card alert">
+      <div class="label">Custo Financeiro / Receita</div>
+      <div class="value">21,7%</div>
+    </div>
+    <div class="card success">
+      <div class="label">Investimentos Realizados</div>
+      <div class="value">R$ 692 mil</div>
+    </div>
+    <div class="card">
+      <div class="label">Empréstimos Contratados</div>
+      <div class="value">R$ 482 mil</div>
+    </div>
+    <div class="card">
+      <div class="label">Empréstimos Devolvidos</div>
+      <div class="value">R$ 588 mil</div>
+    </div>
+  </div>
+</section>
+
+<!-- SÍNTESE DO HISTÓRICO -->
+<section>
+  <h2>2.8 Síntese do Histórico</h2>
+
+  <div class="intro-box">
+    <p>O período analisado mostra uma operação com <strong>boa diversificação produtiva</strong> (lavoura + pecuária) e <strong>capacidade de geração de receita</strong>, porém com um <strong>desequilíbrio entre o ritmo de saídas e o de entradas</strong>.</p>
+    <p>Os principais vetores desse desequilíbrio são:</p>
+    <ol style="margin: 10px 0 15px 25px;">
+      <li>A <strong>concentração dos custos da lavoura</strong> em poucos meses (fertilizantes em março, sementes em abril);</li>
+      <li>O <strong>peso do serviço da dívida</strong> sobre o caixa (~22% da receita);</li>
+      <li>A <strong>rigidez de algumas saídas fixas</strong> (pró-labore, salários, consultoria), que ocorrem todos os meses, inclusive em períodos de baixa receita.</li>
+    </ol>
+    <p>Todos esses pontos têm <strong>caminhos viáveis de ajuste</strong>, especialmente quando trabalhados de forma coordenada — e é justamente isso que apresentamos a seguir.</p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- PARTE 3 - RECOMENDAÇÕES -->
+<!-- ============================================ -->
+<div class="part-divider" id="parte3">
+  <h2>🎯 PARTE 3 — Pontos para Diálogo Estratégico</h2>
+  <div class="part-subtitle">Temas que sugerimos discutir em reunião conjunta</div>
+</div>
+
+<section>
+  <p>A partir das leituras anteriores, identificamos alguns temas que merecem ser aprofundados em conversa. O objetivo é construir, juntos, um plano de ação que <strong>recomponha a liquidez</strong> e <strong>fortaleça a sustentabilidade financeira</strong> da operação.</p>
+
+  <div class="recommendation">
+    <h4>🎯 1. Revisão da Estrutura de Pró-labore</h4>
+    <p>O pró-labore mensal foi mantido praticamente constante (média de R$ 22,8 mil/mês), independentemente da fase do ciclo produtivo. Avaliar uma <strong>política de retiradas vinculada à geração de caixa</strong> — maior nos meses de safra, menor em entressafra — pode aliviar a pressão nos meses mais apertados.</p>
+  </div>
+
+  <div class="recommendation">
+    <h4>💰 2. Mapeamento Completo do Endividamento</h4>
+    <p>Sugerimos levantar todos os contratos de crédito ativos (instituição, saldo devedor, prazo, taxa, garantias) para avaliar oportunidades de <strong>renegociação, alongamento ou substituição por linhas mais adequadas</strong> ao ciclo da atividade rural (custeio, Pronamp, etc.).</p>
+  </div>
+
+  <div class="recommendation">
+    <h4>🐂 3. Potencialização da Pecuária</h4>
+    <p>A pecuária respondeu por 42% da receita produtiva, com vendas concentradas principalmente em novembro. Um <strong>plano de desfrute mais distribuído</strong> ao longo do ano — incluindo dezembro, que ficou sem receita — pode melhorar significativamente a previsibilidade do caixa.</p>
+  </div>
+
+  <div class="recommendation">
+    <h4>📅 4. Planejamento Antecipado dos Insumos</h4>
+    <p>Fertilizantes e sementes somaram quase R$ 600 mil concentrados em março e abril. <strong>Antecipar negociações</strong> (barter, troca-troca, parcelamentos rurais com vencimento na safra) pode reduzir custo unitário e alinhar saídas ao recebimento da colheita.</p>
+  </div>
+
+  <div class="recommendation">
+    <h4>📊 5. Construção de Projeção de Caixa</h4>
+    <p>Com os dados atuais, é possível elaborar uma <strong>projeção de fluxo para os próximos 6 a 12 meses</strong>, antecipando gargalos e permitindo o planejamento tranquilo das próximas decisões (vendas, investimentos, contratações de crédito).</p>
+  </div>
+
+  <div class="recommendation">
+    <h4>🔍 6. Acompanhamento Mensal Estruturado</h4>
+    <p>O registro disciplinado dos lançamentos é o que permite que análises como esta evoluam em precisão. <strong>Em poucos meses teremos um ciclo completo de safra</strong>, o que abrirá espaço para análises de rentabilidade por atividade, EBITDA e indicadores de eficiência por hectare/cabeça.</p>
+  </div>
+</section>
+
+<!-- CONSIDERAÇÕES FINAIS -->
+<section>
+  <h2>Considerações Finais</h2>
+
+  <div class="intro-box">
+    <p>Fernando, esta análise tem o objetivo de oferecer uma <strong>leitura clara e organizada</strong> da realidade financeira da sua atividade. Os números apontam pontos de atenção, mas também <strong>oportunidades concretas</strong> de melhoria — especialmente na gestão do crédito, na regularização do desfrute pecuário e no planejamento dos insumos.</p>
+    <p>Importante reforçar que esta análise é <strong>preliminar</strong> e ganhará profundidade à medida que completarmos um ciclo de safra. Os próximos relatórios trarão métricas adicionais (rentabilidade por atividade, custo unitário, EBITDA) que permitirão decisões ainda mais precisas.</p>
+    <p>Estamos à disposição para discutir cada ponto deste relatório em <strong>reunião conjunta</strong>, definir prioridades e construir, com você, um plano consistente para os próximos meses.</p>
+  </div>
+</section>
+
+</div>
+
+<div class="footer">
+  <p><strong>Rural IN — Inteligência em Gestão Rural</strong></p>
+  <p>Relatório elaborado com base nos dados primários informados pelo cliente</p>
+  <p>Mês de referência: Abril/2026 | Histórico: Julho/2025 a Abril/2026</p>
+</div>
+
+</div>
+</body>
+</html>
