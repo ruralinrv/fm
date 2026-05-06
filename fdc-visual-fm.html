@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluxo de Caixa | Fernando Machado | Abril/2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f1;
+    color: #2c3e50;
+    line-height: 1.5;
+    padding: 15px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    padding: 35px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.8em; margin-bottom: 8px; }
+  header .subtitle { font-size: 1em; opacity: 0.95; }
+  header .period {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-top: 12px;
+    font-size: 0.9em;
+  }
+  .content { padding: 30px; }
+
+  .section-title {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    margin: 35px 0 20px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .num-section {
+    background: rgba(255,255,255,0.25);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  /* HERO BIG NUMBERS */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .hero-card {
+    padding: 25px 20px;
+    border-radius: 14px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card .icon {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .hero-card .label {
+    font-size: 0.85em;
+    opacity: 0.95;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .hero-card .value {
+    font-size: 1.8em;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .hero-card .sub { font-size: 0.75em; opacity: 0.9; margin-top: 4px; }
+  .hero-receita { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+  .hero-saida { background: linear-gradient(135deg, #e67e22, #f39c12); }
+  .hero-resultado { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+
+  /* KPI MINI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
+  }
+  .kpi {
+    background: white;
+    border: 2px solid #e8f5e9;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .kpi:hover { transform: translateY(-3px); }
+  .kpi .kpi-icon { font-size: 1.8em; margin-bottom: 5px; }
+  .kpi .kpi-label { font-size: 0.75em; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.3px; }
+  .kpi .kpi-value { font-size: 1.3em; font-weight: 700; color: #1e5631; margin-top: 4px; }
+  .kpi.alert { border-color: #ffe0b2; }
+  .kpi.alert .kpi-value { color: #e67e22; }
+  .kpi.danger { border-color: #ffcdd2; }
+  .kpi.danger .kpi-value { color: #c0392b; }
+  .kpi.success { border-color: #c8e6c9; }
+  .kpi.success .kpi-value { color: #27ae60; }
+
+  /* CHARTS */
+  .chart-container {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .chart-title {
+    font-size: 1em;
+    font-weight: 600;
+    color: #1e5631;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+  }
+  .chart-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .chart-wrapper { position: relative; height: 280px; }
+  .chart-wrapper.tall { height: 320px; }
+
+  /* INSIGHT BOX (curtas) */
+  .quick-insight {
+    background: #fff8e1;
+    border-left: 4px solid #f39c12;
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 0.92em;
+  }
+  .quick-insight.success {
+    background: #e8f5e9;
+    border-left-color: #27ae60;
+  }
+  .quick-insight.info {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+  }
+  .quick-insight strong { color: #1e5631; }
+
+  /* TIMELINE / MONTHS */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin: 15px 0;
+  }
+  .timeline-month {
+    background: white;
+    border-radius: 8px;
+    padding: 10px 4px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    font-size: 0.7em;
+  }
+  .timeline-month .m-label { font-weight: 700; color: #1e5631; font-size: 0.85em; }
+  .timeline-month .m-value { font-size: 0.9em; margin-top: 4px; font-weight: 600; }
+  .timeline-month.green { background: #d4edda; border-color: #27ae60; }
+  .timeline-month.red { background: #f8d7da; border-color: #c0392b; }
+  .timeline-month.yellow { background: #fff3cd; border-color: #f39c12; }
+  .timeline-month .m-value.pos { color: #27ae60; }
+  .timeline-month .m-value.neg { color: #c0392b; }
+
+  /* DIVIDER */
+  .part-divider {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    padding: 20px;
+    margin: 40px -30px 25px -30px;
+    text-align: center;
+    border-radius: 0;
+  }
+  .part-divider h2 {
+    font-size: 1.4em;
+    margin: 0;
+  }
+  .part-divider .part-sub {
+    font-size: 0.9em;
+    opacity: 0.95;
+    margin-top: 4px;
+  }
+
+  /* TOP SAÍDAS BARS */
+  .bar-list { margin: 15px 0; }
+  .bar-item {
+    display: grid;
+    grid-template-columns: 30px 1fr 100px;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-size: 0.9em;
+  }
+  .bar-item .rank {
+    background: #2d7a47;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85em;
+  }
+  .bar-track {
+    background: #ecf0f1;
+    border-radius: 8px;
+    height: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-fill {
+    background: linear-gradient(90deg, #2d7a47, #27ae60);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85em;
+    border-radius: 8px;
+  }
+  .bar-value {
+    text-align: right;
+    font-weight: 700;
+    color: #1e5631;
+  }
+
+  /* MENSAGEM MOTIVACIONAL */
+  .message-hero {
+    background: linear-gradient(135deg, #f1f8f4 0%, #e8f5e9 100%);
+    border-radius: 16px;
+    padding: 35px 25px;
+    text-align: center;
+    margin: 20px 0;
+    border: 2px solid #c8e6c9;
+  }
+  .message-icon {
+    font-size: 3.5em;
+    margin-bottom: 15px;
+  }
+  .message-quote {
+    font-size: 1.15em;
+    color: #1e5631;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .message-quote strong {
+    color: #2d7a47;
+    font-style: normal;
+  }
+
+  /* VALORES */
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 25px 0;
+  }
+  .value-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    border-top: 4px solid #2d7a47;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+  }
+  .value-card:hover {
+    transform: translateY(-5px);
+  }
+  .value-icon {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+  }
+  .value-title {
+    font-weight: 700;
+    color: #1e5631;
+    font-size: 1.05em;
+    margin-bottom: 6px;
+  }
+  .value-text {
+    font-size: 0.85em;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  /* FRASE FINAL */
+  .final-message {
+    background: linear-gradient(135deg, #1e5631 0%, #2d7a47 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    margin: 25px 0 15px 0;
+  }
+  .final-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+  .final-quote {
+    font-size: 1.1em;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    opacity: 0.95;
+  }
+  .final-quote strong {
+    color: #ffd54f;
+  }
+  .final-sign {
+    font-size: 1.1em;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    padding-top: 20px;
+    margin-top: 10px;
+  }
+  .signature {
+    font-size: 0.9em;
+    opacity: 0.9;
+    font-style: italic;
+  }
+
+  .footer {
+    background: #1e5631;
+    color: white;
+    padding: 25px;
+    text-align: center;
+    font-size: 0.85em;
+  }
+
+  @media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .chart-row, .chart-row.three { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: repeat(5, 1fr); }
+    .content { padding: 15px; }
+    .section-title { font-size: 1em; padding: 12px 15px; }
+    .hero-card .value { font-size: 1.5em; }
+    .values-grid { grid-template-columns: repeat(2, 1fr); }
+    .message-quote { font-size: 1em; }
+    .final-quote { font-size: 1em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📊 Fluxo de Caixa</h1>
+  <div class="subtitle">Fernando Machado</div>
+  <div class="period">Abril/2026 • Histórico: 10 meses</div>
+</header>
+
+<div class="content">
+
+<!-- ============================================ -->
+<!-- PARTE 1 - ABRIL -->
+<!-- ============================================ -->
+<div class="part-divider">
+  <h2>📅 ABRIL/2026</h2>
+  <div class="part-sub">Resumo do mês</div>
+</div>
+
+<!-- HERO -->
+<div class="hero-grid">
+  <div class="hero-card hero-receita">
+    <span class="icon">💰</span>
+    <div class="label">Entrou</div>
+    <div class="value">R$ 347,6 mil</div>
+  </div>
+  <div class="hero-card hero-saida">
+    <span class="icon">💸</span>
+    <div class="label">Saiu</div>
+    <div class="value">R$ 428,3 mil</div>
+  </div>
+  <div class="hero-card hero-resultado">
+    <span class="icon">📉</span>
+    <div class="label">Resultado</div>
+    <div class="value">−R$ 80,6 mil</div>
+  </div>
+</div>
+
+<!-- GRÁFICOS DO MÊS -->
+<div class="chart-row">
+  <div class="chart-container">
+    <div class="chart-title">💰 De onde veio o dinheiro?</div>
+    <div class="chart-wrapper"><canvas id="chartReceitas"></canvas></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-title">💸 Para onde foi o dinheiro?</div>
+    <div class="chart-wrapper"><canvas id="chartSaidas"></canvas></div>
+  </div>
+</div>
+
+<!-- TOP 5 SAÍDAS -->
+<div class="section-title">
+  <span class="num-section">1</span> Top 5 Saídas de Abril
+</div>
+
+<div class="bar-list">
+  <div class="bar-item">
+    <div class="rank">1</div>
+    <div class="bar-track"><div class="bar-fill" style="width: 100%;">🌱 Sementes</div></div>
+    <div class="bar-value">R$ 262.942</div>
+  </div>
+  <div class="bar-item">
+    <div class="rank">2</div>
+    <div class="bar-track"><div class="bar-fill" style="width: 11%;">🚛 Frete</div></div>
+    <div class="bar-value">R$ 27.666</div>
+  </div>
+  <div class="bar-item">
+    <div class="rank">3</div>
+    <div class="bar-track"><div class="bar-fill" style="width: 9%;">👤 Pró-labore</div></div>
+    <div class="bar-value">R$ 22.686</div>
+  </div>
+  <div class="bar-item">
+    <div class="rank">4</div>
+    <div class="bar-track"><div class="bar-fill" style="width: 8%;">🍃 Foliares</div></div>
+    <div class="bar-value">R$ 19.911</div>
+  </div>
+  <div class="bar-item">
+    <div class="rank">5</div>
+    <div class="bar-track"><div class="bar-fill" style="width: 7%;">👨‍🔬 Consultoria</div></div>
+    <div class="bar-value">R$ 17.701</div>
+  </div>
+</div>
+
+<div class="quick-insight info">
+  💡 <strong>Mês de preparo da próxima safra:</strong> 87% da receita da soja foi reaplicada em sementes.
+</div>
+
+<!-- POSIÇÃO BANCÁRIA -->
+<div class="section-title">
+  <span class="num-section">2</span> Saldo Bancário em 30/Abr
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi-icon">🏦</div>
+    <div class="kpi-label">BB Lavoura</div>
+    <div class="kpi-value">R$ 11.946</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon">🏦</div>
+    <div class="kpi-label">BB Pecuária</div>
+    <div class="kpi-value">R$ 2.988</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon">🏦</div>
+    <div class="kpi-label">Sicoob</div>
+    <div class="kpi-value">R$ 1.599</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon">💵</div>
+    <div class="kpi-label">Caixa</div>
+    <div class="kpi-value">R$ 358</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-icon">📊</div>
+    <div class="kpi-label">TOTAL</div>
+    <div class="kpi-value">R$ 16.891</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PARTE 2 - HISTÓRICO -->
+<!-- ============================================ -->
+<div class="part-divider">
+  <h2>📈 HISTÓRICO • 10 MESES</h2>
+  <div class="part-sub">Jul/2025 a Abr/2026</div>
+</div>
+
+<!-- KPIs HISTÓRICOS -->
+<div class="kpi-grid">
+  <div class="kpi success">
+    <div class="kpi-icon">💰</div>
+    <div class="kpi-label">Receita Total</div>
+    <div class="kpi-value">R$ 2,26 Mi</div>
+  </div>
+  <div class="kpi alert">
+    <div class="kpi-icon">💸</div>
+    <div class="kpi-label">Saídas Totais</div>
+    <div class="kpi-value">R$ 2,84 Mi</div>
+  </div>
+  <div class="kpi danger">
+    <div class="kpi-icon">📉</div>
+    <div class="kpi-label">Resultado</div>
+    <div class="kpi-value">−R$ 578 mil</div>
+  </div>
+  <div class="kpi alert">
+    <div class="kpi-icon">⚖️</div>
+    <div class="kpi-label">Receita / Saída</div>
+    <div class="kpi-value">0,80</div>
+  </div>
+</div>
+
+<!-- GRÁFICO ENTRADAS x SAÍDAS -->
+<div class="chart-container">
+  <div class="chart-title">📊 Entradas vs Saídas (mês a mês)</div>
+  <div class="chart-wrapper tall"><canvas id="chartFluxo"></canvas></div>
+</div>
+
+<!-- EVOLUÇÃO DO SALDO -->
+<div class="chart-container">
+  <div class="chart-title">📉 Evolução do Saldo Bancário</div>
+  <div class="chart-wrapper"><canvas id="chartSaldo"></canvas></div>
+</div>
+
+<div class="quick-insight">
+  ⚠️ <strong>O saldo recuou 97%</strong> no período (R$ 572 mil → R$ 17 mil). Recompor a liquidez é prioridade.
+</div>
+
+<!-- TIMELINE DE RESULTADOS -->
+<div class="section-title">
+  <span class="num-section">3</span> Resultado Mês a Mês
+</div>
+
+<div class="timeline">
+  <div class="timeline-month green">
+    <div class="m-label">Jul/25</div>
+    <div class="m-value pos">+558k</div>
+  </div>
+  <div class="timeline-month yellow">
+    <div class="m-label">Ago/25</div>
+    <div class="m-value neg">−226k</div>
+  </div>
+  <div class="timeline-month red">
+    <div class="m-label">Set/25</div>
+    <div class="m-value neg">−234k</div>
+  </div>
+  <div class="timeline-month red">
+    <div class="m-label">Out/25</div>
+    <div class="m-value neg">−193k</div>
+  </div>
+  <div class="timeline-month yellow">
+    <div class="m-label">Nov/25</div>
+    <div class="m-value neg">−30k</div>
+  </div>
+  <div class="timeline-month yellow">
+    <div class="m-label">Dez/25</div>
+    <div class="m-value neg">−29k</div>
+  </div>
+  <div class="timeline-month red">
+    <div class="m-label">Jan/26</div>
+    <div class="m-value neg">−57k</div>
+  </div>
+  <div class="timeline-month yellow">
+    <div class="m-label">Fev/26</div>
+    <div class="m-value neg">−24k</div>
+  </div>
+  <div class="timeline-month red">
+    <div class="m-label">Mar/26</div>
+    <div class="m-value neg">−262k</div>
+  </div>
+  <div class="timeline-month red">
+    <div class="m-label">Abr/26</div>
+    <div class="m-value neg">−81k</div>
+  </div>
+</div>
+
+<!-- COMPOSIÇÃO RECEITA -->
+<div class="chart-row">
+  <div class="chart-container">
+    <div class="chart-title">🌱🐂 Receita por Atividade</div>
+    <div class="chart-wrapper"><canvas id="chartAtividade"></canvas></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-title">📅 Sazonalidade da Receita</div>
+    <div class="chart-wrapper"><canvas id="chartSazonal"></canvas></div>
+  </div>
+</div>
+
+<div class="quick-insight success">
+  ✅ <strong>Diversificação funcionando:</strong> Soja (58%) + Pecuária (42%). A pecuária garante caixa em meses de entressafra.
+</div>
+
+<!-- TOP 10 SAÍDAS HISTÓRICAS -->
+<div class="section-title">
+  <span class="num-section">4</span> Top 10 Saídas do Período
+</div>
+
+<div class="chart-container">
+  <div class="chart-wrapper tall"><canvas id="chartTopSaidas"></canvas></div>
+</div>
+
+<!-- INDICADORES CRÍTICOS -->
+<div class="section-title">
+  <span class="num-section">5</span> Indicadores-Chave
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi alert">
+    <div class="kpi-icon">🏦</div>
+    <div class="kpi-label">Custo Financeiro / Receita</div>
+    <div class="kpi-value">21,7%</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon">👤</div>
+    <div class="kpi-label">Pró-labore / Receita</div>
+    <div class="kpi-value">17,2%</div>
+  </div>
+  <div class="kpi success">
+    <div class="kpi-icon">🏗️</div>
+    <div class="kpi-label">Investimentos</div>
+    <div class="kpi-value">R$ 692 mil</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-icon">💳</div>
+    <div class="kpi-label">Empréstimos Líquidos</div>
+    <div class="kpi-value">−R$ 106 mil</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PARTE 3 - MENSAGEM MOTIVACIONAL -->
+<!-- ============================================ -->
+<div class="part-divider" style="background: linear-gradient(135deg, #1e5631 0%, #2d7a47 50%, #27ae60 100%);">
+  <h2>🌅 SEGUIMOS JUNTOS</h2>
+  <div class="part-sub">Uma palavra antes de fechar este relatório</div>
+</div>
+
+<div class="message-hero">
+  <div class="message-icon">🌱</div>
+  <div class="message-quote">
+    "Toda grande colheita começa com<br>
+    <strong>uma semente plantada em solo difícil.</strong>"
+  </div>
+</div>
+
+<!-- VALORES MOTIVACIONAIS -->
+<div class="values-grid">
+  <div class="value-card">
+    <div class="value-icon">💪</div>
+    <div class="value-title">Força</div>
+    <div class="value-text">Você já enfrentou outras tempestades. Esta também vai passar.</div>
+  </div>
+  <div class="value-card">
+    <div class="value-icon">🌾</div>
+    <div class="value-title">Resiliência</div>
+    <div class="value-text">A terra ensina: depois da seca, sempre vem a chuva.</div>
+  </div>
+  <div class="value-card">
+    <div class="value-icon">🤝</div>
+    <div class="value-title">Parceria</div>
+    <div class="value-text">Você não está sozinho. Estamos do seu lado nessa jornada.</div>
+  </div>
+  <div class="value-card">
+    <div class="value-icon">☀️</div>
+    <div class="value-title">Esperança</div>
+    <div class="value-text">Cada novo dia é uma nova oportunidade de fazer diferente.</div>
+  </div>
+</div>
+
+<!-- FRASE FINAL -->
+<div class="final-message">
+  <div class="final-icon">🌻</div>
+  <p class="final-quote">
+    <em>"O agricultor que olha para as nuvens<br>nunca planta. Mas o que olha para o solo,<br><strong>colhe sempre."</strong></em>
+  </p>
+  <p class="final-sign">
+    <strong>Conte conosco. Sempre.</strong><br>
+    <span class="signature">— Equipe Rural IN</span>
+  </p>
+</div>
+
+</div>
+
+<div class="footer">
+  <p><strong>Rural IN</strong> — Inteligência em Gestão Rural</p>
+  <p>Abril/2026 • Histórico: Jul/2025 a Abr/2026</p>
+</div>
+
+</div>
+
+<script>
+Chart.defaults.font.family = "'Segoe UI', Tahoma, sans-serif";
+Chart.defaults.font.size = 11;
+
+// 1. RECEITAS DO MÊS (donut)
+new Chart(document.getElementById('chartReceitas'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Venda Soja', 'Empréstimo', 'Venda Bovinos', 'Despesas Recuperadas'],
+    datasets: [{
+      data: [300815, 40000, 5160, 1671],
+      backgroundColor: ['#27ae60', '#3498db', '#f39c12', '#95a5a6'],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: R$ ${ctx.parsed.toLocaleString('pt-BR')}`
+        }
+      }
+    }
+  }
+});
+
+// 2. SAÍDAS DO MÊS (donut)
+new Chart(document.getElementById('chartSaidas'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Custos Produção', 'Despesas Operacionais', 'Investimentos', 'Seguros', 'Financeiras'],
+    datasets: [{
+      data: [406694, 18474, 1846, 1011, 250],
+      backgroundColor: ['#c0392b', '#e67e22', '#27ae60', '#9b59b6', '#34495e'],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: R$ ${ctx.parsed.toLocaleString('pt-BR')}`
+        }
+      }
+    }
+  }
+});
+
+// 3. FLUXO MÊS A MÊS (bars)
+new Chart(document.getElementById('chartFluxo'), {
+  type: 'bar',
+  data: {
+    labels: ['Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26','Abr/26'],
+    datasets: [
+      {
+        label: 'Entradas',
+        data: [830639, 110169, 16255, 52268, 313800, 41328, 50403, 43156, 454928, 347646],
+        backgroundColor: '#27ae60',
+        borderRadius: 6
+      },
+      {
+        label: 'Saídas',
+        data: [272381, 336045, 250747, 245108, 343573, 70747, 107517, 67179, 717111, 428275],
+        backgroundColor: '#e67e22',
+        borderRadius: 6
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: (v) => 'R$ ' + (v/1000) + 'k' }
+      }
+    }
+  }
+});
+
+// 4. EVOLUÇÃO SALDO (line)
+new Chart(document.getElementById('chartSaldo'), {
+  type: 'line',
+  data: {
+    labels: ['Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26','Abr/26'],
+    datasets: [{
+      label: 'Saldo Bancário',
+      data: [572276, 336953, 102681, 56872, 156462, 78280, 2043, 21337, 110223, 16891],
+      borderColor: '#1e5631',
+      backgroundColor: 'rgba(46, 204, 113, 0.15)',
+      fill: true,
+      tension: 0.3,
+      borderWidth: 3,
+      pointRadius: 5,
+      pointBackgroundColor: '#1e5631',
+      pointHoverRadius: 7
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: (v) => 'R$ ' + (v/1000) + 'k' }
+      }
+    }
+  }
+});
+
+// 5. RECEITA POR ATIVIDADE (donut)
+new Chart(document.getElementById('chartAtividade'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Soja', 'Pecuária'],
+    datasets: [{
+      data: [777025, 552860],
+      backgroundColor: ['#27ae60', '#e67e22'],
+      borderWidth: 3,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 12 } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: R$ ${ctx.parsed.toLocaleString('pt-BR')}`
+        }
+      }
+    }
+  }
+});
+
+// 6. SAZONALIDADE (stacked bar)
+new Chart(document.getElementById('chartSazonal'), {
+  type: 'bar',
+  data: {
+    labels: ['Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26','Abr/26'],
+    datasets: [
+      {
+        label: 'Soja',
+        data: [0,0,0,0,0,0,0,22866,453343,300815],
+        backgroundColor: '#27ae60',
+        borderRadius: 4
+      },
+      {
+        label: 'Pecuária',
+        data: [38178,98638,4400,49222,313800,0,25403,18058,0,5160],
+        backgroundColor: '#e67e22',
+        borderRadius: 4
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: { callback: (v) => 'R$ ' + (v/1000) + 'k' }
+      }
+    }
+  }
+});
+
+// 7. TOP 10 SAÍDAS (horizontal bar)
+new Chart(document.getElementById('chartTopSaidas'), {
+  type: 'bar',
+  data: {
+    labels: ['Fertilizantes','Sementes','Pró-labore','Devol. Empréstimo','Invest. Animais','Máquinas','Diesel','Salários','Frete','Foliares'],
+    datasets: [{
+      label: 'R$',
+      data: [307624, 262942, 228300, 192362, 176628, 112428, 78733, 60638, 41293, 23717],
+      backgroundColor: ['#1e5631','#2d7a47','#f39c12','#c0392b','#27ae60','#27ae60','#3498db','#3498db','#3498db','#2d7a47'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `R$ ${ctx.parsed.x.toLocaleString('pt-BR')}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { callback: (v) => 'R$ ' + (v/1000) + 'k' }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
