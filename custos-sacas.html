@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise Comparativa de Safras - Fernando Machado</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: #f4f6f8;
+    color: #2c3e50;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .container {
+    max-width: 950px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #2c5e1a 0%, #4a8b2c 100%);
+    color: #fff;
+    padding: 30px;
+    text-align: center;
+  }
+  .header h1 { font-size: 26px; margin-bottom: 8px; }
+  .header p { font-size: 15px; opacity: 0.95; }
+  .content { padding: 30px; }
+  .section { margin-bottom: 35px; }
+  .section h2 {
+    color: #2c5e1a;
+    font-size: 20px;
+    border-bottom: 3px solid #4a8b2c;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  th {
+    background: #2c5e1a;
+    color: #fff;
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+  }
+  td {
+    padding: 10px 12px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+  }
+  td.item-name {
+    text-align: left;
+    font-weight: 600;
+    color: #34495e;
+  }
+  tr:nth-child(even) { background: #f9f9f9; }
+  tr:hover { background: #f0f7eb; }
+  tr.total-row {
+    background: #2c5e1a !important;
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  tr.pe-row {
+    background: #1a5490 !important;
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  tr.total-row td, tr.pe-row td { border-bottom: none; }
+  .high-cost {
+    background: #ffe5e5 !important;
+    color: #c0392b;
+    font-weight: bold;
+  }
+  .mid-cost {
+    background: #fff4e0 !important;
+    color: #d35400;
+    font-weight: 600;
+  }
+  .zero-cost { color: #95a5a6; }
+  .chart-bar {
+    display: flex;
+    align-items: center;
+    margin: 12px 0;
+    gap: 12px;
+  }
+  .chart-label {
+    min-width: 90px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  .bar {
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 13px;
+  }
+  .bar-2324 { background: linear-gradient(90deg, #c0392b, #e74c3c); width: 96%; }
+  .bar-2425 { background: linear-gradient(90deg, #d35400, #e67e22); width: 68%; }
+  .bar-2526 { background: linear-gradient(90deg, #27ae60, #2ecc71); width: 60%; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+  }
+  .card {
+    border-radius: 10px;
+    padding: 20px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+  .card-2324 { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+  .card-2425 { background: linear-gradient(135deg, #d35400, #e67e22); }
+  .card-2526 { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+  .card h3 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+  .card .value { font-size: 28px; font-weight: bold; margin: 5px 0; }
+  .card .label { font-size: 12px; opacity: 0.9; }
+  .insights {
+    background: #f0f7eb;
+    border-left: 5px solid #4a8b2c;
+    padding: 18px 20px;
+    border-radius: 6px;
+    margin-top: 15px;
+  }
+  .insights ul { padding-left: 20px; }
+  .insights li { margin-bottom: 10px; }
+  .highlight {
+    background: #fff8e1;
+    border-left: 5px solid #f39c12;
+    padding: 15px 18px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-weight: 500;
+  }
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+  }
+  .footer {
+    background: #2c3e50;
+    color: #ecf0f1;
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .badge-red { background: #e74c3c; }
+  .badge-orange { background: #e67e22; }
+  .badge-green { background: #27ae60; }
+
+  /* PIZZA CHART */
+  .pie-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  .pie-chart {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #c0392b 0% 24.51%,
+      #e67e22 24.51% 37.24%,
+      #f39c12 37.24% 49.65%,
+      #27ae60 49.65% 62.06%,
+      #2980b9 62.06% 67.94%,
+      #8e44ad 67.94% 73.11%,
+      #16a085 73.11% 76.78%,
+      #d35400 76.78% 80.05%,
+      #34495e 80.05% 82.74%,
+      #7f8c8d 82.74% 84.36%,
+      #95a5a6 84.36% 86.21%,
+      #bdc3c7 86.21% 87.07%,
+      #2c3e50 87.07% 88.78%,
+      #ecf0f1 88.78% 90.85%,
+      #1abc9c 90.85% 100%
+    );
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .pie-legend {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    font-size: 13px;
+    max-width: 320px;
+  }
+  .pie-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+  }
+  .pie-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .pie-percent {
+    margin-left: auto;
+    font-weight: bold;
+    color: #2c5e1a;
+  }
+
+  /* CT em R$ */
+  .ct-rs-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+  }
+  .ct-card {
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    border-top: 5px solid;
+  }
+  .ct-card.c-2324 { border-color: #c0392b; background: #fff5f4; }
+  .ct-card.c-2425 { border-color: #e67e22; background: #fff8f0; }
+  .ct-card.c-2526 { border-color: #27ae60; background: #f0faf3; }
+  .ct-card h4 { font-size: 14px; color: #555; margin-bottom: 8px; }
+  .ct-card .ct-value { font-size: 22px; font-weight: bold; color: #2c3e50; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 20px; }
+    .content { padding: 20px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 4px; }
+    .cards, .ct-rs-cards { grid-template-columns: 1fr; }
+    .pie-chart { width: 220px; height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>🌱 Análise Comparativa de Safras</h1>
+    <p><strong>Fernando Machado</strong> — Doverlândia/GO</p>
+    <p>Evolução de Custos e Ponto de Equilíbrio | 3 Safras</p>
+  </div>
+
+  <div class="content">
+
+    <!-- CARDS DE PONTO DE EQUILÍBRIO -->
+    <div class="section">
+      <h2>🎯 Ponto de Equilíbrio (P.E.) — Produtividade Mínima</h2>
+      <p style="margin-bottom:10px;color:#555;">Produtividade necessária para cobrir 100% dos custos da safra:</p>
+      <div class="cards">
+        <div class="card card-2324">
+          <h3>Safra 23/24</h3>
+          <div class="value">107,07</div>
+          <div class="label">sacas/ha</div>
+        </div>
+        <div class="card card-2425">
+          <h3>Safra 24/25</h3>
+          <div class="value">75,81</div>
+          <div class="label">sacas/ha</div>
+        </div>
+        <div class="card card-2526">
+          <h3>Safra 25/26</h3>
+          <div class="value">66,56</div>
+          <div class="label">sacas/ha</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMO -->
+    <div class="section">
+      <h2>📊 Resumo Comparativo</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Safra</th>
+            <th>CT (sc/ha)</th>
+            <th>P.E. (sc/ha)</th>
+            <th>PMV (R$/sc)</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>23/24</strong></td>
+            <td>111,04</td>
+            <td>107,07</td>
+            <td>R$ 110,49</td>
+            <td><span class="badge badge-red">Alto risco</span></td>
+          </tr>
+          <tr>
+            <td><strong>24/25</strong></td>
+            <td>71,13</td>
+            <td>75,81</td>
+            <td>R$ 124,46</td>
+            <td><span class="badge badge-orange">Moderado</span></td>
+          </tr>
+          <tr>
+            <td><strong>25/26</strong></td>
+            <td>58,18</td>
+            <td>66,56</td>
+            <td>R$ 126,58</td>
+            <td><span class="badge badge-green">Excelente</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- GRÁFICO P.E. -->
+    <div class="section">
+      <h2>📈 Ponto de Equilíbrio por Safra (sc/ha)</h2>
+      <div class="chart-bar">
+        <div class="chart-label">23/24</div>
+        <div class="bar bar-2324">107,07 sc</div>
+      </div>
+      <div class="chart-bar">
+        <div class="chart-label">24/25</div>
+        <div class="bar bar-2425">75,81 sc</div>
+      </div>
+      <div class="chart-bar">
+        <div class="chart-label">25/26</div>
+        <div class="bar bar-2526">66,56 sc</div>
+      </div>
+    </div>
+
+    <!-- DETALHAMENTO POR ITEM EM SACAS -->
+    <div class="section">
+      <h2>🌾 Custo Detalhado por Item (em sacas de soja)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;">Item</th>
+            <th>2023/2024</th>
+            <th>2024/2025</th>
+            <th>2025/2026</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="item-name">Semente</td><td class="mid-cost">10,39</td><td>6,60</td><td>7,40</td></tr>
+          <tr><td class="item-name">TS</td><td>1,61</td><td>1,17</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Fertilizantes</td><td class="high-cost">14,63</td><td class="mid-cost">9,03</td><td class="high-cost">14,26</td></tr>
+          <tr><td class="item-name">Corretivos</td><td class="mid-cost">10,31</td><td class="zero-cost">-</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Herbicidas</td><td>1,04</td><td>2,58</td><td>3,42</td></tr>
+          <tr><td class="item-name">Inseticidas</td><td>1,48</td><td>1,37</td><td>1,03</td></tr>
+          <tr><td class="item-name">Fungicida</td><td>8,59</td><td>2,59</td><td>3,01</td></tr>
+          <tr><td class="item-name">Foliares</td><td>1,70</td><td>1,47</td><td>1,08</td></tr>
+          <tr><td class="item-name">Adjuvantes</td><td>0,46</td><td>0,58</td><td>0,39</td></tr>
+          <tr><td class="item-name">Biológicos</td><td class="zero-cost">-</td><td class="zero-cost">-</td><td>0,12</td></tr>
+          <tr><td class="item-name">Diesel/Gás</td><td>7,48</td><td>3,30</td><td>1,90</td></tr>
+          <tr><td class="item-name">Maq/Imp</td><td>4,18</td><td>4,18</td><td>1,56</td></tr>
+          <tr><td class="item-name">Aluguel de Maq.</td><td class="mid-cost">9,88</td><td>0,36</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Serv. Agrícolas</td><td class="high-cost">20,53</td><td>5,33</td><td>2,60</td></tr>
+          <tr><td class="item-name">Custo Financeiro</td><td>0,86</td><td class="high-cost">18,48</td><td>2,60</td></tr>
+          <tr><td class="item-name">ADM</td><td>6,81</td><td>4,24</td><td class="high-cost">12,10</td></tr>
+          <tr><td class="item-name">Depreciação</td><td>2,41</td><td>2,14</td><td>2,10</td></tr>
+          <tr><td class="item-name">Arrendo</td><td>8,67</td><td>7,70</td><td>7,22</td></tr>
+          <tr class="total-row">
+            <td style="text-align:left;">CT — Custo Total</td>
+            <td>111,04 sc</td>
+            <td>71,13 sc</td>
+            <td>58,18 sc</td>
+          </tr>
+          <tr class="pe-row">
+            <td style="text-align:left;">P.E. — Ponto de Equilíbrio</td>
+            <td>107,07 sc</td>
+            <td>75,81 sc</td>
+            <td>66,56 sc</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#ffe5e5;"></div> Custo alto (≥ 12 sc)</div>
+        <div class="legend-item"><div class="legend-box" style="background:#fff4e0;"></div> Custo médio (8 a 12 sc)</div>
+        <div class="legend-item"><div class="legend-box" style="background:#f9f9f9;border:1px solid #ccc;"></div> Custo baixo (&lt; 8 sc)</div>
+      </div>
+    </div>
+
+    <!-- COMPARAÇÃO EM R$ - 3 SAFRAS -->
+    <div class="section">
+      <h2>💰 Comparação de Custos em R$ — 3 Safras (R$/ha)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;">Item</th>
+            <th>2023/2024</th>
+            <th>2024/2025</th>
+            <th>2025/2026</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="item-name">Semente</td><td>R$ 1.148,00</td><td>R$ 821,44</td><td>R$ 936,62</td></tr>
+          <tr><td class="item-name">TS</td><td>R$ 177,89</td><td>R$ 145,62</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Fertilizantes</td><td class="high-cost">R$ 1.616,47</td><td>R$ 1.123,87</td><td class="high-cost">R$ 1.804,64</td></tr>
+          <tr><td class="item-name">Corretivos</td><td>R$ 1.139,15</td><td class="zero-cost">-</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Herbicidas</td><td>R$ 114,91</td><td>R$ 321,11</td><td>R$ 432,79</td></tr>
+          <tr><td class="item-name">Inseticidas</td><td>R$ 163,53</td><td>R$ 170,51</td><td>R$ 130,21</td></tr>
+          <tr><td class="item-name">Fungicida</td><td>R$ 949,11</td><td>R$ 322,35</td><td>R$ 380,68</td></tr>
+          <tr><td class="item-name">Foliares</td><td>R$ 187,83</td><td>R$ 182,96</td><td>R$ 136,25</td></tr>
+          <tr><td class="item-name">Adjuvantes</td><td>R$ 50,83</td><td>R$ 72,19</td><td>R$ 49,13</td></tr>
+          <tr><td class="item-name">Biológicos</td><td class="zero-cost">-</td><td class="zero-cost">-</td><td>R$ 15,26</td></tr>
+          <tr><td class="item-name">Diesel/Gás</td><td>R$ 826,47</td><td>R$ 410,72</td><td>R$ 239,91</td></tr>
+          <tr><td class="item-name">Maq/Imp</td><td>R$ 461,85</td><td>R$ 520,24</td><td>R$ 198,06</td></tr>
+          <tr><td class="item-name">Aluguel de Maq.</td><td>R$ 1.091,64</td><td>R$ 44,81</td><td class="zero-cost">-</td></tr>
+          <tr><td class="item-name">Serv. Agrícolas</td><td class="high-cost">R$ 2.268,36</td><td>R$ 663,37</td><td>R$ 329,11</td></tr>
+          <tr><td class="item-name">Custo Financeiro</td><td>R$ 95,02</td><td class="high-cost">R$ 2.299,82</td><td>R$ 329,40</td></tr>
+          <tr><td class="item-name">ADM</td><td>R$ 752,44</td><td>R$ 527,71</td><td class="high-cost">R$ 1.532,00</td></tr>
+          <tr><td class="item-name">Depreciação</td><td>R$ 266,28</td><td>R$ 266,34</td><td>R$ 266,23</td></tr>
+          <tr><td class="item-name">Arrendo</td><td>R$ 957,95</td><td>R$ 958,34</td><td>R$ 913,54</td></tr>
+          <tr class="total-row">
+            <td style="text-align:left;">CT — Custo Total</td>
+            <td>R$ 12.267,73</td>
+            <td>R$ 8.851,38</td>
+            <td>R$ 7.364,72</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="ct-rs-cards">
+        <div class="ct-card c-2324">
+          <h4>Safra 23/24</h4>
+          <div class="ct-value">R$ 12.267,73</div>
+        </div>
+        <div class="ct-card c-2425">
+          <h4>Safra 24/25</h4>
+          <div class="ct-value">R$ 8.851,38</div>
+        </div>
+        <div class="ct-card c-2526">
+          <h4>Safra 25/26</h4>
+          <div class="ct-value">R$ 7.364,72</div>
+        </div>
+      </div>
+
+      <p style="margin-top:15px;font-size:13px;color:#666;">
+        <em>* Valores convertidos com base nos PMVs: 23/24 = R$ 110,49 | 24/25 = R$ 124,46 | 25/26 = R$ 126,58.</em>
+      </p>
+    </div>
+
+    <!-- GRÁFICO DE PIZZA - SAFRA 25/26 -->
+    <div class="section">
+      <h2>🥧 Composição dos Custos — Safra 25/26</h2>
+      <p style="margin-bottom:15px;color:#555;">Participação percentual de cada item no custo total:</p>
+
+      <div class="pie-container">
+        <div class="pie-chart"></div>
+        <div class="pie-legend">
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#c0392b;"></div>
+            <span>Fertilizantes</span><span class="pie-percent">24,51%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#e67e22;"></div>
+            <span>ADM</span><span class="pie-percent">20,80%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#f39c12;"></div>
+            <span>Semente</span><span class="pie-percent">12,72%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#27ae60;"></div>
+            <span>Arrendo</span><span class="pie-percent">12,40%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#2980b9;"></div>
+            <span>Herbicidas</span><span class="pie-percent">5,88%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#8e44ad;"></div>
+            <span>Fungicida</span><span class="pie-percent">5,17%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#16a085;"></div>
+            <span>Custo Financeiro</span><span class="pie-percent">4,47%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#d35400;"></div>
+            <span>Serv. Agrícolas</span><span class="pie-percent">4,47%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#34495e;"></div>
+            <span>Depreciação</span><span class="pie-percent">3,62%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#7f8c8d;"></div>
+            <span>Diesel/Gás</span><span class="pie-percent">3,26%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#95a5a6;"></div>
+            <span>Maq/Imp</span><span class="pie-percent">2,69%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#bdc3c7;"></div>
+            <span>Foliares</span><span class="pie-percent">1,85%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#2c3e50;"></div>
+            <span>Inseticidas</span><span class="pie-percent">1,77%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#ecf0f1;border:1px solid #ccc;"></div>
+            <span>Adjuvantes</span><span class="pie-percent">0,67%</span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-color" style="background:#1abc9c;"></div>
+            <span>Biológicos</span><span class="pie-percent">0,21%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight" style="margin-top:25px;">
+        🎯 <strong>Top 4 itens</strong> respondem por <strong>70,43%</strong> de todo o custo da safra 25/26:<br>
+        Fertilizantes (24,51%) + ADM (20,80%) + Semente (12,72%) + Arrendo (12,40%).
+      </div>
+    </div>
+
+    <!-- MAIORES CUSTOS POR SAFRA -->
+    <div class="section">
+      <h2>🔍 Maiores Custos por Safra</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Safra</th>
+            <th>1º Maior</th>
+            <th>2º Maior</th>
+            <th>3º Maior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>23/24</strong></td>
+            <td>Serv. Agrícolas (20,53 sc)</td>
+            <td>Fertilizantes (14,63 sc)</td>
+            <td>Semente (10,39 sc)</td>
+          </tr>
+          <tr>
+            <td><strong>24/25</strong></td>
+            <td>Custo Financeiro (18,48 sc)</td>
+            <td>Fertilizantes (9,03 sc)</td>
+            <td>Arrendo (7,70 sc)</td>
+          </tr>
+          <tr>
+            <td><strong>25/26</strong></td>
+            <td>Fertilizantes (14,26 sc)</td>
+            <td>ADM (12,10 sc)</td>
+            <td>Semente (7,40 sc)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="section">
+      <h2>💡 Principais Insights</h2>
+      <div class="insights">
+        <ul>
+          <li><strong>Redução total de custos:</strong> de R$ 12.267,73/ha (23/24) para R$ 7.364,72/ha (25/26) — economia de <strong>R$ 4.903,01/ha</strong> (–39,9%).</li>
+          <li><strong>P.E. em forte queda:</strong> de 107,07 sc/ha para 66,56 sc/ha — redução de <strong>37,8%</strong> na produtividade mínima necessária.</li>
+          <li><strong>Custo Financeiro controlado:</strong> caiu de R$ 2.299,82 (24/25) para apenas R$ 329,40 (25/26) — sinal de excelente gestão de capital de giro.</li>
+          <li><strong>ADM em alta:</strong> saltou de R$ 527,71 (24/25) para R$ 1.532,00 (25/26) — quase 3x mais — exigindo atenção imediata.</li>
+          <li><strong>Fertilizantes dominam:</strong> 24,51% do custo total da safra 25/26 — principal alavanca para negociação.</li>
+          <li><strong>Concentração:</strong> apenas 4 itens (Fertilizantes, ADM, Semente, Arrendo) representam <strong>70%</strong> do custo total.</li>
+        </ul>
+      </div>
+      <div class="highlight">
+        ⚡ <strong>Conclusão:</strong> Em 3 safras, a operação reduziu o custo total em <strong>R$ 4.903/ha</strong> e o ponto de equilíbrio em <strong>40 sc/ha</strong> — uma transformação estrutural impressionante. O foco para 2026/2027 deve ser: <strong>(1)</strong> revisar e otimizar a despesa administrativa (ADM), <strong>(2)</strong> manter a disciplina do custo financeiro e <strong>(3)</strong> negociar fertilizantes de forma estratégica.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>📅 Relatório gerado em maio/2026</p>
+    <p>Dúvidas? Estamos à disposição.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
